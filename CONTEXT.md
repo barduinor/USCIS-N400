@@ -4,6 +4,17 @@ A single-user study tool for the civics portion of the U.S. naturalization
 interview. It drills the applicant on the official 2025 civics test questions
 and simulates the test itself.
 
+## Sources
+
+| File | Governs |
+|---|---|
+| `2025-Civics-Test-128-Questions-and-Answers-M-1778.pdf` | the 128 Civics Test Questions and their Accepted Answers |
+| `USCIS-2025-Civics-Test-Study-Guide-M-1175.pdf` | Explanations, in chapter prose |
+| `Test_Scoring_Guidelines.pdf` | how the Civics Test is administered, stopped and scored |
+| `the-citizens-almanac-M-76.pdf` | rights, responsibilities, anthems, founding documents |
+| `declarations-of-independence-and-constitution-M-654.pdf` | founding document text |
+| `superseded-2008-learn-about-the-usa-M-638.pdf` | nothing. Superseded 2008 instrument, reference only |
+
 ## Language
 
 **Applicant**:
@@ -47,7 +58,7 @@ A sub-division within a Section. The 2025 test has eight.
 _Avoid_: Sub-section, chapter
 
 **Exam**:
-A scoring simulation of the Civics Test: questions drawn without weighting, ending as soon as the outcome is decided. Keeps its own record of outcome, score, and questions asked.
+A scoring simulation of the Civics Test. Twenty questions are drawn at random from the 128, and the Exam ends the moment the Applicant has answered 12 correctly or 9 incorrectly, exactly as the officer stops the real test. Keeps its own record of outcome, score, and questions asked.
 _Avoid_: Exam Run, Mock exam, Test
 
 **Cleared**:
@@ -103,6 +114,18 @@ Topic names are USCIS's own. The last American History topic is long enough that
 a display label may be needed in the UI; that is a presentation concern, not a
 second name.
 
+## Screens
+
+| Screen | Purpose |
+|---|---|
+| Onboarding | First run only. Establishes the Profile, and with it the Study Set. |
+| Main menu | Entry point. Shows Coverage. |
+| Study | The endless question loop. No statistics. |
+| Exam | One Exam, ending when the outcome is decided. No statistics. |
+| Exam result | That Exam's outcome and score. |
+| Stats | Global Coverage at the top, then the 3 Sections; opening a Section shows its Topics. Every figure carries a percentage and a count. Exam history below. |
+| Profile | The same fields as onboarding, editable later. |
+
 ## Relationships
 
 - A **Section** contains one or more **Topics**
@@ -125,6 +148,9 @@ second name.
 - **Cleared questions are never excluded.** They reappear whenever their weight wins, which is how the Applicant keeps seeing questions they got right.
 - The one absolute exclusion: the same question is never asked twice in a row.
 - After an answer the tool says only whether it was right. The Accepted Answers and the Explanation appear only when the Applicant asks — even when the answer was right.
+- No statistics appear during a study or exam session. Coverage and exam history live in their own area, reached from the main menu.
+- During an Exam the screen shows only the question — no counter and no verdict. The Exam stops the moment the outcome is fixed, so either would reveal the result before the result screen.
+- The Exam is a practice simulation only. The real second examination — a retest 60 to 90 days after a failure, covering only the failed portions — is deliberately not modelled.
 
 ## Example dialogue
 

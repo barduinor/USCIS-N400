@@ -34,3 +34,8 @@ happened, and it silently corrupts Coverage.
 - 48 of 128 questions have exactly one Accepted Answer, so a valid but unlisted
   phrasing will be marked wrong. The **Override** exists for exactly this, which
   is why it must count as correct rather than merely record a synonym.
+- The Scoring Guidelines state that an Applicant passes by providing "a correct
+  answer **or an alternative phrasing of the correct answer**". The real test
+  therefore accepts phrasings that no answer key can enumerate. Exact matching
+  is a deliberate simplification, not a claim of equivalence — and this is the
+  policy basis for the Override.
