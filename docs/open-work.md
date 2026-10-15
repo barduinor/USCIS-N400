@@ -1,7 +1,17 @@
 # Open Work
 
-Decided but not yet built. Each item already has a decision behind it — none of
-these is waiting on a choice, they are waiting on work.
+## Open decisions
+
+Not yet decided. These need a conversation, not effort.
+
+- **Study screen detail.** How the reveal opens, and where the Override control sits.
+- **Onboarding.** The exact field list, and the order they are asked in.
+- **Structure.** Crate and module layout. This is the first coding step.
+
+## Decided, not built
+
+Each item below already has a decision behind it — none is waiting on a choice,
+they are waiting on work.
 
 ## Content
 
