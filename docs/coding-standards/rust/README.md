@@ -1,28 +1,27 @@
 # Rust Coding Standards
 
-This is the entry point for Rust-specific Practice Log coding standards.
+This is the entry point for Rust-specific coding standards.
 
 Use the global standards in `docs/coding-standards/README.md` first. In
-particular, the global test integrity and `CONTEXT.md` naming rules still apply
-to all Rust work. The files in `rust-best-practices/` add Rust-specific detail;
-they do not replace the global rules.
+particular, the global test integrity and naming rules still apply to all Rust
+work. The files in `rust-best-practices/` add Rust-specific detail; they do not
+replace the global rules.
 
-## Project Interpretation
+## Interpretation
 
-- Use Practice Log domain language from `CONTEXT.md` in Rust names, tests,
-  errors, API payloads, and comments. Prefer names such as `PracticeTask`,
-  `CurrentPracticeSession`, `ActivePracticeTask`, and `DeferredPracticeTask`
-  over generic todo/session/status language.
+- Use the established domain vocabulary of the project in Rust names, tests,
+  errors, API payloads, and comments. Prefer names built from domain terms over
+  generic utility, storage, or status language.
 - Keep Rust code focused on the boundary being changed. UI, backend,
   repository, migration, and test-support code should each carry their own
   intent instead of sharing vague utility names.
 - Treat imported Rust10x examples as patterns to adapt, not vocabulary to copy.
-  If an example mentions another domain, translate the structure into Practice
-  Log terms.
+  If an example mentions another domain, translate the structure into this
+  project's domain terms.
 - Treat the Rust10x AI Pack as imported guidance for agents. The project-owned
-  standards in this README decide how that guidance applies to Practice Log.
-- Do not add Dioxus-specific rules here unless a later standards issue curates
-  framework guidance separately.
+  standards in this README decide how that guidance applies to a given project.
+- Do not add UI framework rules here. Framework guidance gets its own entry
+  point when a UI target is chosen.
 
 ## Core Rust Rules
 
@@ -114,16 +113,5 @@ Use this map to choose the relevant detail file:
 - Pre-commit quality gates (fmt, clippy, test) and hook documentation:
   `rust-best-practices/quality-gates.md`
 
-## Current Practice Log Fit
-
-For the current Practice Log codebase, the most commonly relevant detail files
-are:
-
-- `general-best-practice.md` for everyday Rust edits.
-- `error-best-practices.md` for backend, repository, and client error paths.
-- `test-best-practices.md` for backend/repository behavior tests.
-- `cargo-best-practices.md` when changing `Cargo.toml`.
-- `quality-gates.md` before any commit to verify fmt, clippy, and test gates.
-
-Use CLI, example, derive-alias, JOQL, and Web API guidance only when work
+Apply CLI, example, derive-alias, JOQL, and Web API guidance only when work
 actually touches those areas or an issue explicitly asks for that shape.
