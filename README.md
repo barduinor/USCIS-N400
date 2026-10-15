@@ -23,4 +23,5 @@ behaviour, Exam behaviour, the dynamic questions, the platform, and the screens.
 
 Still open: the study screen's reveal and Override presentation, the onboarding
 field list, and the crate and module layout — that last one is the first coding
-step.
+step. Each is expanded, with what is already settled, in
+`docs/open-work.md` §Open decisions.
