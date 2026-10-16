@@ -73,14 +73,6 @@ they are waiting on work.
   are strings, so adopting it later stays cheap. Still to come with the offline
   ticket: `public/manifest.json`, the hand-written `sw.js` (cache-first shell
   precache under a versioned cache name), and icons.
-- **Deploy.** GitHub Actions on push to `main`: the three gates, then pinned
-  `dx` and `wasm32-unknown-unknown`, `dx build --release`, the Pages artifact,
-  `actions/deploy-pages`. Pages source is "GitHub Actions"; the site lives
-  under `/USCIS-N400/`, so the base path must match; it also feeds the
-  manifest scope and the service worker registration. `rust-toolchain.toml`
-  pins the toolchain. The pinned `dx` should match the crate's `dioxus` 0.7.x
-  patch: `dx serve` warns when the two differ (an installing machine had
-  `dx 0.7.7` against `dioxus 0.7.10`).
 
 ### Platform
 
