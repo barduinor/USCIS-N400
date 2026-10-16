@@ -1,7 +1,7 @@
 # USCIS-N400
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
-![Status: scaffold in place](https://img.shields.io/badge/status-scaffold%20in%20place-blue)
+![Status: v1 in development](https://img.shields.io/badge/status-v1%20in%20development-blue)
 
 A single-user, phone-first study tool for the civics portion of the U.S.
 naturalization interview. It drills the 2025 civics test questions and simulates
@@ -115,8 +115,8 @@ domain vocabulary and every behavioral rule live in `GLOSSARY.md`.
 └── .agents/ .claude/   # agent skills, pinned in-repo so machines stay identical
 ```
 
-The three crates, the gate scripts, and the committed question records are in
-place; the screens land with their tickets.
+The workspace, the gate scripts, the committed records, and every screen are in
+place; the offline PWA is the last v1 item.
 
 ## Documentation
 
@@ -161,16 +161,17 @@ export of a versioned JSON bundle — the Profile, the Answer Log, and the Exam
 records — and the import, which refuses a bundle from a newer version and
 otherwise replaces what is on the device after a confirmation, never merging.
 The language, rules, and decisions are settled in `GLOSSARY.md` and
-`docs/adr/`; `docs/open-work.md` lists what is decided but unbuilt; nothing is
-open.
+`docs/adr/`; `docs/open-work.md` lists what is decided but unbuilt. The app is
+deployed to <https://barduinor.github.io/USCIS-N400/> on green `main`.
 
 The v1 build is issue #1 on the
-[tracker](https://github.com/barduinor/USCIS-N400/issues), sliced into tickets #2
-through #15, each labelled `ready-for-agent`. In order: workspace and gates, the
-question records, the domain model, the app shell, storage and onboarding, the
-study loop, selection, progress, the reveal and Override, the Exam, Stats,
-profile with export and import, the offline PWA, and CI deploy. The work still
-ahead is expanded in `docs/open-work.md` §Decided, not built.
+[tracker](https://github.com/barduinor/USCIS-N400/issues): tickets #2 through #13
+landed the workspace and gates, the question records, the domain model, the app
+shell, storage and onboarding, the study loop, selection, progress, the reveal
+and Override, the Exam, Stats, and the Profile with export and import, and #15
+landed the CI deploy. The offline PWA (#14) is the last v1 item. What the app
+gets wrong or missing while it is used is tracked from #17 onward, and
+`docs/open-work.md` §Decided, not built holds the rest.
 
 ## Getting started
 
@@ -185,8 +186,8 @@ Everything a fresh machine needs, in order:
 3. **Rust toolchain.** Install `rustup`. `rust-toolchain.toml` pins the
    toolchain and names the components and the wasm target it needs; rustup
    fetches them on the first `cargo` command in the clone.
-4. **Dioxus CLI**, to serve and build the app (from the app-shell ticket
-   onward): `cargo install dioxus-cli --locked`, or a prebuilt binary.
+4. **Dioxus CLI**, to serve and build the app: `cargo install dioxus-cli
+   --locked`, or a prebuilt binary.
 5. **Hooks.** Run `scripts/install-hooks` once per clone: it points git at the
    pre-commit hook, so every commit runs the four quality gates locally.
 6. **Optional: Node**, used only to update the pinned skills. Re-running the
