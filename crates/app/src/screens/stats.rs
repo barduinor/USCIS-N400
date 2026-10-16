@@ -2,6 +2,7 @@ use dioxus::prelude::*;
 
 use domain::{Coverage, Section};
 
+use crate::components::CoverageFigure;
 use crate::questions;
 use crate::routes::Route;
 use crate::storage;
@@ -35,7 +36,7 @@ pub fn Stats() -> Element {
         (Some(Ok(Some(profile))), Some(Ok(log))) => rsx! {
             section { class: "coverage",
                 h2 { "Coverage" }
-                p { class: "coverage-figure", "{Coverage::from_log(records, profile, log)}" }
+                CoverageFigure { coverage: Coverage::from_log(records, profile, log) }
             }
 
             ul { class: "sections",

@@ -380,3 +380,11 @@ form {
 .menu-item:active {
   background: var(--surface);
 }
+
+/* The line under a Coverage figure: what the figure counts. */
+
+.coverage-rule {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}

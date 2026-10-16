@@ -2,6 +2,7 @@ use dioxus::prelude::*;
 
 use domain::Coverage;
 
+use crate::components::CoverageFigure;
 use crate::questions;
 use crate::routes::Route;
 use crate::storage;
@@ -32,7 +33,7 @@ pub fn MainMenu() -> Element {
             let coverage = Coverage::from_log(records, profile, log);
 
             rsx! {
-                p { class: "coverage-figure", "{coverage}" }
+                CoverageFigure { coverage }
             }
         }
         (Some(Ok(None)), _) => rsx! {
