@@ -34,7 +34,7 @@ One official answer to a Civics Test Question, as published by USCIS. Parentheti
 _Avoid_: Correct answer, key
 
 **Override**:
-The Applicant's correction of a question the tool marked wrong. Counts as correct, and adds the typed phrasing to that question's Accepted Answers.
+The Applicant's correction of an answer the tool marked wrong. Counts as correct for that attempt; it never changes the question's Accepted Answers.
 _Avoid_: Dispute, appeal
 
 **Explanation**:
@@ -74,7 +74,7 @@ The append-only record of every answer the Applicant has given in study mode.
 _Avoid_: History, results
 
 **Profile**:
-The Applicant's own facts: state, district, current officeholders, and whether the 65/20 Special Consideration applies.
+The Applicant's own facts: state, district, the two U.S. senators, the U.S. representative, the governor, the state capital, the four Test Updates, and whether the 65/20 Special Consideration applies.
 
 **65/20 Special Consideration**:
 Reduced scope for an Applicant aged 65 or older who has been a lawful permanent resident for 20 or more years: study only the 20 starred questions (the ones M-1778 marks with an asterisk), asked 10, 6 passes.
@@ -127,7 +127,7 @@ second name.
 - A **Section** contains one or more **Topics**
 - A **Topic** contains one or more **Civics Test Questions**
 - A **Civics Test Question** has one or more **Accepted Answers**
-- An **Override** adds an **Accepted Answer** for that question and never counts as a wrong answer
+- An **Override** counts its answer as correct for that attempt and never changes the question's Accepted Answers
 - A **Test Update** and a **Local Fact** take their value from the **Profile** or from USCIS, never from the published question list
 - **Coverage** derives from the **Answer Log**, which records study answers only
 - An **Exam** never appends to the **Answer Log**; it records its own outcome, score, and questions asked
@@ -143,7 +143,8 @@ second name.
 - A question asked recently is penalised, not blocked, so a wrong answer returns only after a gap of roughly 8–10 other questions. The penalty is tunable and never reaches zero, so a candidate always exists.
 - **Cleared questions are never excluded.** They reappear whenever their weight wins, which is how the Applicant keeps seeing questions they got right.
 - The one absolute exclusion: the same question is never asked twice in a row.
-- After an answer the tool says only whether it was right. The Accepted Answers and the Explanation appear only when the Applicant asks, even when the answer was right.
+- After an answer the tool says only whether it was right. The Accepted Answers and the Explanation appear only when the Applicant asks, even when the answer was right. The reveal expands inline under the verdict; after a wrong verdict it also carries the Override control.
+- When a Local Fact or Test Update value is missing from the Profile, its question stays in play and any answer is judged wrong; filling the value in the Profile fixes it.
 - No statistics appear during a study or exam session. Coverage and exam history live in their own area, reached from the main menu.
 - During an Exam the screen shows only the question: no counter and no verdict. The Exam stops the moment the outcome is fixed, so either would reveal the result before the result screen.
 - The Exam is a practice simulation only. The real second examination (a retest 60 to 90 days after a failure, covering only the failed portions) is deliberately not modelled.

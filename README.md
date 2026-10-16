@@ -24,9 +24,8 @@ Settled and written down: answer matching and Override, Coverage, study
 behaviour, Exam behaviour, the dynamic questions, the platform, the screens,
 and the repo layout (three crates, ADR 0006).
 
-Still open: the study screen's reveal and Override presentation, and the
-onboarding field list. Each is expanded, with what is already settled, in
-`docs/open-work.md` §Open decisions.
+Nothing is open. The v1 build is specified in issue #1 and sliced into tickets
+#2 through #15 on the GitHub tracker.
 
 The first coding step is the scaffold: a compiling skeleton carrying one
 working vertical slice, expanded in `docs/open-work.md` §Decided, not built.

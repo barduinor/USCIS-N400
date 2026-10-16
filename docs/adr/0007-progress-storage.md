@@ -1,4 +1,4 @@
-# Progress storage: three collections plus meta, Override derived from the log
+# Progress storage: three collections plus meta, Override on the log
 
 All progress (Profile, the Answer Log, Exam records) lives in one IndexedDB
 database on the device, in three collections plus a `meta` record:
@@ -11,9 +11,9 @@ database on the device, in three collections plus a `meta` record:
     meta         key name:                       database version, last export
 
 The Answer Log is append-only and the single source of truth for study
-history: an Override stores its phrasing on the corrected entry, and the
-question's extended Accepted Answers, Cleared, and Coverage are derived from
-the log at read time; nothing duplicates them.
+history: an Override marks the corrected entry as counting correct, and
+Cleared and Coverage are derived from the log at read time, so nothing is
+duplicated.
 
 Exam records carry the track (`Standard` or `65/20`) they ran under, so a
 later Profile change never makes an old Exam unreadable.

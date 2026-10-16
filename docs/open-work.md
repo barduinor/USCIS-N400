@@ -1,28 +1,5 @@
 # Open Work
 
-## Open decisions
-
-Not yet decided. Each needs a conversation, not effort. What is **already
-settled** is referenced, so the thread can be picked up without the original
-discussion.
-
-### Study screen detail
-
-- Settled: the verdict appears immediately; Accepted Answers and Explanation sit
-  behind a tap; Override appears only on a wrong verdict; Next is manual; no
-  counter and no statistics in-session: `GLOSSARY.md` §Rules, §Screens.
-- Open: whether the reveal opens inline or as an overlay, and where the
-  Override control sits.
-
-### Onboarding
-
-- Settled: it runs before the first question, because it fixes the 65/20 flag and
-  therefore Coverage's denominator; it collects state, district, the three
-  local names, the four Test Updates, and whether the 65/20 Special
-  Consideration applies: `GLOSSARY.md` §Rules, §Language.
-- Open: the exact field list, the order they are asked in, and what happens when
-  a field is left blank.
-
 ## Decided, not built
 
 Each item below already has a decision behind it; none is waiting on a choice,
@@ -72,10 +49,9 @@ they are waiting on work.
 ### Storage
 
 - **Storage layer and export/import.** One IndexedDB database; the record
-  shapes, the derived-Override rule, and the replace-on-import contract are in
-  ADR 0007. Export/import is required in v1 (ADR 0003). Exact Profile fields
-  wait on the onboarding decision; the Profile is stored as one record, so
-  that decision does not change the shape.
+  shapes, the Override rule, and the replace-on-import contract are in
+  ADR 0007. Export/import is required in v1 (ADR 0003). The Profile is stored
+  as one record.
 
 ### Question records
 
@@ -103,9 +79,10 @@ they are waiting on work.
 
 ### Profile
 
-- **Onboarding.** Collects state, district, the three local names, the four Test
-  Updates, and whether the 65/20 Special Consideration applies. Must run before
-  the first question, because it fixes the 65/20 flag and therefore Coverage's
+- **Onboarding.** Collects state (required), district, the two U.S. senators,
+  the representative, the governor, the state capital, the four Test Updates,
+  and whether the 65/20 Special Consideration applies. Must run before the
+  first question, because it fixes the 65/20 flag and therefore Coverage's
   denominator.
 
 ### Data
@@ -114,6 +91,12 @@ they are waiting on work.
   national officeholders, and one fetch serves every user.
 - **Local Fact sources.** State senators, representative and governor need a
   per-state source. Harder than the national four; deliberately deferred.
+- **Automatic retrieval (investigate).** Whether the four Test Updates and the
+  per-state Local Facts can be fetched from the web automatically, so blanks
+  become rare: USCIS test-updates for the four; state legislature and
+  congressional sources for the senators, representative, and governor. Until
+  then, a missing value leaves its question in play and any answer is judged
+  wrong.
 
 ### Build and deploy
 
