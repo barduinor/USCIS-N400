@@ -1,0 +1,119 @@
+# The pipeline: the four quality gates, then the release build, then the
+# deploy. The gates are the same commands `.githooks/pre-commit` runs locally,
+# in the same order, and they are documented in
+# docs/coding-standards/rust/rust-best-practices/quality-gates.md. The build
+# and the deploy run only from `main`, so the published site always
+# corresponds to a commit that passed every gate.
+#
+# The site is served from the project subpath, so the release build passes
+# `--base-path` on its command line. The base path stays out of
+# crates/app/Dioxus.toml: local `dx serve` keeps serving from the root.
+
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+# A newer push to a branch supersedes the run in flight for that branch. A
+# push to `main` never cancels: the deploy in flight finishes, and the queued
+# runs follow it in order.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  CARGO_TERM_COLOR: always
+  # The `dioxus` patch in Cargo.lock. The CLI owns the shell it generates, so
+  # it is pinned with the crate it builds.
+  DX_VERSION: 0.7.10
+  # The x86_64-unknown-linux-gnu archive of that release, checked below.
+  DX_SHA256: 4363e4ed2a3f1eb7f4d38d2d59aed59ce43271c44c16b425e92c89a64761fbe7
+
+jobs:
+  gates:
+    name: Gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7
+
+      - name: Install the pinned toolchain
+        # rustup reads rust-toolchain.toml: the channel, the clippy and rustfmt
+        # components, and the wasm32 target all come from the pin itself.
+        run: rustup show
+
+      - name: Cache cargo artifacts
+        uses: Swatinem/rust-cache@v2
+
+      - name: Format (cargo fmt --check)
+        run: cargo fmt --check
+
+      - name: Lint (cargo clippy --no-deps --all-targets -- -D warnings)
+        run: cargo clippy --no-deps --all-targets -- -D warnings
+
+      - name: Tests (cargo test)
+        run: cargo test
+
+      - name: Ship target (cargo check -p uscis-n400 --target wasm32-unknown-unknown)
+        run: cargo check -p uscis-n400 --target wasm32-unknown-unknown
+
+  build:
+    name: Build
+    needs: gates
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7
+
+      - name: Install the pinned toolchain
+        run: rustup show
+
+      - name: Cache cargo artifacts
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install dx
+        run: |
+          curl -sSfL -o dx.tar.gz \
+            "https://github.com/DioxusLabs/dioxus/releases/download/v${DX_VERSION}/dx-x86_64-unknown-linux-gnu.tar.gz"
+          echo "${DX_SHA256}  dx.tar.gz" | sha256sum -c -
+          tar -xzf dx.tar.gz -C "$HOME/.cargo/bin"
+          rm dx.tar.gz
+          dx --version
+
+      - name: Build the release wasm app
+        working-directory: crates/app
+        run: dx build --release --base-path /USCIS-N400/
+
+      - name: Upload the Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: target/dx/uscis-n400/release/web/public
+
+  deploy:
+    name: Deploy
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    # One deployment at a time, and a deployment in flight is never cancelled.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v5
