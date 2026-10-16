@@ -2,12 +2,16 @@ use dioxus::prelude::*;
 
 use domain::{Verdict, answers, matching, selection};
 
-use crate::components::Field;
+use crate::components::{Field, Reveal};
 use crate::questions;
 use crate::storage;
 
 /// The endless study loop: one Civics Test Question at a time, judged as it is
 /// answered, with the next one only when the Applicant asks for it.
+///
+/// After a verdict the Applicant can ask for the reveal: the Accepted Answers,
+/// and after a wrong verdict the Override inside the revealed panel, which
+/// counts that attempt as correct and never touches the Accepted Answers.
 ///
 /// No statistics appear here: Coverage lives on the main menu, and the
 /// Applicant stops when they choose (GLOSSARY).
@@ -31,6 +35,7 @@ pub fn Study() -> Element {
     let mut asked = use_signal(|| Option::<u16>::None);
     let mut typed = use_signal(String::new);
     let mut verdict = use_signal(|| Option::<Verdict>::None);
+    let mut overridden = use_signal(|| Option::<u16>::None);
     let mut saving = use_signal(|| false);
     let mut problem = use_signal(|| Option::<String>::None);
 
@@ -51,11 +56,17 @@ pub fn Study() -> Element {
     let body = match shown {
         Some(question) => match verdict() {
             Some(judged) => {
+                let number = question.number;
                 let class = if judged == Verdict::Correct {
                     "verdict correct"
                 } else {
                     "verdict wrong"
                 };
+                let accepted = match &*profile.read() {
+                    Some(Ok(Some(profile))) => answers::accepted_answers(question, profile),
+                    _ => Vec::new(),
+                };
+                let counts_correct = overridden() == Some(number);
 
                 rsx! {
                     p { class: "question", "{question.question}" }
@@ -63,15 +74,30 @@ pub fn Study() -> Element {
                     if let Some(problem) = problem() {
                         p { class: "problem", "{problem}" }
                     }
-                    button {
-                        class: "primary",
-                        onclick: move |_| {
-                            current.set(None);
-                            typed.set(String::new());
-                            verdict.set(None);
-                            problem.set(None);
-                        },
-                        "Next question"
+                    div { class: "actions",
+                        Reveal {
+                            answers: accepted,
+                            explanation: question.explanation.clone(),
+                            wrong: judged == Verdict::Wrong,
+                            overridden: counts_correct,
+                            on_overridden: move |_| {
+                                // The log the draw reads now holds the entry as it
+                                // was before the Override.
+                                log.restart();
+                                overridden.set(Some(number));
+                            },
+                        }
+                        button {
+                            class: "primary",
+                            onclick: move |_| {
+                                current.set(None);
+                                typed.set(String::new());
+                                verdict.set(None);
+                                overridden.set(None);
+                                problem.set(None);
+                            },
+                            "Next question"
+                        }
                     }
                 }
             }

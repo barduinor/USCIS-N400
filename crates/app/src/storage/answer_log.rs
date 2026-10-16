@@ -3,12 +3,14 @@
 //! The store is keyed by its own sequence, so the log keeps the order the
 //! answers were given in (ADR 0007). A record is JSON text — the same shape the
 //! export bundle will carry — which keeps the conversions pure and testable on
-//! the host; only `append` and `entries` reach the browser.
+//! the host; only `append`, `override_last`, and `entries` reach the browser.
 
 use domain::{AnswerLogEntry, Verdict};
+use rexie::TransactionMode;
+use wasm_bindgen::JsValue;
 
-use super::{ANSWER_LOG_STORE, read_all, write_next};
-use crate::Result;
+use super::{ANSWER_LOG_STORE, database, read_all, write_next};
+use crate::{Error, Result};
 
 /// Appends one answer to the Answer Log, and hands back what was stored.
 pub async fn append(question: u16, answer: &str, verdict: Verdict) -> Result<AnswerLogEntry> {
@@ -23,6 +25,36 @@ pub async fn append(question: u16, answer: &str, verdict: Verdict) -> Result<Ans
     write_next(ANSWER_LOG_STORE, &to_record(&entry)?).await?;
 
     Ok(entry)
+}
+
+/// Marks the last answer in the log as the Applicant's Override.
+///
+/// That entry then counts as correct for its attempt, and Cleared and Coverage
+/// follow it. The question's Accepted Answers are untouched: the same phrasing
+/// is judged wrong again on a later attempt.
+pub async fn override_last() -> Result<()> {
+    let database = database().await?;
+    let transaction = database.transaction(&[ANSWER_LOG_STORE], TransactionMode::ReadWrite)?;
+    let store = transaction.store(ANSWER_LOG_STORE)?;
+    let keys = store.get_all_keys(None, None).await?;
+    let Some(key) = keys.last().cloned() else {
+        return Err(Error::custom("the Answer Log holds no answer to override"));
+    };
+    let Some(value) = store.get(key.clone()).await? else {
+        return Err(Error::custom("the last answer could not be read back"));
+    };
+    let record = value
+        .as_string()
+        .ok_or_else(|| Error::custom("the stored answer is not text"))?;
+    let mut entry = from_record(&record)?;
+    entry.overridden = true;
+
+    store
+        .put(&JsValue::from_str(&to_record(&entry)?), Some(&key))
+        .await?;
+    transaction.commit().await?;
+
+    Ok(())
 }
 
 /// Every answer in the log, oldest first.

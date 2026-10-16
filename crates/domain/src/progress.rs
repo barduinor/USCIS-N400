@@ -255,6 +255,26 @@ mod tests {
     }
 
     #[test]
+    fn test_progress_cleared_counts_an_override_only_for_its_own_attempt() {
+        // -- Setup & Fixtures
+        // The same phrasing, wrong twice: the first attempt overridden, the
+        // second left as the matcher judged it.
+        let log = vec![
+            answered(1, Verdict::Correct, false),
+            answered(1, Verdict::Wrong, true),
+            answered(1, Verdict::Correct, false),
+            answered(1, Verdict::Correct, false),
+            answered(1, Verdict::Wrong, false),
+        ];
+
+        // -- Exec & Check
+        assert!(
+            !cleared(&log).contains(&1),
+            "the second wrong answer stands on its own and breaks the streak"
+        );
+    }
+
+    #[test]
     fn test_progress_cleared_counts_an_override_as_correct() {
         // -- Setup & Fixtures
         let mut log = vec![

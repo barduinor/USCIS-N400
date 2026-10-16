@@ -184,6 +184,43 @@ form {
   color: var(--wrong);
 }
 
+/* The reveal: the Accepted Answers under the verdict, and the Override inside
+   it when the verdict was wrong. Nothing is revealed before the verdict. */
+
+.reveal {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: var(--gap);
+  padding: var(--gap);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.reveal h2 {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--step-0);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.reveal ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.reveal p {
+  margin: 0;
+}
+
+.actions {
+  display: grid;
+  gap: var(--gap);
+  margin-top: var(--gap);
+}
+
 /* The main menu: one destination per row, comfortable under a thumb. */
 
 .menu {

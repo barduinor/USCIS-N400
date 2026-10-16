@@ -145,7 +145,10 @@ Answers, and the next question on request, chosen by the bias weights — asked
 least often, answered wrong, under-served Sections — with the recent-ask
 penalty. The main menu shows Coverage: the share of the applicant's accountable
 questions that three correct answers in a row have Cleared, derived from the
-Answer Log each time the screen opens. The language, rules, and decisions are
+Answer Log each time the screen opens. After a verdict the Applicant can ask for
+the reveal — the Accepted Answers, and the Explanation where one exists — and,
+after a wrong verdict, override it: the Override counts that attempt as correct
+and never changes the Accepted Answers. The language, rules, and decisions are
 settled in `GLOSSARY.md` and `docs/adr/`; `docs/open-work.md` lists what is
 decided but unbuilt; nothing is open.
 
