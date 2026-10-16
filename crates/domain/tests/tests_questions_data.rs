@@ -604,6 +604,45 @@ fn test_questions_data_accepts_the_compromise_questions_other_name() -> Result<(
 }
 
 #[test]
+fn test_questions_data_accepts_a_joining_of_the_statue_of_liberty_answers() -> Result<()> {
+    // -- Setup & Fixtures
+    let records = committed_records()?;
+    let filled = filled_profile();
+    let question = records
+        .question(120)
+        .expect("the Statue of Liberty question");
+    let accepted = answers::accepted_answers(question, &filled);
+
+    // Q120 takes one answer and lists five, so the Applicant may say two of
+    // them in one line (ADR 0004) — the line an officer would hear as one
+    // correct answer. The words that belong to no answer stay wrong.
+    let joins = [
+        "liberty island new york",
+        "new jersey liberty island",
+        "on the hudson river",
+    ];
+    let beside = ["not liberty island", "statue island", "the statue"];
+
+    // -- Exec & Check
+    for typed in joins {
+        assert_eq!(
+            matching::judge(question, &accepted, typed),
+            Verdict::Correct,
+            "Q120 must accept `{typed}`, a joining of its answers"
+        );
+    }
+    for typed in beside {
+        assert_eq!(
+            matching::judge(question, &accepted, typed),
+            Verdict::Wrong,
+            "Q120 must not accept `{typed}`, whose words are no form of its answers"
+        );
+    }
+
+    Ok(())
+}
+
+#[test]
 fn test_questions_data_holds_no_extraction_artifacts() -> Result<()> {
     // -- Setup & Fixtures
     let records = committed_records()?;
