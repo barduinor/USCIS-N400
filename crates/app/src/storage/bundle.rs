@@ -94,34 +94,32 @@ impl Bundle {
     }
 
     /// Hands the bundle to the device as a file: the Applicant's backup, and the
-    /// only copy of their progress that leaves this browser's storage.
+    /// only copy of their progress that leaves this browser's storage. A step
+    /// the browser refuses becomes [`Error::Download`], so the Applicant reads
+    /// the app's own sentence whatever the browser's words were.
     pub fn download(&self) -> Result<()> {
         let text = self.to_text()?;
         let name = format!("uscis-n400-progress-{}.json", date(self.exported_at));
 
         let parts = js_sys::Array::new();
         parts.push(&JsValue::from_str(&text));
-        let blob = web_sys::Blob::new_with_str_sequence(&parts)
-            .map_err(|error| Error::custom(format!("the bundle could not be built: {error:?}")))?;
-        let url = web_sys::Url::create_object_url_with_blob(&blob).map_err(|error| {
-            Error::custom(format!("the bundle could not be offered: {error:?}"))
-        })?;
+        let blob = web_sys::Blob::new_with_str_sequence(&parts)?;
+        let url = web_sys::Url::create_object_url_with_blob(&blob)?;
 
         let document = web_sys::window()
             .and_then(|window| window.document())
             .ok_or_else(|| Error::custom("this page has no document"))?;
+        // The cast hands the element back when it is not an anchor, so it is
+        // that element the browser refused with.
         let anchor = document
-            .create_element("a")
-            .map_err(|error| Error::custom(format!("the download could not be made: {error:?}")))?
+            .create_element("a")?
             .dyn_into::<web_sys::HtmlAnchorElement>()
-            .map_err(|_| Error::custom("the download could not be made"))?;
+            .map_err(|element| Error::Download(element.into()))?;
 
         anchor.set_href(&url);
         anchor.set_download(&name);
         anchor.click();
-        web_sys::Url::revoke_object_url(&url).map_err(|error| {
-            Error::custom(format!("the download could not be released: {error:?}"))
-        })?;
+        web_sys::Url::revoke_object_url(&url)?;
 
         Ok(())
     }
@@ -267,6 +265,27 @@ mod tests {
         );
 
         Ok(())
+    }
+
+    /// A step of the download the browser refuses: the Profile screen reads the
+    /// app's own sentence, never the browser's `JsValue(...)`, and the sentence
+    /// says the export can be tried again and what the file is worth.
+    #[test]
+    fn test_failed_export_reads_as_the_apps_own_sentence() {
+        // -- Setup & Fixtures
+        // Every failing `web_sys` call hands back a `JsValue`; the host can
+        // hold only its constants, and one stands in for the browser's refusal.
+        let refusal = JsValue::NULL;
+
+        // -- Exec
+        let error = Error::from(refusal);
+
+        // -- Check
+        assert_eq!(
+            error.to_string(),
+            "the export did not go through; try it again, and keep the file it produces: it is \
+             the only copy of your progress outside this device."
+        );
     }
 }
 

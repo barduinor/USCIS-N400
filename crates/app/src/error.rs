@@ -14,6 +14,11 @@ const UNREADABLE_RECORD: &str = "the storage on this device holds something the 
 const UNUSABLE_STORAGE: &str = "the storage on this device cannot be used, \
                                 and importing a bundle from the Profile screen is the way back.";
 
+/// What the Applicant reads when the export does not go through: the way to try
+/// it again, and what the file it produces is worth.
+const FAILED_EXPORT: &str = "the export did not go through; try it again, and keep the file it \
+                             produces: it is the only copy of your progress outside this device.";
+
 #[derive(Debug, Display, From)]
 #[display("{self:?}")]
 pub enum Error {
@@ -34,6 +39,14 @@ pub enum Error {
     #[display("{}", self::UNUSABLE_STORAGE)]
     #[from]
     Storage(rexie::Error),
+
+    /// The browser, when a step of the export fails: the bundle's file built,
+    /// offered, or handed to the device. The value is the browser's own word on
+    /// it, which `Debug` keeps for a terminal; the Applicant reads the sentence
+    /// above.
+    #[display("{}", self::FAILED_EXPORT)]
+    #[from]
+    Download(wasm_bindgen::JsValue),
 }
 
 // region:    --- Custom
