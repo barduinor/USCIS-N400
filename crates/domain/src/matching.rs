@@ -16,9 +16,11 @@
 //! key lists is judged wrong and left to the Override (ADR 0004).
 //!
 //! A single-answer question is correct when the typed answer equals an Accepted
-//! Answer. A multi-item question ("Name two", "Name three") is correct when the
-//! typed answer carries as many distinct Accepted Answers as the question
-//! demands; a bullet counts once, however many of its variants appear.
+//! Answer, or joins two or more of their forms with no other words: the typed
+//! words read as consecutive runs, each run a form of one Accepted Answer. A
+//! multi-item question ("Name two", "Name three") is correct when the typed
+//! answer carries as many distinct Accepted Answers as the question demands; a
+//! bullet counts once, however many of its variants appear.
 
 use core::fmt::{Display, Formatter};
 
@@ -43,7 +45,7 @@ pub fn judge(question: &Question, accepted: &[AcceptedAnswer], typed: &str) -> V
     }
 
     let carried = if question.answers_required <= 1 {
-        accepted.iter().any(|answer| forms(answer).contains(&typed))
+        accepted.iter().any(|answer| forms(answer).contains(&typed)) || joins(&typed, accepted)
     } else {
         accepted
             .iter()
@@ -65,6 +67,36 @@ pub fn judge(question: &Question, accepted: &[AcceptedAnswer], typed: &str) -> V
 /// the answer itself (`Senate and the House of Representatives`).
 fn carries(typed: &str, form: &str) -> bool {
     !form.is_empty() && format!(" {typed} ").contains(&format!(" {form} "))
+}
+
+/// Whether the typed answer joins the question's forms with no other words.
+///
+/// A single-answer question may hear more than one of its Accepted Answers in
+/// one line (`liberty island new york`). The typed words read as consecutive
+/// runs, each run a form of one Accepted Answer, and every word must sit inside
+/// a run: `not liberty island` is no joining, because `not` is no form's word.
+fn joins(typed: &str, accepted: &[AcceptedAnswer]) -> bool {
+    let words = typed.split(' ').collect::<Vec<_>>();
+    let forms = accepted.iter().flat_map(forms).collect::<Vec<String>>();
+
+    let mut joined = vec![false; words.len() + 1];
+    joined[0] = true;
+
+    for start in 0..words.len() {
+        if !joined[start] {
+            continue;
+        }
+
+        for form in &forms {
+            let end = start + form.split(' ').count();
+
+            if end <= words.len() && form.split(' ').eq(words[start..end].iter().copied()) {
+                joined[end] = true;
+            }
+        }
+    }
+
+    joined[words.len()]
 }
 
 /// The comparison forms of one Accepted Answer.
@@ -585,6 +617,86 @@ mod tests {
                 "`{words}` are a fragment of `{answer}`, not an answer"
             );
         }
+    }
+
+    #[test]
+    fn test_matching_joins_the_questions_forms_with_no_other_words() {
+        // -- Setup & Fixtures
+        // Where is the Statue of Liberty? — five answers, one required.
+        let liberty = question(&[
+            "New York (Harbor)",
+            "Liberty Island",
+            "New Jersey",
+            "near New York City",
+            "on the Hudson (River)",
+        ]);
+        let amendment = question(&["Twenty-seven (27)"]);
+
+        // -- Exec & Check
+        assert_eq!(
+            judged(&liberty, "liberty island new york"),
+            Verdict::Correct,
+            "two of the question's answers may be said in one line"
+        );
+        assert_eq!(
+            judged(&liberty, "new jersey liberty island"),
+            Verdict::Correct,
+            "the order of the answers does not matter"
+        );
+        assert_eq!(
+            judged(&liberty, "new jersey near new york city"),
+            Verdict::Correct,
+            "either order may hold longer answers"
+        );
+        assert_eq!(
+            judged(&amendment, "27 twenty seven"),
+            Verdict::Correct,
+            "both runs may be forms of the same answer"
+        );
+    }
+
+    #[test]
+    fn test_matching_does_not_join_words_beside_the_answers() {
+        // -- Setup & Fixtures
+        let liberty = question(&[
+            "New York (Harbor)",
+            "Liberty Island",
+            "New Jersey",
+            "near New York City",
+            "on the Hudson (River)",
+        ]);
+
+        // -- Exec & Check
+        assert_eq!(
+            judged(&liberty, "not liberty island"),
+            Verdict::Wrong,
+            "`not` belongs to none of the question's forms"
+        );
+        assert_eq!(
+            judged(&liberty, "statue island"),
+            Verdict::Wrong,
+            "`statue` belongs to none of the question's forms"
+        );
+        assert_eq!(
+            judged(&liberty, "the statue"),
+            Verdict::Wrong,
+            "`statue` belongs to none of the question's forms"
+        );
+        assert_eq!(
+            judged(&liberty, "i do not know"),
+            Verdict::Wrong,
+            "no word here belongs to any of the question's forms"
+        );
+        assert_eq!(
+            judged(&liberty, "island liberty"),
+            Verdict::Wrong,
+            "an answer appears as a run of whole words in its own order"
+        );
+        assert_eq!(
+            judged(&liberty, "the liberty island"),
+            Verdict::Wrong,
+            "a word that belongs to an answer but makes no form of its own stays out"
+        );
     }
 
     #[test]
