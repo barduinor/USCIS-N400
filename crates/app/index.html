@@ -47,25 +47,40 @@
         });
 
         // The build hashes the names of the files it emits, so the worker is
-        // told which resources this load needed instead of holding a list
-        // written down here. It keeps them, and the installed app opens offline.
-        window.addEventListener("load", function () {
+        // told which resources the page loaded instead of holding a list
+        // written down here. It keeps them, and the installed app opens offline
+        // after one online visit. Resources arrive as they finish: a bundle the
+        // page is still downloading when the load event fires — the wasm module,
+        // which the glue fetches on its own — is kept too.
+        function keep(entries) {
+          var resources = entries.map(function (entry) {
+            return entry.name;
+          });
+
+          if (!resources.length) {
+            return;
+          }
+
           navigator.serviceWorker.ready
             .then(function (registration) {
-              if (!registration.active) {
-                return;
+              if (registration.active) {
+                registration.active.postMessage({ resources: resources });
               }
-
-              registration.active.postMessage({
-                resources: performance.getEntriesByType("resource").map(function (entry) {
-                  return entry.name;
-                }),
-              });
             })
             .catch(function () {
               // No worker: nothing to keep.
             });
-        });
+        }
+
+        try {
+          new PerformanceObserver(function (list) {
+            keep(list.getEntries());
+          }).observe({ type: "resource", buffered: true });
+        } catch (error) {
+          window.addEventListener("load", function () {
+            keep(performance.getEntriesByType("resource"));
+          });
+        }
       })();
     </script>
   </head>
