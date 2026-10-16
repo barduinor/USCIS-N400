@@ -89,21 +89,20 @@ for bugs and complex changes.
 
 ## Standards Routing
 
-Detailed Rust standards now exist at:
+Detailed standards exist at:
 
-- `docs/coding-standards/rust/README.md`
+- `docs/coding-standards/rust/README.md` — for all Rust application code,
+  tests, Cargo metadata, and examples, including the `domain` and
+  `gen-questions` crates.
+- `docs/coding-standards/dioxus/README.md` — for `app` crate UI work:
+  component boundaries, storage and async boundaries, targets, formatting,
+  and UI tests.
 
-Use the Rust entry point for Rust application code, backend code, tests, Cargo
-metadata, and Rust examples. Continue to apply the global test integrity and
-naming rules in this file before any language-specific detail.
+Use the matching entry point for the code being changed, and the global test
+integrity and naming rules in this file before any language-specific detail.
+Do not put framework-specific rules in the Rust entry point, or Rust rules in
+the Dioxus entry point.
 
-UI framework guidance is not curated yet. When a UI target is chosen, add an
-entry point at `docs/coding-standards/<framework>/README.md` covering component
-boundaries, target-specific concerns, and UI async state, and route that work
-there. Do not put framework-specific rules in the Rust entry point.
+Supporting trees:
 
-Expected future routing:
-
-- `docs/coding-standards/<framework>/` for UI framework standards, once a UI
-  target is chosen.
 - `docs/library-docs/` for curated, project-agnostic library documentation.
