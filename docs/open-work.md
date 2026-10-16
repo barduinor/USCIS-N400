@@ -54,6 +54,14 @@ they are waiting on work.
   and screen lands with its behavior and tests. **This is the first coding
   step.**
 
+### Storage
+
+- **Storage layer and export/import.** One IndexedDB database; the record
+  shapes, the derived-Override rule, and the replace-on-import contract are in
+  ADR 0007. Export/import is required in v1 (ADR 0003). Exact Profile fields
+  wait on the onboarding decision; the Profile is stored as one record, so
+  that decision does not change the shape.
+
 ### Content
 
 - **Explanations for all 128 questions.** Source them from
