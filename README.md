@@ -152,9 +152,11 @@ and never changes the Accepted Answers. An Exam simulates the officer's
 administration of the test — twenty questions with twelve to pass, or ten of the
 starred twenty with six — shows only the question, stops the moment the outcome
 is fixed, and records its own outcome, score, track, and questions asked without
-touching the Answer Log or Coverage. The language, rules, and decisions are
-settled in `GLOSSARY.md` and `docs/adr/`; `docs/open-work.md` lists what is
-decided but unbuilt; nothing is open.
+touching the Answer Log or Coverage. The Stats screen shows Coverage over the
+whole scope, then each Section — opening one shows its Topics — with every figure
+carrying a percentage and a count, and the Exams taken below. The language,
+rules, and decisions are settled in `GLOSSARY.md` and `docs/adr/`;
+`docs/open-work.md` lists what is decided but unbuilt; nothing is open.
 
 The v1 build is issue #1 on the
 [tracker](https://github.com/barduinor/USCIS-N400/issues), sliced into tickets #2

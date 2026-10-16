@@ -16,6 +16,7 @@ use std::collections::VecDeque;
 
 use serde::{Deserialize, Serialize};
 
+use crate::progress::percentage;
 use crate::{Profile, Question, Verdict};
 
 /// The administration an Exam runs under.
@@ -115,6 +116,17 @@ pub struct ExamRecord {
     pub correct_count: u16,
 
     pub outcome: Outcome,
+}
+
+impl ExamRecord {
+    /// The share of the questions asked that were answered correctly, in whole
+    /// percent.
+    pub fn correct_percentage(&self) -> u8 {
+        percentage(
+            self.correct_count,
+            u16::try_from(self.questions.len()).unwrap_or(u16::MAX),
+        )
+    }
 }
 
 impl Exam {
@@ -452,6 +464,21 @@ mod tests {
         assert_eq!(serde_json::from_str::<ExamRecord>(&stored)?, record);
 
         Ok(())
+    }
+
+    #[test]
+    fn test_exam_record_shows_its_score_as_a_percentage() {
+        // -- Setup & Fixtures
+        let record = ExamRecord {
+            at: 1,
+            track: Track::Standard,
+            questions: vec![1, 2, 3],
+            correct_count: 2,
+            outcome: Outcome::Passed,
+        };
+
+        // -- Exec & Check
+        assert_eq!(record.correct_percentage(), 67, "two of three, rounded");
     }
 
     #[test]

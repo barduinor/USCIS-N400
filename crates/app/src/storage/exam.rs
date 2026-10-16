@@ -15,13 +15,18 @@ pub async fn append(record: &ExamRecord) -> Result<()> {
     write_next(EXAMS_STORE, &to_record(record)?).await
 }
 
-/// The most recent Exam's record, if the Applicant has sat one.
-pub async fn latest() -> Result<Option<ExamRecord>> {
+/// Every Exam's record, oldest first.
+pub async fn exams() -> Result<Vec<ExamRecord>> {
     read_all(EXAMS_STORE)
         .await?
-        .last()
+        .iter()
         .map(|record| from_record(record))
-        .transpose()
+        .collect()
+}
+
+/// The most recent Exam's record, if the Applicant has taken one.
+pub async fn latest() -> Result<Option<ExamRecord>> {
+    Ok(exams().await?.pop())
 }
 
 /// The record one Exam is stored as.

@@ -8,8 +8,8 @@ use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
 use domain::{
-    AcceptedAnswer, AnswerLogEntry, Exam, Profile, Question, QuestionRecords, Section, TestUpdates,
-    Track, Verdict, answers, matching, selection,
+    AcceptedAnswer, AnswerLogEntry, Coverage, Exam, Profile, Question, QuestionRecords, Section,
+    TestUpdates, Track, Verdict, answers, matching, selection,
 };
 
 type Result<T, E = Box<dyn std::error::Error>> = core::result::Result<T, E>; // For tests.
@@ -284,6 +284,89 @@ fn test_questions_data_exam_draws_its_own_tracks_scope() -> Result<()> {
                 "the 65/20 Exam draws from the starred questions and nothing else"
             );
         }
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_questions_data_section_and_topic_figures_partition_coverage() -> Result<()> {
+    // -- Setup & Fixtures
+    let records = committed_records()?;
+    let profiles = [
+        Profile::default(),
+        Profile {
+            special_consideration_65_20: true,
+            ..Profile::default()
+        },
+    ];
+
+    // One Cleared question in each Section, each in its own Topic, and all three
+    // inside the 65/20 scope so both tracks report the same three.
+    let mut log = Vec::new();
+    for number in [2, 74, 126] {
+        for _ in 0..3 {
+            log.push(AnswerLogEntry {
+                at: 1_770_000_000_000,
+                question: number,
+                answer: "Republic".to_string(),
+                verdict: Verdict::Correct,
+                overridden: false,
+            });
+        }
+    }
+
+    // -- Exec & Check
+    for profile in profiles {
+        let global = Coverage::from_log(&records, &profile, &log);
+        let sections: Vec<Coverage> = Section::ALL
+            .iter()
+            .map(|section| Coverage::of_section(&records, &profile, &log, *section))
+            .collect();
+        let topics: Vec<Coverage> = Section::ALL
+            .iter()
+            .flat_map(|section| section.topics().iter().copied())
+            .map(|topic| Coverage::of_topic(&records, &profile, &log, topic))
+            .collect();
+
+        assert_eq!(global.cleared(), 3, "three questions were Cleared");
+        assert_eq!(
+            sections
+                .iter()
+                .map(|coverage| coverage.cleared())
+                .sum::<u16>(),
+            global.cleared(),
+            "the Sections' cleared counts sum to the global one"
+        );
+        assert_eq!(
+            sections
+                .iter()
+                .map(|coverage| coverage.total())
+                .sum::<u16>(),
+            global.total(),
+            "so do their totals"
+        );
+        assert_eq!(
+            topics
+                .iter()
+                .map(|coverage| coverage.cleared())
+                .sum::<u16>(),
+            global.cleared(),
+            "the Topics' cleared counts sum to the global one"
+        );
+        assert_eq!(
+            topics.iter().map(|coverage| coverage.total()).sum::<u16>(),
+            global.total(),
+            "so do their totals"
+        );
+        assert_eq!(
+            sections
+                .iter()
+                .filter(|coverage| coverage.cleared() == 1)
+                .count(),
+            3,
+            "one Cleared question in each Section"
+        );
     }
 
     Ok(())

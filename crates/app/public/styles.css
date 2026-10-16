@@ -240,6 +240,60 @@ form {
   color: var(--muted);
 }
 
+/* Stats: one row per Section, its Topics under the open one, and the Exam
+   history below. Every figure carries a percentage and a count. */
+
+.sections,
+.topics,
+.exams {
+  display: grid;
+  gap: 0.5rem;
+  margin: var(--gap) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.topics {
+  margin-top: 0.5rem;
+  padding-left: var(--gap);
+}
+
+.section-row {
+  display: flex;
+  gap: var(--gap);
+  justify-content: space-between;
+  align-items: baseline;
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+  text-align: left;
+}
+
+.topic-row,
+.exam-row {
+  display: flex;
+  gap: var(--gap);
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.35rem 0;
+}
+
+.exam-row {
+  border-top: 1px solid var(--border);
+}
+
+.figure {
+  font-variant-numeric: tabular-nums;
+}
+
+.history {
+  margin-top: var(--step-2);
+}
+
 /* The main menu: one destination per row, comfortable under a thumb. */
 
 .menu {

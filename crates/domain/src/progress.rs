@@ -15,7 +15,7 @@ use std::collections::{HashMap, HashSet};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{Profile, QuestionRecords, Verdict};
+use crate::{Profile, Question, QuestionRecords, Section, Topic, Verdict};
 
 /// One answer the Applicant gave in study mode (ADR 0007).
 ///
@@ -80,6 +80,19 @@ pub fn cleared(log: &[AnswerLogEntry]) -> HashSet<u16> {
     cleared
 }
 
+/// The whole percent `count` is of `total`, rounded to the nearest. Nothing of
+/// nothing reads as zero.
+pub(crate) fn percentage(count: u16, total: u16) -> u8 {
+    if total == 0 {
+        return 0;
+    }
+
+    let total = u32::from(total);
+    let percent = (u32::from(count) * 100 + total / 2) / total;
+
+    u8::try_from(percent).unwrap_or(100)
+}
+
 /// The share of the Applicant's accountable questions that are Cleared.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Coverage {
@@ -101,16 +114,53 @@ impl Coverage {
     /// An Exam never appends to the log, so a lucky Exam cannot clear a question
     /// the Applicant has never studied.
     pub fn from_log(records: &QuestionRecords, profile: &Profile, log: &[AnswerLogEntry]) -> Self {
+        Self::among(records, profile, log, |_| true)
+    }
+
+    /// Coverage of the Applicant's accountable questions in one Section.
+    pub fn of_section(
+        records: &QuestionRecords,
+        profile: &Profile,
+        log: &[AnswerLogEntry],
+        section: Section,
+    ) -> Self {
+        Self::among(records, profile, log, |question| {
+            question.section == section
+        })
+    }
+
+    /// Coverage of the Applicant's accountable questions in one Topic.
+    pub fn of_topic(
+        records: &QuestionRecords,
+        profile: &Profile,
+        log: &[AnswerLogEntry],
+        topic: Topic,
+    ) -> Self {
+        Self::among(records, profile, log, |question| question.topic == topic)
+    }
+
+    /// Coverage of the accountable questions a filter picks out, so that the
+    /// Sections and their Topics partition the Applicant's scope exactly.
+    fn among(
+        records: &QuestionRecords,
+        profile: &Profile,
+        log: &[AnswerLogEntry],
+        keep: impl Fn(&Question) -> bool,
+    ) -> Self {
         let accountable = records.accountable(profile);
         let cleared = cleared(log);
-        let count = accountable
+        let scope: Vec<&Question> = accountable
+            .into_iter()
+            .filter(|question| keep(question))
+            .collect();
+        let count = scope
             .iter()
             .filter(|question| cleared.contains(&question.number))
             .count();
 
         Self::new(
             u16::try_from(count).unwrap_or(u16::MAX),
-            u16::try_from(accountable.len()).unwrap_or(u16::MAX),
+            u16::try_from(scope.len()).unwrap_or(u16::MAX),
         )
     }
 
@@ -126,14 +176,7 @@ impl Coverage {
 
     /// Coverage in whole percent, rounded to the nearest.
     pub fn percentage(self) -> u8 {
-        if self.total == 0 {
-            return 0;
-        }
-
-        let total = u32::from(self.total);
-        let percent = (u32::from(self.cleared) * 100 + total / 2) / total;
-
-        u8::try_from(percent).unwrap_or(100)
+        percentage(self.cleared, self.total)
     }
 }
 
@@ -420,6 +463,87 @@ mod tests {
                 "{cleared} of {total} should read as {expected}%"
             );
         }
+    }
+
+    #[test]
+    fn test_progress_coverage_of_a_section_counts_only_its_own_questions() {
+        // -- Setup & Fixtures
+        let records = records(2, 0);
+        let log = cleared_streak(1);
+
+        // -- Exec & Check
+        assert_eq!(
+            Coverage::of_section(
+                &records,
+                &Profile::default(),
+                &log,
+                Section::AmericanGovernment
+            )
+            .to_string(),
+            "50% (1 of 2)"
+        );
+        assert_eq!(
+            Coverage::of_section(
+                &records,
+                &Profile::default(),
+                &log,
+                Section::AmericanHistory
+            )
+            .to_string(),
+            "0% (0 of 0)",
+            "a Section with no accountable questions has no Coverage to report"
+        );
+    }
+
+    #[test]
+    fn test_progress_coverage_of_a_topic_counts_only_its_own_questions() {
+        // -- Setup & Fixtures
+        let records = records(2, 0);
+        let log = cleared_streak(1);
+
+        // -- Exec & Check
+        assert_eq!(
+            Coverage::of_topic(
+                &records,
+                &Profile::default(),
+                &log,
+                Topic::PrinciplesOfAmericanGovernment
+            )
+            .to_string(),
+            "50% (1 of 2)"
+        );
+        assert_eq!(
+            Coverage::of_topic(&records, &Profile::default(), &log, Topic::Symbols).to_string(),
+            "0% (0 of 0)"
+        );
+    }
+
+    #[test]
+    fn test_progress_coverage_of_a_section_narrows_with_the_65_20_scope() {
+        // -- Setup & Fixtures
+        let records = records(3, 1);
+        let log = cleared_streak(1);
+        let reduced = Profile {
+            special_consideration_65_20: true,
+            ..Profile::default()
+        };
+
+        // -- Exec & Check
+        assert_eq!(
+            Coverage::of_section(&records, &reduced, &log, Section::AmericanGovernment).to_string(),
+            "100% (1 of 1)",
+            "only the starred question counts under the 65/20 Special Consideration"
+        );
+        assert_eq!(
+            Coverage::of_section(
+                &records,
+                &Profile::default(),
+                &log,
+                Section::AmericanGovernment
+            )
+            .to_string(),
+            "33% (1 of 3)"
+        );
     }
 
     #[test]
