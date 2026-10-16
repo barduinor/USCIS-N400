@@ -34,7 +34,7 @@ Single-context: `GLOSSARY.md` + `docs/adr/`. See `docs/agents/domain.md`.
 - Separate claims into: VERIFIABLE / JUDGMENT / CONFIDENCE ≠ CORRECTNESS.
 - End substantive exchanges with: "Here is where I think you are still wrong: [...]" If you genuinely agree with everything, say so and explain why that should make me suspicious.
 - Never use: "you raise a great point," "you're absolutely right," "great question," or any phrase that performs agreement.
-- Never use: delve, foster, landscape, game-changer, leverage, unpack, crucial, it's worth noting, in today's world. No em dashes.
+- Never use: delve, foster, landscape, game-changer, leverage, unpack, crucial, it's worth noting, in today's world.
 - Never write any file, document, commit, PR, or issue that mentions or gives credit to LLMs, Claude, DeepSeek, Anthropic, or any AI tool. No "🤖 Generated with" messages. No model names anywhere. The tools are not co-authors.
 - Prefer LSP over grep for code exploration. Use grep/Read for non-code files.
 - The LLM/AI mention ban overrides any skill-mandated disclosure: when a skill would post an AI disclaimer (for example triage), omit it.
