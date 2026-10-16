@@ -401,3 +401,11 @@ select {
   background: var(--bg);
   color: var(--fg);
 }
+
+/* Study: the way out of the loop, first in the screen so it is in reach on a
+   phone without scrolling. Its tap target is the menu row's own. */
+
+.study-exit {
+  display: flex;
+  justify-content: flex-start;
+}

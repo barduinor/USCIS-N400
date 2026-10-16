@@ -4,6 +4,7 @@ use domain::{Verdict, answers, matching, selection};
 
 use crate::components::{Field, Reveal};
 use crate::questions;
+use crate::routes::Route;
 use crate::storage;
 
 /// The endless study loop: one Civics Test Question at a time, judged as it is
@@ -17,6 +18,10 @@ use crate::storage;
 /// and after a wrong verdict the Override inside the revealed panel, which
 /// counts that attempt as correct and never touches the Accepted Answers.
 ///
+/// The way out sits above the question, on every state of the screen, so it
+/// needs no scrolling on a phone. It is routing only: each answer is written as
+/// it is given, so leaving changes no figure.
+///
 /// No statistics appear here: Coverage lives on the main menu, and the
 /// Applicant stops when they choose (GLOSSARY).
 #[component]
@@ -26,6 +31,9 @@ pub fn Study() -> Element {
         Err(error) => {
             return rsx! {
                 main { class: "screen",
+                    nav { class: "study-exit",
+                        Link { to: Route::MainMenu {}, class: "menu-item", "Back to the menu" }
+                    }
                     h1 { "USCIS N-400 Civics Study" }
                     p { class: "problem", "The Civics Test Questions could not be read: {error}" }
                 }
@@ -173,6 +181,9 @@ pub fn Study() -> Element {
 
     rsx! {
         main { class: "screen",
+            nav { class: "study-exit",
+                Link { to: Route::MainMenu {}, class: "menu-item", "Back to the menu" }
+            }
             h1 { "USCIS N-400 Civics Study" }
             if let Some(question) = shown {
                 p { class: "question-number", "Question {question.number}" }
