@@ -143,9 +143,11 @@ the Applicant, stores the Profile in IndexedDB, and drills them through the
 endless study loop: a question, a typed answer judged against the Accepted
 Answers, and the next question on request, chosen by the bias weights — asked
 least often, answered wrong, under-served Sections — with the recent-ask
-penalty. The language, rules, and decisions are settled in `GLOSSARY.md` and
-`docs/adr/`; `docs/open-work.md` lists what is decided but unbuilt; nothing is
-open.
+penalty. The main menu shows Coverage: the share of the applicant's accountable
+questions that three correct answers in a row have Cleared, derived from the
+Answer Log each time the screen opens. The language, rules, and decisions are
+settled in `GLOSSARY.md` and `docs/adr/`; `docs/open-work.md` lists what is
+decided but unbuilt; nothing is open.
 
 The v1 build is issue #1 on the
 [tracker](https://github.com/barduinor/USCIS-N400/issues), sliced into tickets #2

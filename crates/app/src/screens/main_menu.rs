@@ -4,8 +4,12 @@ use domain::Coverage;
 
 use crate::questions;
 use crate::routes::Route;
+use crate::storage;
 
 /// The entry point: where the Applicant stands, and where they can go.
+///
+/// Coverage is read from the Answer Log every time the screen opens, so the
+/// figure moves as questions are Cleared and survives a reload.
 #[component]
 pub fn MainMenu() -> Element {
     let records = match questions::records() {
@@ -20,7 +24,27 @@ pub fn MainMenu() -> Element {
         }
     };
 
-    let coverage = Coverage::none(records);
+    let profile = use_resource(storage::profile::load);
+    let log = use_resource(storage::answer_log::entries);
+
+    let figure = match (&*profile.read(), &*log.read()) {
+        (Some(Ok(Some(profile))), Some(Ok(log))) => {
+            let coverage = Coverage::from_log(records, profile, log);
+
+            rsx! {
+                p { class: "coverage-figure", "{coverage}" }
+            }
+        }
+        (Some(Ok(None)), _) => rsx! {
+            p { class: "problem", "The Profile is missing, so there is nothing to measure." }
+        },
+        (Some(Err(error)), _) | (_, Some(Err(error))) => rsx! {
+            p { class: "problem", "The progress could not be read: {error}" }
+        },
+        _ => rsx! {
+            p { class: "loading", "Reading the Answer Log…" }
+        },
+    };
 
     rsx! {
         main { class: "screen",
@@ -28,7 +52,7 @@ pub fn MainMenu() -> Element {
 
             section { class: "coverage",
                 h2 { "Coverage" }
-                p { class: "coverage-figure", "{coverage}" }
+                {figure}
             }
 
             nav { class: "menu",

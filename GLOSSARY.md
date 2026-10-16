@@ -155,8 +155,11 @@ second name.
 
 ## Example dialogue
 
-> **Dev:** "The Applicant answered a question right, wrong, right, right, right. Is it **Cleared**?"
+> **Dev:** "The Applicant answered a question right, wrong, right, right. Is it **Cleared**?"
 > **Domain expert:** "No. The wrong answer reset it; it needs three in a row, so one more."
+
+> **Dev:** "And right, wrong, right, right, right?"
+> **Domain expert:** "Yes. It needs three in a row after the wrong answer, and those are three."
 
 > **Dev:** "Is Holidays a **Section**?"
 > **Domain expert:** "No, a **Topic**. It sits inside Symbols and Holidays."
