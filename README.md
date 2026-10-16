@@ -19,9 +19,12 @@ the test itself. It runs entirely in the browser — no server, no account.
 **Design phase. No code yet** — no `Cargo.toml`, no `src/`.
 
 Settled and written down: answer matching and Override, Coverage, study
-behaviour, Exam behaviour, the dynamic questions, the platform, and the screens.
+behaviour, Exam behaviour, the dynamic questions, the platform, the screens,
+and the repo layout — three crates, ADR 0006.
 
-Still open: the study screen's reveal and Override presentation, the onboarding
-field list, and the crate and module layout — that last one is the first coding
-step. Each is expanded, with what is already settled, in
+Still open: the study screen's reveal and Override presentation, and the
+onboarding field list. Each is expanded, with what is already settled, in
 `docs/open-work.md` §Open decisions.
+
+The first coding step is the scaffold: a compiling skeleton carrying one
+working vertical slice, expanded in `docs/open-work.md` §Decided, not built.

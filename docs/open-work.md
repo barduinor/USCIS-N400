@@ -23,17 +23,36 @@ discussion.
 - Open: the exact field list, the order they are asked in, and what happens when
   a field is left blank.
 
-### Structure
-
-- Settled: Rust 2024 and Dioxus compiled to WASM, client-side only, IndexedDB,
-  static hosting on GitHub Pages — ADR 0002, ADR 0003. The screens are listed in
-  `CONTEXT.md` §Screens.
-- Open: crate and module layout. **This is the first coding step.**
-
 ## Decided, not built
 
 Each item below already has a decision behind it — none is waiting on a choice,
 they are waiting on work.
+
+### Structure
+
+- **The scaffold.** A Cargo workspace of three crates — `domain`,
+  `gen-questions`, `app` — per ADR 0006 (platform per ADR 0003, ADR 0005).
+  The module tree:
+
+  ```
+  domain/src/          lib.rs, error.rs, question.rs, matching.rs, answers.rs,
+                       selection.rs, progress.rs, exam.rs, profile.rs
+  domain/tests/        tests_questions_data.rs — the data-file contract
+  gen-questions/src/   lib.rs, main.rs, cmd.rs, error.rs, generate.rs,
+                       parse.rs, overrides.rs
+  gen-questions/       overrides.json
+  gen-questions/tests/ tests_regeneration.rs
+  app/src/             main.rs, routes.rs, error.rs, questions.rs, screens/,
+                       components/, storage/
+  ```
+
+  Ships a compiling skeleton, not empty stubs: workspace and member manifests,
+  the quality-gate hook (`.githooks/pre-commit`, `scripts/install-hooks`), the
+  error pattern per crate, thin entry points, and one working vertical slice —
+  `gen-questions` producing `data/questions.json`, the `domain` types and the
+  contract test, and the app shell rendering the main menu. Every other module
+  and screen lands with its behavior and tests. **This is the first coding
+  step.**
 
 ### Content
 
