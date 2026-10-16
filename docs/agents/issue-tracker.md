@@ -45,3 +45,10 @@ Used by `/wayfinder`. The **map** is a single issue with **child** issues as tic
 - **Frontier query**: list the map's open children (`gh issue list --state open`, scoped to the map's sub-issues / task list), drop any with an open blocker (`issue_dependencies_summary.blocked_by > 0`, or an open issue in the `Blocked by` line) or an assignee; first in map order wins.
 - **Claim**: `gh issue edit <n> --add-assignee @me`, the session's first write.
 - **Resolve**: `gh issue comment <n> --body "<answer>"`, then `gh issue close <n>`, then append a context pointer (gist + link) to the map's Decisions-so-far.
+
+## Where raw feedback lands
+
+Observations from using the app are comments on the single inbox issue, **Feedback inbox: what the Applicant hits while using the app** (#16), rather than tickets filed one at a time from the first thing noticed. The inbox carries `needs-triage` while it holds comments nobody has processed.
+
+Draining it is a triage session: each comment becomes a ticket, or folds into one that exists, or turns out to be a decision and moves to `docs/adr/` through conversation. The reply on the comment says which, and the label comes off when nothing is left unprocessed. The inbox is not a map and its comments are not tickets — nothing is claimed, blocked or resolved from it directly.
+
