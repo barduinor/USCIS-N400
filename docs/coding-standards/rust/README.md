@@ -18,7 +18,7 @@ replace the global rules.
 - Treat imported Rust10x examples as patterns to adapt, not vocabulary to copy.
   If an example mentions another domain, translate the structure into this
   project's domain terms.
-- Treat the Rust10x AI Pack as imported guidance for agents. The project-owned
+- Treat the Rust10x pack as imported guidance for agents. The project-owned
   standards in this README decide how that guidance applies to a given project.
 - Do not add UI framework rules here. Framework guidance lives in its own
   entry point: `docs/coding-standards/dioxus/README.md`.
@@ -87,8 +87,8 @@ Use this map to choose the relevant detail file:
   lint defaults: `rust-best-practices/cargo-best-practices.md`
 - Rust Edition 2024 features and migration-sensitive language behavior:
   `rust-best-practices/rust-edition-2024.md`
-- Rust10x AI Pack provenance and pack-level Rust 2024 guidance:
-  `rust-best-practices/rust10x-ai-pack.md`
+- Rust10x pack provenance and pack-level Rust 2024 guidance:
+  `rust-best-practices/rust10x-pack.md`
 - Error types, `Result` aliases, external error conversion, and test/example
   error handling: `rust-best-practices/error-best-practices.md`
 - Unit tests, integration tests, test naming, test-support modules, temporary

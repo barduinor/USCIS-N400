@@ -1,8 +1,8 @@
-## Rust10x AI Pack
+## Rust10x pack
 
 **Early Release**
 
-The pro@rust10x AI Pack provides the knowledge, guidelines, and best practices
+The pro@rust10x pack provides the knowledge, guidelines, and best practices
 I, Jeremy Chone, use to build production applications.
 
 ### Usage
