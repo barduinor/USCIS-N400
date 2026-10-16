@@ -14,6 +14,7 @@ the test itself, entirely in the browser: no server, no account.
 - [Tech stack](#tech-stack)
 - [Architecture](#architecture)
 - [Project structure](#project-structure)
+- [Documentation](#documentation)
 - [Status and roadmap](#status-and-roadmap)
 - [Getting started](#getting-started)
 - [Contributing](#contributing)
@@ -116,18 +117,33 @@ domain vocabulary and every behavioral rule live in `GLOSSARY.md`.
 The three crates and the gate scripts arrive with the scaffold, ticket #2; the
 rest is in place today.
 
+## Documentation
+
+| Doc | What it holds |
+|---|---|
+| `GLOSSARY.md` | Domain language, the 3 Section / 8 Topic structure, screens, rules |
+| `docs/adr/` | Decisions that are hard to reverse, and the alternatives rejected |
+| `docs/open-work.md` | What is decided but unbuilt |
+| `docs/resources/` | The USCIS source documents, and the authority each carries |
+| `docs/coding-standards/` | Global, Rust, and Dioxus standards |
+| `docs/library-docs/` | Curated library documentation, project-agnostic; each library has an `INDEX.md` |
+| `docs/research/` | Cited research notes, one file per question |
+| `docs/agents/` | Issue tracker, triage labels, and domain doc rules for the engineering skills |
+| `AGENTS.md` | Agent entry: skills config pointers, the docs map, and the standing rules |
+
 ## Status and roadmap
 
-**Design complete. No code yet.** The language, rules, and decisions are settled
-in `GLOSSARY.md` and `docs/adr/`; `docs/open-work.md` lists what is decided but
-unbuilt; nothing is open.
+**Design complete. No code yet**: no `Cargo.toml`, no `src/`. The language,
+rules, and decisions are settled in `GLOSSARY.md` and `docs/adr/`;
+`docs/open-work.md` lists what is decided but unbuilt; nothing is open.
 
 The v1 build is issue #1 on the
 [tracker](https://github.com/barduinor/USCIS-N400/issues), sliced into tickets #2
 through #15, each labelled `ready-for-agent`. In order: workspace and gates, the
 question records, the domain model, the app shell, storage and onboarding, the
 study loop, selection, progress, the reveal and Override, the Exam, Stats,
-profile with export and import, the offline PWA, and CI deploy.
+profile with export and import, the offline PWA, and CI deploy. The scaffold
+spec is expanded in `docs/open-work.md` §Decided, not built.
 
 ## Getting started
 
@@ -146,7 +162,9 @@ Everything a fresh machine needs, in order:
    onward): `cargo install dioxus-cli --locked`, or a prebuilt binary.
 5. **Hooks, once the scaffold lands.** `scripts/install-hooks` points git at
    the pre-commit hook, so every commit runs the four quality gates locally.
-6. **Optional: Node**, used only to update the pinned skills.
+6. **Optional: Node**, used only to update the pinned skills. Re-running the
+   skills CLI inside the repo moves the pins forward; the diff shows what
+   changed.
 
 That is the whole list: git, an agent harness, `gh`, and the Rust toolchain.
 There are no servers, databases, or credentials to arrange; the only account
