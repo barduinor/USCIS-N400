@@ -55,8 +55,10 @@ The screens:
 
 - The 128 official 2025 Civics Test Questions with their Accepted Answers,
   generated from USCIS publication M-1778 and corrected by hand.
-- Typed answers, judged by normalized exact matching, including parenthetical
-  variants and multi-item counting for questions like "Name two".
+- Typed answers, judged by normalized exact matching: the key's parenthetical
+  variants, a numeral's digit form (`27` for `Twenty-seven (27)`), a joining of
+  two of the key's answers, and multi-item counting for questions like
+  "Name two".
 - Cleared state (three correct in a row) and Coverage as a percentage and a
   count, globally and per Section and Topic.
 - Weighted question selection: least-asked, wrong-answer, and Section balance,
