@@ -15,7 +15,7 @@ is web-only (ADR 0005); none of these rules reach outside `app`.
 - Screens render decisions, they never compute them. Verdicts, Cleared,
   Coverage, question selection, and Exam scoring come from `domain`; the app
   never re-implements a rule.
-- Keep component names, visible text, tests, and comments on `CONTEXT.md`
+- Keep component names, visible text, tests, and comments on `GLOSSARY.md`
   language — Applicant, Civics Test Question, Accepted Answer, Override,
   Coverage, Cleared, Exam — and away from its avoided words (quiz, card,
   user, score).

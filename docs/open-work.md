@@ -10,7 +10,7 @@ discussion.
 
 - Settled: the verdict appears immediately; Accepted Answers and Explanation sit
   behind a tap; Override appears only on a wrong verdict; Next is manual; no
-  counter and no statistics in-session — `CONTEXT.md` §Rules, §Screens.
+  counter and no statistics in-session — `GLOSSARY.md` §Rules, §Screens.
 - Open: whether the reveal opens inline or as an overlay, and where the
   Override control sits.
 
@@ -19,7 +19,7 @@ discussion.
 - Settled: it runs before the first question, because it fixes the 65/20 flag and
   therefore Coverage's denominator; it collects state, district, the three
   local names, the four Test Updates, and whether the 65/20 Special
-  Consideration applies — `CONTEXT.md` §Rules, §Language.
+  Consideration applies — `GLOSSARY.md` §Rules, §Language.
 - Open: the exact field list, the order they are asked in, and what happens when
   a field is left blank.
 

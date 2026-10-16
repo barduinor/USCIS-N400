@@ -8,7 +8,7 @@ the test itself. It runs entirely in the browser — no server, no account.
 
 | Doc | What it holds |
 |---|---|
-| `CONTEXT.md` | Domain language, the 3 Section / 8 Topic structure, screens, rules |
+| `GLOSSARY.md` | Domain language, the 3 Section / 8 Topic structure, screens, rules |
 | `docs/adr/` | Decisions that are hard to reverse, and the alternatives rejected |
 | `docs/open-work.md` | What is decided but unbuilt, and what is still undecided |
 | `docs/resources/` | The USCIS source documents, and the authority each carries |
