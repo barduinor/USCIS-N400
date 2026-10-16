@@ -100,10 +100,34 @@ they are waiting on work.
 - **Local Fact sources.** State senators, representative and governor need a
   per-state source. Harder than the national four; deliberately deferred.
 
+### Build and deploy
+
+- **Styling.** Plain CSS: one `styles.css` linked from the index template,
+  CSS custom properties as the token set. Tailwind rejected — a Node/binary
+  build step in the hook and CI for seven screens of single-user UI; classes
+  are strings, so adopting it later stays cheap.
+- **App shell.** A custom `index.html` (required to load the service worker
+  and manifest; must contain `div#main`) plus `public/`: `manifest.json`,
+  `sw.js` (hand-written, cache-first shell precache under a versioned cache
+  name), `styles.css`, icons.
+- **Deploy.** GitHub Actions on push to `main`: the three gates, then pinned
+  `dx` and `wasm32-unknown-unknown`, `dx build --release`, the Pages artifact,
+  `actions/deploy-pages`. Pages source is "GitHub Actions"; the site lives
+  under `/USCIS-N400/`, so the base path must match — it also feeds the
+  manifest scope and the service worker registration. `rust-toolchain.toml`
+  pins the toolchain.
+
 ### Platform
 
 - **PWA manifest and service worker.** Offline use on a phone, and durable
-  storage on iOS.
+  storage on iOS. The installed web app is the intended mode: iOS shows no
+  install prompt, and since iOS 26 home-screen items open as web apps by
+  default — so first run shows a one-time "Add to Home Screen" hint before
+  study starts, and the hint says install first: the installed app has its own
+  storage context, separate from Safari-browsed pages, and progress does not
+  carry over between the two. Home-screen web apps are exempt from Safari's
+  7-day eviction; the JSON export stays the backstop. Acceptance includes a
+  real-iPhone pass: install, airplane mode, reload, answer, export.
 - **Export and import progress as JSON.** The only backup and the only way to
   move between devices. Required in v1, not later.
 
