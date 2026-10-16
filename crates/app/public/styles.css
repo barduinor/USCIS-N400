@@ -223,6 +223,18 @@ form {
   color: var(--wrong);
 }
 
+/* The answer the Applicant gave: the words as typed, carried under the verdict
+   so they sit above the Accepted Answers when the reveal opens. */
+
+.answer {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.answer p {
+  margin: 0;
+}
+
 /* The reveal: the Accepted Answers under the verdict, and the Override inside
    it when the verdict was wrong. Nothing is revealed before the verdict. */
 

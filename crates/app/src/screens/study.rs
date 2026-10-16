@@ -14,9 +14,12 @@ use crate::storage;
 /// M-1778. The number is the record's own, not a position in the current
 /// scope: narrowing to the 20 starred questions leaves it unchanged.
 ///
-/// After a verdict the Applicant can ask for the reveal: the Accepted Answers,
-/// and after a wrong verdict the Override inside the revealed panel, which
-/// counts that attempt as correct and never touches the Accepted Answers.
+/// The verdict carries the answer the Applicant gave, as they wrote it, so it
+/// can be read against the Accepted Answers; the field itself empties for the
+/// next question. After a verdict the Applicant can ask for the reveal: the
+/// Accepted Answers, and after a wrong verdict the Override inside the revealed
+/// panel, which counts that attempt as correct and never touches the Accepted
+/// Answers.
 ///
 /// The way out sits above the question, on every state of the screen, so it
 /// needs no scrolling on a phone. It is routing only: each answer is written as
@@ -46,6 +49,7 @@ pub fn Study() -> Element {
     let mut current = use_signal(|| Option::<u16>::None);
     let mut asked = use_signal(|| Option::<u16>::None);
     let mut typed = use_signal(String::new);
+    let mut answered = use_signal(String::new);
     let mut verdict = use_signal(|| Option::<Verdict>::None);
     let mut overridden = use_signal(|| Option::<u16>::None);
     let mut saving = use_signal(|| false);
@@ -83,6 +87,10 @@ pub fn Study() -> Element {
                 rsx! {
                     p { class: "question", "{question.question}" }
                     p { class: "{class}", "{judged}" }
+                    div { class: "answer",
+                        span { class: "field-label", "Your answer" }
+                        p { "{answered}" }
+                    }
                     if let Some(problem) = problem() {
                         p { class: "problem", "{problem}" }
                     }
@@ -104,6 +112,7 @@ pub fn Study() -> Element {
                             onclick: move |_| {
                                 current.set(None);
                                 typed.set(String::new());
+                                answered.set(String::new());
                                 verdict.set(None);
                                 overridden.set(None);
                                 problem.set(None);
@@ -145,6 +154,7 @@ pub fn Study() -> Element {
                                 match storage::answer_log::append(number, &answer, judged).await {
                                     Ok(_) => {
                                         log.restart();
+                                        answered.set(answer);
                                         verdict.set(Some(judged));
                                     }
                                     Err(error) => problem.set(Some(error.to_string())),
