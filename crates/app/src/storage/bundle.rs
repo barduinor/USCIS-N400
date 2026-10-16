@@ -22,6 +22,11 @@ pub const SCHEMA_VERSION: u32 = 1;
 /// The meta key the last export is noted under.
 const LAST_EXPORT_KEY: &str = "last_export";
 
+/// What the Applicant reads when the file they chose is not a bundle: a parse
+/// failure is the parser's, and it never reaches them.
+const NOT_A_BUNDLE: &str =
+    "this file is not a bundle the app can read; import a bundle the app exported.";
+
 /// The whole of the Applicant's state, as one bundle.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Bundle {
@@ -66,7 +71,8 @@ impl Bundle {
     pub fn from_text(text: &str) -> Result<Self> {
         // The schema version is read before the rest, so a bundle from a newer
         // build says so even where this build cannot parse its records.
-        let envelope: serde_json::Value = serde_json::from_str(text)?;
+        let envelope: serde_json::Value =
+            serde_json::from_str(text).map_err(|_| Error::custom(NOT_A_BUNDLE))?;
         let version = envelope
             .get("schema_version")
             .and_then(serde_json::Value::as_u64);
@@ -84,7 +90,7 @@ impl Bundle {
             ));
         }
 
-        Ok(serde_json::from_str(text)?)
+        serde_json::from_str(text).map_err(|_| Error::custom(NOT_A_BUNDLE))
     }
 
     /// Hands the bundle to the device as a file: the Applicant's backup, and the
