@@ -4,7 +4,70 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title></title>
-    <link rel="stylesheet" href="styles.css" />
+    <meta name="theme-color" content="#1b5fa8" />
+    <meta name="apple-mobile-web-app-title" content="Civics Study" />
+    <script>
+      // The app is served from the dev server's root and from the repository
+      // subpath on Pages, and the worker answers every route under whichever
+      // one it was built for. The document's own URL cannot say where the app
+      // is rooted: one route segment deep, a relative URL resolves one
+      // directory too deep. So the root is worked out once, here: the worker's
+      // own scope when a worker controls the page, which is the case for every
+      // route it answers, and the document's own directory before that, which
+      // is where the shell was served from. The shell's own files hang off it —
+      // the stylesheet, the web app manifest, the Apple touch icon, and the
+      // worker itself — and nothing in this file names the base path.
+      (function () {
+        var controller = navigator.serviceWorker && navigator.serviceWorker.controller;
+        var root = new URL("./", controller ? controller.scriptURL : location.href);
+
+        function add(rel, url, sizes) {
+          var link = document.createElement("link");
+
+          link.rel = rel;
+          link.href = url.href;
+
+          if (sizes) {
+            link.sizes = sizes;
+          }
+
+          document.head.appendChild(link);
+        }
+
+        add("stylesheet", new URL("styles.css", root));
+        add("manifest", new URL("manifest.webmanifest", root));
+        add("apple-touch-icon", new URL("apple-touch-icon.png", root), "180x180");
+
+        if (!navigator.serviceWorker) {
+          return;
+        }
+
+        navigator.serviceWorker.register(new URL("sw.js", root).href).catch(function () {
+          // No worker: the app still runs, it just needs the network.
+        });
+
+        // The build hashes the names of the files it emits, so the worker is
+        // told which resources this load needed instead of holding a list
+        // written down here. It keeps them, and the installed app opens offline.
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.ready
+            .then(function (registration) {
+              if (!registration.active) {
+                return;
+              }
+
+              registration.active.postMessage({
+                resources: performance.getEntriesByType("resource").map(function (entry) {
+                  return entry.name;
+                }),
+              });
+            })
+            .catch(function () {
+              // No worker: nothing to keep.
+            });
+        });
+      })();
+    </script>
   </head>
   <body>
     <div id="main"></div>

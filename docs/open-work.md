@@ -64,24 +64,12 @@ they are waiting on work.
   then, a missing value leaves its question in play and any answer is judged
   wrong.
 
-### Build and deploy
-
-- **PWA assets.** `crates/app/index.html` (the shell template, with `div#main`
-  the app mounts into) and `public/styles.css` are in place: plain CSS, custom
-  properties as the token set, phone-first. Tailwind rejected: a Node/binary
-  build step in the hook and CI for seven screens of single-user UI; classes
-  are strings, so adopting it later stays cheap. Still to come with the offline
-  ticket: `public/manifest.json`, the hand-written `sw.js` (cache-first shell
-  precache under a versioned cache name), and icons.
-
 ### Platform
 
-- **PWA manifest and service worker.** Offline use on a phone, and durable
-  storage on iOS. The installed web app is the intended mode: iOS shows no
-  install prompt, and since iOS 26 home-screen items open as web apps by
-  default, so first run shows a one-time "Add to Home Screen" hint before
-  study starts, and the hint says install first: the installed app has its own
-  storage context, separate from Safari-browsed pages, and progress does not
-  carry over between the two. Home-screen web apps are exempt from Safari's
-  7-day eviction; the JSON export stays the backstop. Acceptance includes a
-  real-iPhone pass: install, airplane mode, reload, answer, export.
+- **The real-iPhone pass.** The manifest, the icons, and the worker are in
+  place, and the first run says so, which leaves the device pass as the open
+  work: install to the home screen, take the phone into airplane mode, reload,
+  answer, and export. Home-screen web apps are exempt from Safari's 7-day
+  eviction, and an installed app keeps its own storage, separate from
+  Safari-browsed pages, so progress does not carry over between the two; the
+  JSON export stays the backstop.

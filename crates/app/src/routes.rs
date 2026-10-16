@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::components::FirstRun;
+use crate::components::{FirstRun, InstallHint};
 use crate::screens::{Exam, ExamResult, MainMenu, Profile, Stats, Study};
 
 /// Every screen the Applicant can reach.
@@ -28,12 +28,12 @@ pub enum Route {
     Profile {},
 }
 
-/// The application root: the route tree, behind the first-run gate.
+/// The application root: the one-time install line, then the route tree behind
+/// the first-run gate.
 #[component]
 pub fn App() -> Element {
     rsx! {
-        FirstRun {
-            Router::<Route> {}
-        }
+        InstallHint {}
+        FirstRun { Router::<Route> {} }
     }
 }

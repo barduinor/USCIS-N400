@@ -20,6 +20,7 @@ use crate::Result;
 pub mod answer_log;
 pub mod bundle;
 pub mod exam;
+pub mod hint;
 pub mod profile;
 
 // endregion: --- Modules

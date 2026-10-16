@@ -157,6 +157,35 @@ button.primary:disabled {
   font-size: 0.95rem;
 }
 
+/* The one-time line for iOS, before the Applicant studies: the app has to be
+   installed to the home screen first, because the installed app keeps its own
+   storage. It sits above the screen, and leaves when dismissed. */
+
+.install-hint {
+  display: grid;
+  gap: 0.6rem;
+  justify-items: start;
+  margin: 0 0 var(--gap);
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.install-hint p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.install-hint button {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+}
+
 /* Study: the question, the field, and the verdict. Nothing else — no counter,
    no score, and no progress figure appears during study. */
 

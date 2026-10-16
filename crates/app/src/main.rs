@@ -2,6 +2,7 @@
 
 mod components;
 mod error;
+mod install;
 mod questions;
 mod routes;
 mod screens;
