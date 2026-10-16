@@ -8,7 +8,7 @@ The goal is to have a similar and progressive approach between tests/examples an
 
 ### For Tests and Examples
 
-For tests and examples, use the type alias `pub type Result<T> = core::result::Result<T, Box<dyn std::error::Error>>;`
+- For tests and examples, use the type alias `pub type Result<T, E = Box<dyn std::error::Error>> = core::result::Result<T, E>;`
 
 - For test modules, we will have the type alias so that we can simply use `Result<T>`. Make sure to fully qualify `core::result::Result` as the test might `use super::*` which will introduce another application `Result<T>`.
 
@@ -48,7 +48,7 @@ The `error.rs` has the following format:
 ```rust
 use derive_more::{Display, From};
 
-pub type Result<T> = core::result::Result<T, Error>;
+pub type Result<T, E = Error> = core::result::Result<T, E>;
 
 #[derive(Debug, Display, From)]
 #[display("{self:?}")]
@@ -91,3 +91,4 @@ impl std::error::Error for Error {}
 - Above will be for the application specific errors.
 - `Custom` variant is always on top.
 - Then, we might have comment sections like `// -- Some Sub Module` to categorize the variants.
+- The alias defaults the error parameter to the crate's own `Error`, so `Result<T>` stays short at every call site while a precise error type remains expressible.

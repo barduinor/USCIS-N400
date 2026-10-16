@@ -1,0 +1,20 @@
+#!/bin/sh
+# Points git at this repository's hooks, so every commit runs the four quality
+# gates in .githooks/pre-commit.
+set -eu
+
+cd "$(git rev-parse --show-toplevel)"
+
+githooks_dir=".githooks"
+pre_commit="${githooks_dir}/pre-commit"
+
+if [ ! -f "$pre_commit" ]; then
+	echo "install-hooks: ${pre_commit} is missing" >&2
+	exit 1
+fi
+
+chmod +x "$pre_commit"
+git config core.hooksPath "$githooks_dir"
+
+echo "install-hooks: core.hooksPath is now ${githooks_dir}"
+echo "install-hooks: every commit now runs ${pre_commit}"

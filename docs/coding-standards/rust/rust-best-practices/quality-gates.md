@@ -62,21 +62,13 @@ The installer marks `.githooks/pre-commit` executable and sets
 `core.hooksPath` to `.githooks`, so normal `git commit` attempts run the
 repository hook.
 
-## Pre-commit hook example
+## Pre-commit hook
 
-```sh
-#!/bin/sh
-set -e
+`.githooks/pre-commit` runs the four gates in the order above, and is
+gates-only: it never formats, fixes, or stages anything, so nothing enters a
+commit that the committer has not reviewed. A failing gate stops the commit and
+names itself, so the output says which gate to satisfy:
 
-echo "==> fmt check"
-cargo fmt --check
-
-echo "==> clippy"
-cargo clippy --no-deps --all-targets -- -D warnings
-
-echo "==> test"
-cargo test
-
-echo "==> wasm check"
-cargo check -p uscis-n400 --target wasm32-unknown-unknown
+```
+pre-commit: blocked by the failing gate: lint (cargo clippy --no-deps --all-targets -- -D warnings)
 ```

@@ -1,0 +1,14 @@
+[package]
+name = "domain"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+doctest = false
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[dependencies]
+# -- Others
+derive_more = { version = "2", features = ["display", "from"] }

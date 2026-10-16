@@ -1,0 +1,6 @@
+# The three-crate workspace: domain, gen-questions, and app (package
+# `uscis-n400`). Dependencies point one way (ADR 0006): `app` and
+# `gen-questions` depend on `domain`; nothing depends on `gen-questions`.
+[workspace]
+members = ["app", "domain", "gen-questions"]
+resolver = "3"

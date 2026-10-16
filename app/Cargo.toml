@@ -1,0 +1,15 @@
+[package]
+name = "uscis-n400"
+version = "0.1.0"
+edition = "2024"
+description = "The Civics Test study application."
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[dependencies]
+# -- Ui
+dioxus = { version = "0.7", features = ["web"] }
+# -- Others
+derive_more = { version = "2", features = ["display", "from"] }
+domain = { path = "../domain" }

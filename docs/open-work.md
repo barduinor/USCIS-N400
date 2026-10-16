@@ -7,9 +7,12 @@ they are waiting on work.
 
 ### Structure
 
-- **The scaffold.** A Cargo workspace of three crates (`domain`,
-  `gen-questions`, `app`) per ADR 0006 (platform per ADR 0003, ADR 0005).
-  The module tree:
+- **The module tree.** The scaffold (ticket #2) is in place: the Cargo
+  workspace of three crates (`domain`, `gen-questions`, `app`) per ADR 0006
+  (platform per ADR 0003, ADR 0005), the toolchain pin, the error pattern per
+  crate, the thin entry points, and the quality-gate hook
+  (`.githooks/pre-commit`, `scripts/install-hooks`). Every other module and
+  screen lands with its behavior and tests, in this decided layout:
 
   ```
   domain/src/          lib.rs, error.rs, question.rs, matching.rs, answers.rs,
@@ -22,14 +25,6 @@ they are waiting on work.
   app/src/             main.rs, routes.rs, error.rs, questions.rs, screens/,
                        components/, storage/
   ```
-
-  Ships a compiling skeleton, not empty stubs: workspace and member manifests,
-  the quality-gate hook (`.githooks/pre-commit`, `scripts/install-hooks`), the
-  error pattern per crate, thin entry points, and one working vertical slice:
-  `gen-questions` producing `data/questions.json`, the `domain` types and the
-  contract test, and the app shell rendering the main menu. Every other module
-  and screen lands with its behavior and tests. **This is the first coding
-  step.**
 
 ### Test gates
 

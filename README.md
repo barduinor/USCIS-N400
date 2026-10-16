@@ -1,7 +1,7 @@
 # USCIS-N400
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
-![Status: design complete](https://img.shields.io/badge/status-design%20complete-blue)
+![Status: scaffold in place](https://img.shields.io/badge/status-scaffold%20in%20place-blue)
 
 A single-user, phone-first study tool for the civics portion of the U.S.
 naturalization interview. It drills the 2025 civics test questions and simulates
@@ -114,8 +114,8 @@ domain vocabulary and every behavioral rule live in `GLOSSARY.md`.
 └── .agents/ .claude/   # agent skills, pinned in-repo so machines stay identical
 ```
 
-The three crates and the gate scripts arrive with the scaffold, ticket #2; the
-rest is in place today.
+The three crates and the gate scripts are in place; `data/` and the screens
+land with their tickets.
 
 ## Documentation
 
@@ -133,8 +133,9 @@ rest is in place today.
 
 ## Status and roadmap
 
-**Design complete. No code yet**: no `Cargo.toml`, no `src/`. The language,
-rules, and decisions are settled in `GLOSSARY.md` and `docs/adr/`;
+**Scaffold in place**: the three-crate workspace, the toolchain pin, and the
+pre-commit gate hook are committed, and every later ticket lands on them. The
+language, rules, and decisions are settled in `GLOSSARY.md` and `docs/adr/`;
 `docs/open-work.md` lists what is decided but unbuilt; nothing is open.
 
 The v1 build is issue #1 on the
@@ -142,8 +143,8 @@ The v1 build is issue #1 on the
 through #15, each labelled `ready-for-agent`. In order: workspace and gates, the
 question records, the domain model, the app shell, storage and onboarding, the
 study loop, selection, progress, the reveal and Override, the Exam, Stats,
-profile with export and import, the offline PWA, and CI deploy. The scaffold
-spec is expanded in `docs/open-work.md` §Decided, not built.
+profile with export and import, the offline PWA, and CI deploy. The work still
+ahead is expanded in `docs/open-work.md` §Decided, not built.
 
 ## Getting started
 
@@ -155,13 +156,13 @@ Everything a fresh machine needs, in order:
    directories picks them up on its own.
 2. **GitHub CLI, authenticated.** Agents read and write the issue tracker with
    `gh`. Run `gh auth login` once per machine; verify with `gh auth status`.
-3. **Rust toolchain** (needed from the scaffold onward). Install `rustup`, then
-   add the wasm target: `rustup target add wasm32-unknown-unknown`. The exact
-   toolchain gets pinned by `rust-toolchain.toml` when the scaffold lands.
-4. **Dioxus CLI** (needed to serve and build the app, from the app-shell ticket
+3. **Rust toolchain.** Install `rustup`. `rust-toolchain.toml` pins the
+   toolchain and names the components and the wasm target it needs; rustup
+   fetches them on the first `cargo` command in the clone.
+4. **Dioxus CLI**, to serve and build the app (from the app-shell ticket
    onward): `cargo install dioxus-cli --locked`, or a prebuilt binary.
-5. **Hooks, once the scaffold lands.** `scripts/install-hooks` points git at
-   the pre-commit hook, so every commit runs the four quality gates locally.
+5. **Hooks.** Run `scripts/install-hooks` once per clone: it points git at the
+   pre-commit hook, so every commit runs the four quality gates locally.
 6. **Optional: Node**, used only to update the pinned skills. Re-running the
    skills CLI inside the repo moves the pins forward; the diff shows what
    changed.
@@ -170,9 +171,8 @@ That is the whole list: git, an agent harness, `gh`, and the Rust toolchain.
 There are no servers, databases, or credentials to arrange; the only account
 involved is GitHub.
 
-Once the scaffold lands, the everyday commands are `cargo test` for the whole
-workspace suite, `cargo run -p gen-questions` to regenerate the committed
-records, and `dx serve` from the app crate to run the application.
+The everyday commands are `cargo test` for the whole workspace suite and
+`dx serve` from the app crate to run the application.
 
 ## Contributing
 

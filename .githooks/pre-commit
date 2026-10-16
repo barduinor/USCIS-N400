@@ -1,0 +1,29 @@
+#!/bin/sh
+# The four quality gates of this repository.
+#
+# Gates only: this hook never mutates the working tree, so nothing enters a
+# commit that the committer has not reviewed. The order and the reasoning are
+# documented in docs/coding-standards/rust/rust-best-practices/quality-gates.md.
+
+set -u
+
+run_gate() {
+	gate="$1"
+	shift
+
+	echo "==> ${gate}"
+	if ! "$@"; then
+		echo "pre-commit: blocked by the failing gate: ${gate}" >&2
+		echo "pre-commit: fix it, stage the fix, and commit again" >&2
+		exit 1
+	fi
+}
+
+run_gate "format (cargo fmt --check)" \
+	cargo fmt --check
+run_gate "lint (cargo clippy --no-deps --all-targets -- -D warnings)" \
+	cargo clippy --no-deps --all-targets -- -D warnings
+run_gate "tests (cargo test)" \
+	cargo test
+run_gate "ship target (cargo check -p uscis-n400 --target wasm32-unknown-unknown)" \
+	cargo check -p uscis-n400 --target wasm32-unknown-unknown
