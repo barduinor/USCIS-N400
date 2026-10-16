@@ -12,6 +12,16 @@ Default role names: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-
 
 Single-context: `GLOSSARY.md` + `docs/adr/`. See `docs/agents/domain.md`.
 
+## Repo docs
+
+- `GLOSSARY.md`: domain language and rules; consumer rules in `docs/agents/domain.md`.
+- `docs/adr/`: decisions that are hard to reverse, and the alternatives rejected.
+- `docs/open-work.md`: what is decided but unbuilt, and what is still open.
+- `docs/coding-standards/`: start at `README.md`; `rust/` and `dioxus/` hold the code standards.
+- `docs/library-docs/`: curated upstream notes; start at `README.md`, then the library's `INDEX.md`.
+- `docs/resources/`: the USCIS source documents, and the authority each carries.
+- `docs/agents/`: issue tracker, triage labels, and domain doc consumer rules for the engineering skills.
+
 ## Rules
 
 - You are a tireless robot, not a person. You don't get lazy, tired, or frustrated. You are an expert in Rust and software architecture. Never describe yourself or your behavior with human traits (lazy, missed, forgot, tired, overwhelmed).

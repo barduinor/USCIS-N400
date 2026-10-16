@@ -13,6 +13,8 @@ the test itself. It runs entirely in the browser — no server, no account.
 | `docs/open-work.md` | What is decided but unbuilt, and what is still undecided |
 | `docs/resources/` | The USCIS source documents, and the authority each carries |
 | `docs/coding-standards/` | Stack-level standards, deliberately project-agnostic |
+| `docs/library-docs/` | Curated library documentation, project-agnostic; each library has an `INDEX.md` |
+| `AGENTS.md` | Agent entry: skills config pointers, the docs map, and the standing rules |
 
 ## Status
 
