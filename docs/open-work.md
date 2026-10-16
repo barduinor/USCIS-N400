@@ -110,13 +110,3 @@ they are waiting on work.
 - **Export and import progress as JSON.** The only backup and the only way to
   move between devices. Required in v1, not later. The controls live on the
   Profile screen.
-
-### Tuning
-
-These are constants to adjust against real sessions, not decisions to revisit.
-
-- **Bias weights**: least-asked, wrong-answer, section-balance. Until they
-  land, the loop rotates fairly: the candidate asked longest ago wins, and the
-  question just asked never comes straight back.
-- **Recent-ask penalty**: currently sized to leave a gap of roughly 8–10
-  questions before a wrong answer returns.

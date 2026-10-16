@@ -4,11 +4,12 @@
 //! application embeds — 128 Civics Test Questions, 20 of them starred — so a
 //! bad regeneration fails here rather than in the browser.
 
+use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
 use domain::{
-    AcceptedAnswer, Profile, Question, QuestionRecords, Section, TestUpdates, Verdict, answers,
-    matching,
+    AcceptedAnswer, AnswerLogEntry, Profile, Question, QuestionRecords, Section, TestUpdates,
+    Verdict, answers, matching, selection,
 };
 
 type Result<T, E = Box<dyn std::error::Error>> = core::result::Result<T, E>; // For tests.
@@ -118,6 +119,111 @@ fn test_questions_data_accountable_scope_matches_the_records() -> Result<()> {
     );
 
     Ok(())
+}
+
+#[test]
+fn test_questions_data_65_20_serves_only_the_starred_questions() -> Result<()> {
+    // -- Setup & Fixtures
+    let records = committed_records()?;
+    let reduced = Profile {
+        special_consideration_65_20: true,
+        ..Profile::default()
+    };
+    let accountable = records.accountable(&reduced);
+    let mut log = Vec::new();
+    let mut asked = Vec::new();
+
+    // -- Exec
+    for _ in 0..60 {
+        let question = selection::next(&accountable, &log, None).expect("a starred candidate");
+
+        asked.push(question.number);
+        log.push(AnswerLogEntry {
+            at: 1_770_000_000_000,
+            question: question.number,
+            answer: "Republic".to_string(),
+            verdict: Verdict::Correct,
+            overridden: false,
+        });
+    }
+
+    // -- Check
+    let starred: BTreeSet<u16> = records
+        .questions
+        .iter()
+        .filter(|question| question.starred)
+        .map(|question| question.number)
+        .collect();
+
+    assert_eq!(
+        asked.iter().copied().collect::<BTreeSet<u16>>(),
+        starred,
+        "sixty questions of study serve the starred questions and nothing else"
+    );
+
+    Ok(())
+}
+
+#[test]
+fn test_questions_data_a_wrong_answer_gets_its_gap_on_the_real_scopes() -> Result<()> {
+    // -- Setup & Fixtures
+    let records = committed_records()?;
+    let profiles = [
+        Profile::default(),
+        Profile {
+            special_consideration_65_20: true,
+            ..Profile::default()
+        },
+    ];
+
+    // -- Exec & Check
+    for profile in profiles {
+        let accountable = records.accountable(&profile);
+        let mut log = Vec::new();
+        let mut asked = Vec::new();
+
+        // Every answer wrong: the worst case for the gap the rules ask for.
+        for _ in 0..400 {
+            let question = selection::next(&accountable, &log, None).expect("a candidate");
+
+            asked.push(question.number);
+            log.push(AnswerLogEntry {
+                at: 1_770_000_000_000,
+                question: question.number,
+                answer: "Republic".to_string(),
+                verdict: Verdict::Wrong,
+                overridden: false,
+            });
+        }
+
+        let gap = smallest_gap(&asked).expect("a question comes back");
+
+        assert!(
+            gap >= 8,
+            "a wrong answer came back after {gap} other questions with the 65/20 flag {}",
+            profile.special_consideration_65_20
+        );
+    }
+
+    Ok(())
+}
+
+/// The smallest distance between two appearances of one question.
+fn smallest_gap(asked: &[u16]) -> Option<usize> {
+    let mut gap = None;
+
+    for (position, question) in asked.iter().enumerate() {
+        if let Some(earlier) = asked[..position]
+            .iter()
+            .rposition(|earlier| earlier == question)
+        {
+            let distance = position - earlier;
+
+            gap = Some(gap.map_or(distance, |gap: usize| gap.min(distance)));
+        }
+    }
+
+    gap
 }
 
 #[test]
