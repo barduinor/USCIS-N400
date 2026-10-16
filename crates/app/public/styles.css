@@ -186,8 +186,18 @@ button.primary:disabled {
   font: inherit;
 }
 
-/* Study: the question, the field, and the verdict. Nothing else — no counter,
-   no score, and no progress figure appears during study. */
+/* Study: the question, its official number, the field, and the verdict.
+   Nothing else — no counter, no score, and no progress figure appears during
+   study. */
+
+.question-number {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
 
 .question {
   font-size: var(--step-1);

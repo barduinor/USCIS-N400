@@ -9,6 +9,10 @@ use crate::storage;
 /// The endless study loop: one Civics Test Question at a time, judged as it is
 /// answered, with the next one only when the Applicant asks for it.
 ///
+/// The question carries its official number, so the Applicant can place it in
+/// M-1778. The number is the record's own, not a position in the current
+/// scope: narrowing to the 20 starred questions leaves it unchanged.
+///
 /// After a verdict the Applicant can ask for the reveal: the Accepted Answers,
 /// and after a wrong verdict the Override inside the revealed panel, which
 /// counts that attempt as correct and never touches the Accepted Answers.
@@ -170,6 +174,9 @@ pub fn Study() -> Element {
     rsx! {
         main { class: "screen",
             h1 { "USCIS N-400 Civics Study" }
+            if let Some(question) = shown {
+                p { class: "question-number", "Question {question.number}" }
+            }
             {body}
         }
     }
