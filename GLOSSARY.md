@@ -30,8 +30,12 @@ One of the 128 official questions. Each has one or more Accepted Answers.
 _Avoid_: Item, card
 
 **Accepted Answer**:
-One official answer to a Civics Test Question, as published by USCIS. Parenthetical words in an official answer are optional, not part of it.
+One official answer to a Civics Test Question, as published by USCIS. Parenthetical words in an official answer are read by their shape, not taken as part of it; see **Parenthetical**.
 _Avoid_: Correct answer, key
+
+**Parenthetical**:
+A bracketed stretch inside an Accepted Answer, read by the shape it takes. A _fragment_ only means something beside the rest of the answer, so the answer is accepted with it and without it, never its words alone (`(U.S.) Constitution` accepts `us constitution` and `constitution`, never `us`; `The Great Crash (1929)` never accepts `1929`). An _alternative spelling_ holds words that stand in the answer's place, spelled as a menu with `or` or `/` (`(U.S. or national) legislature` accepts `U.S. legislature` and `national legislature`). A _numeral form_ follows a spelled-out number and buys that number's digits (`Twenty-seven (27)` accepts `27`). ADR 0004 owns the rule.
+_Avoid_: Bracketed text, optional words
 
 **Override**:
 The Applicant's correction of an answer the tool marked wrong. Counts as correct for that attempt; it never changes the question's Accepted Answers.
