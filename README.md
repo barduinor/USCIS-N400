@@ -134,12 +134,14 @@ place; the screens land with their tickets.
 
 ## Status and roadmap
 
-**Foundation, model, shell, and onboarding in place**: the three-crate
-workspace, the toolchain pin, the pre-commit gate hook, the 128 committed
-records that `gen-questions` regenerates from M-1778, the domain model
-(Sections, Topics, Accepted Answers, the Profile) with its records contract
-test, and an app that onboards the Applicant, stores the Profile in IndexedDB,
-and shows the main menu with phone-first styles. The language, rules, and
+**Foundation, model, shell, onboarding, and the study loop in place**: the
+three-crate workspace, the toolchain pin, the pre-commit gate hook, the 128
+committed records that `gen-questions` regenerates from M-1778, the domain
+model (Sections, Topics, Accepted Answers, the Profile, the Answer Log, answer
+matching, selection) with its records contract test, and an app that onboards
+the Applicant, stores the Profile in IndexedDB, and drills them through the
+endless study loop: a question, a typed answer judged against the Accepted
+Answers, and the next question on request. The language, rules, and
 decisions are settled in `GLOSSARY.md` and `docs/adr/`; `docs/open-work.md`
 lists what is decided but unbuilt; nothing is open.
 

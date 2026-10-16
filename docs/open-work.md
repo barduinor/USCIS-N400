@@ -11,8 +11,8 @@ they are waiting on work.
   workspace of three crates (`domain`, `gen-questions`, `app`) per ADR 0006
   (platform per ADR 0003, ADR 0005), the toolchain pin, the error pattern per
   crate, the thin entry points, and the quality-gate hook
-  (`.githooks/pre-commit`, `scripts/install-hooks`). Every other module and
-  screen lands with its behavior and tests, in this decided layout:
+  (`.githooks/pre-commit`, `scripts/install-hooks`). The remaining modules and
+  screens land with their behavior and tests, in this decided layout:
 
   ```
   crates/domain/src/          lib.rs, error.rs, question.rs, matching.rs, answers.rs,
@@ -115,6 +115,8 @@ they are waiting on work.
 
 These are constants to adjust against real sessions, not decisions to revisit.
 
-- **Bias weights**: least-asked, wrong-answer, section-balance.
+- **Bias weights**: least-asked, wrong-answer, section-balance. Until they
+  land, the loop rotates fairly: the candidate asked longest ago wins, and the
+  question just asked never comes straight back.
 - **Recent-ask penalty**: currently sized to leave a gap of roughly 8–10
   questions before a wrong answer returns.

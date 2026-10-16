@@ -37,6 +37,10 @@ _Avoid_: Correct answer, key
 The Applicant's correction of an answer the tool marked wrong. Counts as correct for that attempt; it never changes the question's Accepted Answers.
 _Avoid_: Dispute, appeal
 
+**Verdict**:
+What the tool decides about one typed answer: Correct or Wrong, judged before any Override.
+_Avoid_: Result, score
+
 **Explanation**:
 Text that helps the Applicant understand a Civics Test Question. Sourced from the official study guide, and optional until that text exists.
 _Avoid_: Answer, hint

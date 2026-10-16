@@ -17,6 +17,7 @@ use wasm_bindgen::JsValue;
 
 use crate::Result;
 
+pub mod answer_log;
 pub mod profile;
 
 // endregion: --- Modules
@@ -75,6 +76,38 @@ pub async fn write(store_name: &str, key: &str, record: &str) -> Result<()> {
     transaction.commit().await?;
 
     Ok(())
+}
+
+/// Adds a record's JSON text under the store's own next key.
+pub async fn write_next(store_name: &str, record: &str) -> Result<()> {
+    let database = database().await?;
+    let transaction = database.transaction(&[store_name], TransactionMode::ReadWrite)?;
+
+    transaction
+        .store(store_name)?
+        .add(&JsValue::from_str(record), None)
+        .await?;
+    transaction.commit().await?;
+
+    Ok(())
+}
+
+/// Reads every record's JSON text, in key order.
+pub async fn read_all(store_name: &str) -> Result<Vec<String>> {
+    let database = database().await?;
+    let transaction = database.transaction(&[store_name], TransactionMode::ReadOnly)?;
+    let values = transaction.store(store_name)?.get_all(None, None).await?;
+
+    transaction.done().await?;
+
+    values
+        .into_iter()
+        .map(|value| {
+            value
+                .as_string()
+                .ok_or_else(|| crate::Error::custom("a stored record is not text"))
+        })
+        .collect()
 }
 
 // region:    --- Support

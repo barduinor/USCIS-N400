@@ -3492,6 +3492,7 @@ dependencies = [
  "derive_more",
  "dioxus",
  "domain",
+ "js-sys",
  "rexie",
  "serde_json",
  "wasm-bindgen",

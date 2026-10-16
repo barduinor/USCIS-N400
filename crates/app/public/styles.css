@@ -9,6 +9,8 @@
   --border: #d8dee2;
   --surface: #f5f7f8;
   --accent: #1b5fa8;
+  --correct: #1d7a3d;
+  --wrong: #b3261e;
 
   --step-0: 1rem;
   --step-1: 1.25rem;
@@ -153,4 +155,53 @@ button.primary:disabled {
   margin: 0;
   color: var(--muted);
   font-size: 0.95rem;
+}
+
+/* Study: the question, the field, and the verdict. Nothing else — no counter,
+   no score, and no progress figure appears during study. */
+
+.question {
+  font-size: var(--step-1);
+  font-weight: 600;
+}
+
+form {
+  display: grid;
+  gap: var(--gap);
+  margin-top: var(--gap);
+}
+
+.verdict {
+  font-size: var(--step-1);
+  font-weight: 700;
+}
+
+.verdict.correct {
+  color: var(--correct);
+}
+
+.verdict.wrong {
+  color: var(--wrong);
+}
+
+/* The main menu: one destination per row, comfortable under a thumb. */
+
+.menu {
+  display: grid;
+  gap: var(--gap);
+  margin-top: var(--step-2);
+}
+
+.menu-item {
+  display: block;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--fg);
+  text-align: center;
+  text-decoration: none;
+}
+
+.menu-item:active {
+  background: var(--surface);
 }

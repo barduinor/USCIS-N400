@@ -3,6 +3,7 @@ use dioxus::prelude::*;
 use domain::Coverage;
 
 use crate::questions;
+use crate::routes::Route;
 
 /// The entry point: where the Applicant stands, and where they can go.
 #[component]
@@ -28,6 +29,10 @@ pub fn MainMenu() -> Element {
             section { class: "coverage",
                 h2 { "Coverage" }
                 p { class: "coverage-figure", "{coverage}" }
+            }
+
+            nav { class: "menu",
+                Link { to: Route::Study {}, class: "menu-item", "Study" }
             }
         }
     }

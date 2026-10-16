@@ -1,16 +1,52 @@
-//! Cleared state and Coverage.
+//! Cleared state, Coverage, and the Answer Log entries they derive from.
 //!
 //! A Civics Test Question is Cleared after three correct answers in a row, and
 //! a wrong answer makes it unclear again. Coverage is the share of the
 //! Applicant's accountable questions that are currently Cleared: the whole list,
 //! or the 20 starred questions when the 65/20 Special Consideration applies.
 //!
-//! This module holds the value the screens show. Deriving it from the Answer Log
-//! belongs with the rest of Cleared, which the Answer Log feeds.
+//! This module holds the value the screens show, and the entry the Answer Log
+//! is made of. Deriving Cleared and Coverage from the log belongs with the rest
+//! of Cleared.
 
 use core::fmt::{Display, Formatter};
 
-use crate::QuestionRecords;
+use serde::{Deserialize, Serialize};
+
+use crate::{QuestionRecords, Verdict};
+
+/// One answer the Applicant gave in study mode (ADR 0007).
+///
+/// The log is append-only: an Override marks the entry it corrects, and Cleared
+/// and Coverage are derived from the entries at read time.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AnswerLogEntry {
+    /// When the answer was given, in milliseconds since the Unix epoch, as the
+    /// Applicant's device reported them.
+    pub at: u64,
+
+    /// The number of the Civics Test Question that was asked.
+    pub question: u16,
+
+    /// What the Applicant typed.
+    pub answer: String,
+
+    /// What the tool decided about it.
+    pub verdict: Verdict,
+
+    /// Whether the Applicant overrode a wrong verdict.
+    pub overridden: bool,
+}
+
+impl AnswerLogEntry {
+    /// Whether this answer counts as correct towards Cleared and Coverage.
+    ///
+    /// An Override counts as correct for its attempt and never changes the
+    /// question's Accepted Answers (GLOSSARY).
+    pub fn counts_correct(&self) -> bool {
+        self.verdict == Verdict::Correct || self.overridden
+    }
+}
 
 /// The share of the Applicant's accountable questions that are Cleared.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -73,7 +109,20 @@ impl Display for Coverage {
 
 #[cfg(test)]
 mod tests {
+    type Result<T, E = Box<dyn std::error::Error>> = core::result::Result<T, E>; // For tests.
+
     use super::*;
+
+    /// One answer the Applicant gave.
+    fn answer_entry(verdict: Verdict, overridden: bool) -> AnswerLogEntry {
+        AnswerLogEntry {
+            at: 1_770_000_000_000,
+            question: 61,
+            answer: "Mikie Sherrill".to_string(),
+            verdict,
+            overridden,
+        }
+    }
 
     #[test]
     fn test_progress_coverage_none_is_zero_percent() {
@@ -90,6 +139,38 @@ mod tests {
         assert_eq!(coverage.total(), 0);
         assert_eq!(coverage.percentage(), 0);
         assert_eq!(coverage.to_string(), "0% (0 of 0)");
+    }
+
+    #[test]
+    fn test_progress_answer_log_entry_counts_an_override_as_correct() {
+        // -- Setup & Fixtures
+        let correct = answer_entry(Verdict::Correct, false);
+        let wrong = answer_entry(Verdict::Wrong, false);
+        let overridden = answer_entry(Verdict::Wrong, true);
+
+        // -- Exec & Check
+        assert!(correct.counts_correct());
+        assert!(!wrong.counts_correct());
+        assert!(overridden.counts_correct(), "an Override counts as correct");
+    }
+
+    #[test]
+    fn test_progress_answer_log_entry_round_trips_the_stored_record() -> Result<()> {
+        // -- Setup & Fixtures
+        let entry = answer_entry(Verdict::Wrong, true);
+
+        // -- Exec
+        let record = serde_json::to_string(&entry)?;
+        let stored: serde_json::Value = serde_json::from_str(&record)?;
+
+        // -- Check
+        for field in ["at", "question", "answer", "verdict", "overridden"] {
+            assert!(stored.get(field).is_some(), "a stored answer holds {field}");
+        }
+        assert_eq!(stored["verdict"], "wrong");
+        assert_eq!(serde_json::from_str::<AnswerLogEntry>(&record)?, entry);
+
+        Ok(())
     }
 
     #[test]

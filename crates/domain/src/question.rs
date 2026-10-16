@@ -12,6 +12,8 @@ use core::fmt::{Display, Formatter};
 use derive_more::{Display, From};
 use serde::{Deserialize, Serialize};
 
+use crate::Profile;
+
 /// One Civics Test Question with its Accepted Answers.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Question {
@@ -94,6 +96,28 @@ pub enum Topic {
     // -- Symbols and Holidays
     Symbols,
     Holidays,
+}
+
+impl QuestionRecords {
+    /// The Civics Test Question with this number, where the records hold it.
+    pub fn question(&self, number: u16) -> Option<&Question> {
+        self.questions
+            .iter()
+            .find(|question| question.number == number)
+    }
+
+    /// The Civics Test Questions the Applicant is accountable for: all of them,
+    /// or the 20 starred questions when the 65/20 Special Consideration
+    /// applies.
+    ///
+    /// Study selection, Coverage, and the Exam all apply this one rule, so it
+    /// sits with the records.
+    pub fn accountable(&self, profile: &Profile) -> Vec<&Question> {
+        self.questions
+            .iter()
+            .filter(|question| !profile.special_consideration_65_20 || question.starred)
+            .collect()
+    }
 }
 
 impl AcceptedAnswer {
@@ -217,6 +241,43 @@ mod tests {
         }
 
         Ok(())
+    }
+
+    #[test]
+    fn test_question_records_accountable_narrows_to_the_starred_scope() {
+        // -- Setup & Fixtures
+        let records = QuestionRecords {
+            questions: (1..=3)
+                .map(|number| Question {
+                    number,
+                    section: Section::AmericanGovernment,
+                    topic: Topic::PrinciplesOfAmericanGovernment,
+                    question: "Fixture.".to_string(),
+                    accepted_answers: vec![AcceptedAnswer::from("Republic")],
+                    answers_required: 1,
+                    starred: number == 2,
+                    explanation: None,
+                })
+                .collect(),
+        };
+        let reduced = Profile {
+            special_consideration_65_20: true,
+            ..Profile::default()
+        };
+
+        // -- Exec
+        let all = records.accountable(&Profile::default());
+        let accountable = records.accountable(&reduced);
+
+        // -- Check
+        assert_eq!(all.len(), 3);
+        assert_eq!(accountable.len(), 1, "65/20 studies the starred questions");
+        assert!(
+            accountable.iter().all(|question| question.starred),
+            "nothing outside the starred scope is ever asked"
+        );
+        assert_eq!(records.question(2).map(|question| question.number), Some(2));
+        assert_eq!(records.question(99).map(|question| question.number), None);
     }
 
     #[test]

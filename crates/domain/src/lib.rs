@@ -8,14 +8,18 @@
 
 // region:    --- Modules
 
+pub mod answers;
 mod error;
+pub mod matching;
 pub mod profile;
 pub mod progress;
 pub mod question;
+pub mod selection;
 
 pub use error::{Error, Result};
+pub use matching::Verdict;
 pub use profile::{Profile, TestUpdates};
-pub use progress::Coverage;
+pub use progress::{AnswerLogEntry, Coverage};
 pub use question::{AcceptedAnswer, Question, QuestionRecords, Section, Topic};
 
 // endregion: --- Modules
