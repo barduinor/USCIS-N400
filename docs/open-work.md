@@ -62,6 +62,21 @@ they are waiting on work.
   wait on the onboarding decision; the Profile is stored as one record, so
   that decision does not change the shape.
 
+### Question records
+
+- **The parser pipeline.** `gen-questions` extracts text from the committed
+  M-1778 PDF with `pdf-extract` (pure Rust, no system dependencies), parses
+  Sections, Topics, questions, bullets, the 20 asterisks, and the
+  required-answer counts from the "Name <u>two</u>" underlines, then applies
+  `overrides.json` and writes `data/questions.json`. The generated file is
+  clean: display and matching both consume it, and overrides are the only
+  correction path (ADR 0002). Known corrections: the five bracket annotations
+  (Q23, Q29, Q61, Q62 dropped; Q120 adds Accepted Answers), Q16/Q19
+  comma-lists split, `19 th` → `19th`.
+- **Tests.** Parsing units on small text fixtures, plus the regeneration guard:
+  the full pipeline against the PDF, byte-compared with the committed records.
+  Extractor upgrades that change output surface as guard diffs — deliberate.
+
 ### Content
 
 - **Explanations for all 128 questions.** Source them from
