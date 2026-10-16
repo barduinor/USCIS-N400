@@ -12,7 +12,7 @@ Accepted Answer, or a rule.
   M-638 accepts "the War between the States" for a question the 2025 list
   accepts only as "The Civil War". Its Cabinet list predates the 2025 revision
   — it omits six positions the current list accepts, and names a department
-  that has since been renamed. A merged bank would teach answers the officer
+  that has since been renamed. A merged list would teach answers the officer
   rejects.
 - **Use M-638 as the explanation source.** Rejected as a source of answers. Its
   per-question explanations cover only the 56 of 128 current questions with a

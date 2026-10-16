@@ -58,19 +58,15 @@ A sub-division within a Section. The 2025 test has eight.
 _Avoid_: Sub-section, chapter
 
 **Exam**:
-A scoring simulation of the Civics Test. Twenty questions are drawn at random from the 128, and the Exam ends the moment the Applicant has answered 12 correctly or 9 incorrectly, exactly as the officer stops the real test. Keeps its own record of outcome, score, and questions asked.
+A scoring simulation of the Civics Test. Without the 65/20 Special Consideration, twenty questions are drawn at random from the 128, and the Exam ends the moment the Applicant has answered 12 correctly or 9 incorrectly. When the 65/20 Special Consideration applies, ten questions are drawn at random from the 20 starred questions, and the Exam ends at 6 correctly or 5 incorrectly. Either way it stops exactly as the officer stops the real test. Keeps its own record of outcome, score, and questions asked.
 _Avoid_: Exam Run, Mock exam, Test
 
 **Cleared**:
 A Civics Test Question answered correctly three times in a row. A wrong answer makes it unclear again.
 _Avoid_: Mastered, learned, known
 
-**Study Set**:
-The questions the Applicant is accountable for: all 128, or only the 20 starred questions when the 65/20 Special Consideration applies. Fixed during onboarding.
-_Avoid_: Question bank, deck
-
 **Coverage**:
-The share of the **Study Set** that is Cleared. Falls as soon as a Cleared question is answered wrong.
+The share of the Civics Test Questions that are Cleared — all 128, or only the 20 starred questions when the 65/20 Special Consideration applies. Falls as soon as a Cleared question is answered wrong.
 _Avoid_: Proficiency, progress
 
 **Answer Log**:
@@ -81,7 +77,7 @@ _Avoid_: History, results
 The Applicant's own facts: state, district, current officeholders, and whether the 65/20 Special Consideration applies.
 
 **65/20 Special Consideration**:
-Reduced scope for an Applicant aged 65 or older who has been a lawful permanent resident for 20 or more years: study only the 20 starred questions, asked 10, 6 passes.
+Reduced scope for an Applicant aged 65 or older who has been a lawful permanent resident for 20 or more years: study only the 20 starred questions (the ones M-1778 marks with an asterisk), asked 10, 6 passes.
 
 ## Structure
 
@@ -118,7 +114,7 @@ second name.
 
 | Screen | Purpose |
 |---|---|
-| Onboarding | First run only. Establishes the Profile, and with it the Study Set. |
+| Onboarding | First run only. Establishes the Profile, and with it the 65/20 flag and Coverage's denominator. |
 | Main menu | Entry point. Shows Coverage. |
 | Study | The endless question loop. No statistics. |
 | Exam | One Exam, ending when the outcome is decided. No statistics. |
@@ -135,14 +131,14 @@ second name.
 - A **Test Update** and a **Local Fact** take their value from the **Profile** or from USCIS, never from the published question list
 - **Coverage** derives from the **Answer Log**, which records study answers only
 - An **Exam** never appends to the **Answer Log**; it records its own outcome, score, and questions asked
-- The **Profile** is established during onboarding, and it fixes the **Study Set**
+- The **Profile** is established during onboarding, and its 65/20 flag narrows study selection, Coverage, and the Exam
 - Each **Section** and **Topic** reports its own **Coverage**
 
 ## Rules
 
 - Study mode is endless. There is no session, no fixed length, and no summary; the Applicant stops when they choose.
 - Exam mode runs a single Exam at a time.
-- The next question is chosen after every answer by taking the highest-weighted candidate. There is no batch planning and no fallback branch — relevance lives entirely in the weights.
+- The next question is chosen after every answer by taking the highest-weighted candidate. When the 65/20 Special Consideration applies, only the 20 starred questions are candidates. There is no batch planning and no fallback branch — relevance lives entirely in the weights.
 - The weights favour questions asked least often, questions answered wrong, and Sections that have been under-served. They are tunable constants.
 - A question asked recently is penalised, not blocked, so a wrong answer returns only after a gap of roughly 8–10 other questions. The penalty is tunable and never reaches zero, so a candidate always exists.
 - **Cleared questions are never excluded.** They reappear whenever their weight wins, which is how the Applicant keeps seeing questions they got right.
@@ -162,7 +158,8 @@ second name.
 
 ## Flagged ambiguities
 
-- "Proficiency" is resolved to a single measure: **Coverage**, the share of the study set currently Cleared. A separate rolling-accuracy number was considered and dropped — it would have tracked the same thing with a shorter window. Avoid the word "proficiency" in code and UI.
+- "Proficiency" is resolved to a single measure: **Coverage**, the share of the Civics Test Questions currently Cleared. A separate rolling-accuracy number was considered and dropped — it would have tracked the same thing with a shorter window. Avoid the word "proficiency" in code and UI.
 - "Dynamic question" was used for two unrelated things. Resolved: **Test Update** (changes with elections) versus **Local Fact** (depends on where the Applicant lives). They differ in what they depend on and in who can supply the value.
 - The repository holds two test instruments: M-1778 (2025) and M-638 (2008, superseded). Resolved: questions and scoring rules come from the 2025 version **exclusively**. The 2008 material is never a source for a question, an Accepted Answer, or a rule.
 - Exam answers deliberately never feed **Coverage** or **Cleared**. An **Exam** is scored and recorded on its own, so that a lucky exam cannot clear a question the Applicant has never studied.
+- "Study Set" and "question bank" were used for the Applicant's scope. Resolved: neither is an entity; the questions are the 128 **Civics Test Questions**, and the 65/20 flag narrows them to the 20 starred ones. Study selection, Coverage, and the Exam all apply that single rule.

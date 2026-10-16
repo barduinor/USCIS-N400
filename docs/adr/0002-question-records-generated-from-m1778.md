@@ -1,4 +1,4 @@
-# The question bank is generated from M-1778, then corrected by hand
+# The question records are generated from M-1778, then corrected by hand
 
 The per-question records are produced by a parser that reads the 2025 question
 list (M-1778) and emits a committed data file. Hand corrections are applied as a
@@ -14,7 +14,7 @@ separate overrides step, so the generated file is never edited directly.
 
 ## Consequences
 
-- The parser stays in the repo, so the bank can be audited against M-1778 and
+- The parser stays in the repo, so the records can be audited against M-1778 and
   regenerated when the source is reissued.
 - **Never hand-edit the generated file.** Corrections belong in the overrides
   step, or the next regeneration silently discards them.

@@ -16,8 +16,8 @@ discussion.
 
 ### Onboarding
 
-- Settled: it runs before the first question, because it fixes the Study Set and
-  therefore the Coverage denominator; it collects state, district, the three
+- Settled: it runs before the first question, because it fixes the 65/20 flag and
+  therefore Coverage's denominator; it collects state, district, the three
   local names, the four Test Updates, and whether the 65/20 Special
   Consideration applies — `CONTEXT.md` §Rules, §Language.
 - Open: the exact field list, the order they are asked in, and what happens when
@@ -48,7 +48,7 @@ they are waiting on work.
 
 - **Onboarding.** Collects state, district, the three local names, the four Test
   Updates, and whether the 65/20 Special Consideration applies. Must run before
-  the first question, because it fixes the Study Set and therefore the Coverage
+  the first question, because it fixes the 65/20 flag and therefore Coverage's
   denominator.
 
 ### Data
