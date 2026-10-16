@@ -493,6 +493,117 @@ fn test_questions_data_judges_the_published_answers_correct() -> Result<()> {
 }
 
 #[test]
+fn test_questions_data_judges_the_numeral_forms_of_the_digit_answers() -> Result<()> {
+    // -- Setup & Fixtures
+    let records = committed_records()?;
+    let filled = filled_profile();
+
+    // The ten Accepted Answers whose parenthetical numeral buys a digit form
+    // (ADR 0004), by question number. Q7 is the amendments question; `27` is
+    // the answer the Study screen has to get right.
+    let numerals = [
+        (7, "27"),
+        (21, "100"),
+        (22, "6 years"),
+        (24, "435"),
+        (25, "2 years"),
+        (27, "2"),
+        (36, "4 years"),
+        (53, "9"),
+        (54, "5"),
+        (63, "citizens 18 and older"),
+    ];
+
+    // -- Exec & Check
+    for (number, digit_form) in numerals {
+        let question = records
+            .question(number)
+            .expect("a question the numeral answers name");
+        let accepted = answers::accepted_answers(question, &filled);
+
+        assert_eq!(
+            matching::judge(question, &accepted, digit_form),
+            Verdict::Correct,
+            "question {number} must accept its digit form `{digit_form}`"
+        );
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_questions_data_keeps_a_fragments_words_wrong_on_the_real_records() -> Result<()> {
+    // -- Setup & Fixtures
+    let records = committed_records()?;
+    let filled = filled_profile();
+
+    // A fragment's words alone are never an answer, whichever side of the
+    // answer the parentheses sit on (ADR 0004): the year Q104 prints, the
+    // abbreviation Q2 prints, and one fragment of each other shape. The answer
+    // is still accepted with the fragment dropped.
+    let fragments = [
+        (2, "us", "constitution"),
+        (4, "example of", "social contract"),
+        (28, "for small states", "equal representation"),
+        (33, "congressional", "citizens in their district"),
+        (40, "of the united states", "the vice president"),
+        (63, "women and men can vote", "any citizen can vote"),
+        (104, "1929", "the great crash"),
+    ];
+
+    // -- Exec & Check
+    for (number, fragment, dropped) in fragments {
+        let question = records
+            .question(number)
+            .expect("a question the fragment answers name");
+        let accepted = answers::accepted_answers(question, &filled);
+
+        assert_eq!(
+            matching::judge(question, &accepted, fragment),
+            Verdict::Wrong,
+            "question {number} must not accept the fragment `{fragment}` alone"
+        );
+        assert_eq!(
+            matching::judge(question, &accepted, dropped),
+            Verdict::Correct,
+            "question {number} must accept `{dropped}`, the fragment dropped"
+        );
+    }
+
+    Ok(())
+}
+
+#[test]
+fn test_questions_data_accepts_the_compromise_questions_other_name() -> Result<()> {
+    // -- Setup & Fixtures
+    let records = committed_records()?;
+    let filled = filled_profile();
+    let question = records.question(28).expect("the compromise question");
+    let accepted = answers::accepted_answers(question, &filled);
+
+    // -- Exec & Check
+    assert!(
+        question
+            .accepted_answers
+            .iter()
+            .any(|answer| answer.as_str() == "Connecticut Compromise"),
+        "Q28's other name is an Accepted Answer of its own, from the overrides"
+    );
+    assert_eq!(
+        matching::judge(question, &accepted, "Connecticut Compromise"),
+        Verdict::Correct,
+        "Q28 must accept the compromise's other name"
+    );
+    assert_eq!(
+        matching::judge(question, &accepted, "The Great Compromise"),
+        Verdict::Correct,
+        "Q28 keeps accepting the answer with the fragment dropped"
+    );
+
+    Ok(())
+}
+
+#[test]
 fn test_questions_data_holds_no_extraction_artifacts() -> Result<()> {
     // -- Setup & Fixtures
     let records = committed_records()?;

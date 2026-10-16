@@ -23,6 +23,15 @@
       "accepted_answers": ["Answers will vary."]
     },
     {
+      "reason": "The parenthetical is the compromise's other name, and a fragment's words alone are not an answer.",
+      "number": 28,
+      "accepted_answers": [
+        "Equal representation (for small states)",
+        "The Great Compromise (Connecticut Compromise)",
+        "Connecticut Compromise"
+      ]
+    },
+    {
       "reason": "Square brackets are annotations, not answers.",
       "number": 29,
       "accepted_answers": ["Answers will vary."]

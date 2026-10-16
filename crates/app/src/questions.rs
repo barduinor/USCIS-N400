@@ -28,3 +28,50 @@ pub fn records() -> Result<&'static QuestionRecords> {
         Err(message) => Err(Error::custom(message.as_str())),
     }
 }
+
+// region:    --- Tests
+
+#[cfg(test)]
+mod tests {
+    type Result<T, E = Box<dyn std::error::Error>> = core::result::Result<T, E>; // For tests.
+
+    use domain::{Profile, Verdict, answers, matching};
+
+    use super::*;
+
+    /// The Study screen's judgement step, over the embedded records: the
+    /// question's Accepted Answers for the Applicant's Profile, then the
+    /// matcher. Q7 is the amendments question; the fragments are the answers
+    /// the rule has to keep wrong.
+    #[test]
+    fn test_questions_judges_the_amendments_question_and_the_fragments() -> Result<()> {
+        // -- Setup & Fixtures
+        let records = records()?;
+        let profile = Profile::default();
+        let cases = [
+            (7, "27", Verdict::Correct),
+            (28, "Connecticut Compromise", Verdict::Correct),
+            (2, "us", Verdict::Wrong),
+            (104, "1929", Verdict::Wrong),
+            (28, "for small states", Verdict::Wrong),
+        ];
+
+        // -- Exec & Check
+        for (number, typed, verdict) in cases {
+            let question = records
+                .question(number)
+                .ok_or_else(|| format!("records should hold question {number}"))?;
+            let accepted = answers::accepted_answers(question, &profile);
+
+            assert_eq!(
+                matching::judge(question, &accepted, typed),
+                verdict,
+                "question {number} must judge `{typed}` {verdict}"
+            );
+        }
+
+        Ok(())
+    }
+}
+
+// endregion: --- Tests
