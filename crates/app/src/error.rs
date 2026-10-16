@@ -7,6 +7,12 @@ pub type Result<T, E = Error> = core::result::Result<T, E>;
 pub enum Error {
     #[from(String, &String, &str)]
     Custom(String),
+
+    // -- Externals
+    #[from]
+    Json(serde_json::Error),
+    #[from]
+    Storage(rexie::Error),
 }
 
 // region:    --- Custom

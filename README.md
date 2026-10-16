@@ -134,13 +134,14 @@ place; the screens land with their tickets.
 
 ## Status and roadmap
 
-**Foundation, model, and app shell in place**: the three-crate workspace, the
-toolchain pin, the pre-commit gate hook, the 128 committed records that
-`gen-questions` regenerates from M-1778, the domain model (Sections, Topics,
-Accepted Answers, the Profile) with its records contract test, and the app's
-route structure and main menu with phone-first styles are all committed. The
-language, rules, and decisions are settled in `GLOSSARY.md` and `docs/adr/`;
-`docs/open-work.md` lists what is decided but unbuilt; nothing is open.
+**Foundation, model, shell, and onboarding in place**: the three-crate
+workspace, the toolchain pin, the pre-commit gate hook, the 128 committed
+records that `gen-questions` regenerates from M-1778, the domain model
+(Sections, Topics, Accepted Answers, the Profile) with its records contract
+test, and an app that onboards the Applicant, stores the Profile in IndexedDB,
+and shows the main menu with phone-first styles. The language, rules, and
+decisions are settled in `GLOSSARY.md` and `docs/adr/`; `docs/open-work.md`
+lists what is decided but unbuilt; nothing is open.
 
 The v1 build is issue #1 on the
 [tracker](https://github.com/barduinor/USCIS-N400/issues), sliced into tickets #2

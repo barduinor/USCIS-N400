@@ -44,10 +44,11 @@ they are waiting on work.
 
 ### Storage
 
-- **Storage layer and export/import.** One IndexedDB database; the record
-  shapes, the Override rule, and the replace-on-import contract are in
-  ADR 0007. Export/import is required in v1 (ADR 0003). The Profile is stored
-  as one record.
+- **Export and import.** The storage layer is in place: one IndexedDB database
+  holding the profile, answer_log, exams, and meta stores, with the Profile
+  stored as one JSON record (ADR 0007). Still to come: the export bundle and
+  its import — the Applicant's only backup and only way to move devices —
+  which lands with the Profile screen.
 
 ### Content
 
@@ -60,11 +61,9 @@ they are waiting on work.
 
 ### Profile
 
-- **Onboarding.** Collects state (required), district, the two U.S. senators,
-  the representative, the governor, the state capital, the four Test Updates,
-  and whether the 65/20 Special Consideration applies. Must run before the
-  first question, because it fixes the 65/20 flag and therefore Coverage's
-  denominator.
+- **The Profile screen.** Onboarding now captures the Profile before the first
+  Civics Test Question, and the same fields become the editable Profile screen
+  (with the export and import controls) later.
 
 ### Data
 

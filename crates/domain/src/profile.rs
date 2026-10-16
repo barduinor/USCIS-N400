@@ -47,6 +47,16 @@ pub struct TestUpdates {
     pub chief_justice: Option<String>,
 }
 
+impl Profile {
+    /// Whether the Applicant has given the one required fact.
+    ///
+    /// Without a state there is nothing to narrow the Local Facts to, so no
+    /// screen that depends on the Profile may render.
+    pub fn has_state(&self) -> bool {
+        !self.state.trim().is_empty()
+    }
+}
+
 // region:    --- Tests
 
 #[cfg(test)]
@@ -54,6 +64,26 @@ mod tests {
     type Result<T, E = Box<dyn std::error::Error>> = core::result::Result<T, E>; // For tests.
 
     use super::*;
+
+    #[test]
+    fn test_profile_has_state_needs_the_one_required_fact() {
+        // -- Setup & Fixtures
+        let answered = Profile {
+            state: " New Jersey ".to_string(),
+            ..Profile::default()
+        };
+
+        // -- Exec & Check
+        assert!(answered.has_state());
+        assert!(!Profile::default().has_state());
+        assert!(
+            !Profile {
+                state: "   ".to_string(),
+                ..Profile::default()
+            }
+            .has_state()
+        );
+    }
 
     #[test]
     fn test_profile_serde_round_trips_a_filled_profile() -> Result<()> {
