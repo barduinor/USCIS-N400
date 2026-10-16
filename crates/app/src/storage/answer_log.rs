@@ -121,6 +121,31 @@ mod tests {
 
         Ok(())
     }
+
+    /// One record as an earlier build wrote it, with the `overridden` field
+    /// absent: what the browser holds when a record shape moves on. The Study
+    /// screen carries this text to the Applicant, so it reads as the app's
+    /// sentence and never as the parser's complaint.
+    #[test]
+    fn test_answer_log_unreadable_record_reads_as_the_apps_own_sentence() -> Result<()> {
+        // -- Setup & Fixtures
+        let record = "{\"at\": 1770000000000, \"question\": 23, \"answer\": \"Cory Booker\", \
+                      \"verdict\": \"correct\"}";
+
+        // -- Exec
+        let Err(error) = from_record(record) else {
+            return Err("a record with no `overridden` must not read as an answer".into());
+        };
+
+        // -- Check
+        assert_eq!(
+            error.to_string(),
+            "the storage on this device holds something the app cannot read, and importing a \
+             bundle from the Profile screen is the way back."
+        );
+
+        Ok(())
+    }
 }
 
 // endregion: --- Tests
