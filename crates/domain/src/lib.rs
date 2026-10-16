@@ -10,10 +10,12 @@
 
 mod error;
 pub mod profile;
+pub mod progress;
 pub mod question;
 
 pub use error::{Error, Result};
 pub use profile::{Profile, TestUpdates};
+pub use progress::Coverage;
 pub use question::{AcceptedAnswer, Question, QuestionRecords, Section, Topic};
 
 // endregion: --- Modules

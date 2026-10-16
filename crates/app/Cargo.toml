@@ -9,7 +9,9 @@ unsafe_code = "forbid"
 
 [dependencies]
 # -- Ui
-dioxus = { version = "0.7", features = ["web"] }
+dioxus = { version = "0.7", features = ["web", "router"] }
+# -- Json
+serde_json = "1"
 # -- Others
 derive_more = { version = "2", features = ["display", "from"] }
 domain = { path = "../domain" }

@@ -22,6 +22,7 @@ they are waiting on work.
                               parse.rs, overrides.rs
   crates/gen-questions/       overrides.json
   crates/gen-questions/tests/ tests_regeneration.rs, tests_records.rs
+  crates/app/                 Dioxus.toml, index.html, public/styles.css
   crates/app/src/             main.rs, routes.rs, error.rs, questions.rs, screens/,
                               components/, storage/
   ```
@@ -80,20 +81,21 @@ they are waiting on work.
 
 ### Build and deploy
 
-- **Styling.** Plain CSS: one `styles.css` linked from the index template,
-  CSS custom properties as the token set. Tailwind rejected: a Node/binary
+- **PWA assets.** `crates/app/index.html` (the shell template, with `div#main`
+  the app mounts into) and `public/styles.css` are in place: plain CSS, custom
+  properties as the token set, phone-first. Tailwind rejected: a Node/binary
   build step in the hook and CI for seven screens of single-user UI; classes
-  are strings, so adopting it later stays cheap.
-- **App shell.** A custom `index.html` (required to load the service worker
-  and manifest; must contain `div#main`) plus `public/`: `manifest.json`,
-  `sw.js` (hand-written, cache-first shell precache under a versioned cache
-  name), `styles.css`, icons.
+  are strings, so adopting it later stays cheap. Still to come with the offline
+  ticket: `public/manifest.json`, the hand-written `sw.js` (cache-first shell
+  precache under a versioned cache name), and icons.
 - **Deploy.** GitHub Actions on push to `main`: the three gates, then pinned
   `dx` and `wasm32-unknown-unknown`, `dx build --release`, the Pages artifact,
   `actions/deploy-pages`. Pages source is "GitHub Actions"; the site lives
   under `/USCIS-N400/`, so the base path must match; it also feeds the
   manifest scope and the service worker registration. `rust-toolchain.toml`
-  pins the toolchain.
+  pins the toolchain. The pinned `dx` should match the crate's `dioxus` 0.7.x
+  patch: `dx serve` warns when the two differ (an installing machine had
+  `dx 0.7.7` against `dioxus 0.7.10`).
 
 ### Platform
 

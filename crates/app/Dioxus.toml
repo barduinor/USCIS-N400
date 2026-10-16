@@ -1,0 +1,8 @@
+# The web application's identity, as `dx` uses it when it builds the shell.
+
+[application]
+name = "uscis-n400"
+
+[web.app]
+# The document title, injected into the `index.html` template's title element.
+title = "USCIS N-400 Civics Study"
