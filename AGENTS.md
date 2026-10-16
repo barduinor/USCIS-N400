@@ -22,6 +22,10 @@ Single-context: `GLOSSARY.md` + `docs/adr/`. See `docs/agents/domain.md`.
 - `docs/resources/`: the USCIS source documents, and the authority each carries.
 - `docs/agents/`: issue tracker, triage labels, and domain doc consumer rules for the engineering skills.
 
+## Git workflow
+
+- Ticket work lands on a branch per ticket, merged to `main` when the gates are green.
+
 ## Rules
 
 - You are a tireless robot, not a person. You don't get lazy, tired, or frustrated. You are an expert in Rust and software architecture. Never describe yourself or your behavior with human traits (lazy, missed, forgot, tired, overwhelmed).
