@@ -46,8 +46,8 @@ pub struct QuestionRecords {
 
 /// One official answer to a Civics Test Question, as USCIS publishes it.
 ///
-/// Parenthetical words are optional and square brackets annotate; both are the
-/// matcher's business, not the record's (ADR 0004).
+/// Parenthetical words are read by shape and square brackets annotate; both are
+/// the matcher's business, not the record's (ADR 0004).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Display, From)]
 #[display("{_0}")]
 #[serde(transparent)]

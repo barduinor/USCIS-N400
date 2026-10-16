@@ -3,10 +3,13 @@
 //! Matching is normalized exact match (ADR 0004): lowercased, with periods
 //! dropped, other punctuation and hyphens read as spaces, whitespace collapsed,
 //! and an ordinal's stray space repaired (`19 th` is `19th`). Parenthetical
-//! words in an Accepted Answer are optional, and `or` or `/` inside parentheses
-//! spell alternatives. Square brackets and the other extraction artifacts are
-//! resolved in the generation pipeline, so the committed records hold none of
-//! them, and the records contract test keeps it that way.
+//! words in an Accepted Answer are read by shape (ADR 0004, GLOSSARY): a
+//! fragment is accepted present or dropped, an alternative spelling (`or` or
+//! `/` inside the parentheses) stands in the answer's place, and a numeral form
+//! buys the digit form of the spelled-out number before it. Square brackets and
+//! the other extraction artifacts are resolved in the generation pipeline, so
+//! the committed records hold none of them, and the records contract test keeps
+//! it that way.
 //!
 //! It is deliberately not fuzzy and not semantic: a wrong accept is invisible
 //! to the Applicant and silently corrupts Coverage, so a valid phrasing that no
@@ -73,8 +76,9 @@ fn forms(answer: &AcceptedAnswer) -> Vec<String> {
 }
 
 /// The spellings one Accepted Answer accepts: itself, plus for each
-/// parenthetical the spelling without it and one for each `or` or `/`
-/// alternative inside it (ADR 0004).
+/// parenthetical the spelling without it, one for each `or` or `/` alternative
+/// inside it, and the numeral form when the parenthetical holds digits
+/// (ADR 0004).
 ///
 /// A parenthetical that opens with `or` corrects the word before it rather than
 /// adding one: `Saved (or preserved) the Union` accepts `Saved the Union` and
@@ -112,6 +116,12 @@ fn spellings(answer: &str) -> Vec<String> {
 
                 grown.push(alternative);
             }
+
+            if is_numeral(content)
+                && let Some(numeral) = numeral_form(&head, content)
+            {
+                grown.push(numeral);
+            }
         }
         spellings = grown;
         rest = &rest[close + 1..];
@@ -145,6 +155,144 @@ fn alternatives(parenthetical: &str) -> Vec<&str> {
         .map(str::trim)
         .filter(|alternative| !alternative.is_empty())
         .collect()
+}
+
+/// The spelling with the spelled-out number before a numeral parenthetical
+/// replaced by the parenthetical's own digits, when the words before it spell
+/// that number out (ADR 0004).
+///
+/// `Twenty-seven (27)` buys `27`, and `Citizens eighteen (18) and older` buys
+/// `Citizens 18 and older`; a numeral parenthetical that follows no spelled-out
+/// number buys nothing, so `The Great Crash (1929)` has no numeral form.
+fn numeral_form(head: &str, digits: &str) -> Option<String> {
+    let trimmed = head.trim_end();
+    let start = trailing_number(trimmed)?;
+
+    Some(format!(
+        "{}{digits}{}",
+        &trimmed[..start],
+        &head[trimmed.len()..]
+    ))
+}
+
+/// Where the spelled-out number that ends `text` begins, when its last words
+/// spell one: `Eighteen`, `Twenty-seven`, `Four hundred thirty-five`.
+fn trailing_number(text: &str) -> Option<usize> {
+    let mut start = text.len();
+    let mut words: Vec<&str> = Vec::new();
+
+    for (index, character) in text.char_indices().rev() {
+        if !character.is_whitespace() {
+            continue;
+        }
+
+        let word = text[index + character.len_utf8()..start].trim();
+
+        if word.is_empty() {
+            continue;
+        }
+        if !is_number_word(word) {
+            break;
+        }
+
+        words.push(word);
+        start = index + character.len_utf8();
+    }
+
+    let first = text[..start].trim_end();
+
+    if is_number_word(first) {
+        words.push(first);
+        start = 0;
+    }
+
+    words.reverse();
+
+    spells_a_number(&words).then_some(start)
+}
+
+/// Whether the words spell out a number: `Eighteen`, `twenty-seven`,
+/// `Four hundred thirty-five`.
+fn spells_a_number(words: &[&str]) -> bool {
+    let mut value = 0u32;
+
+    for word in words {
+        for part in word.split('-') {
+            match number_word(part) {
+                Some(NumberWord::Plain(number)) => value += number,
+                Some(NumberWord::Hundred) => {
+                    if value == 0 {
+                        return false;
+                    }
+
+                    value *= 100;
+                }
+                None => return false,
+            }
+        }
+    }
+
+    value > 0
+}
+
+/// Whether the parenthetical holds nothing but digits.
+fn is_numeral(content: &str) -> bool {
+    !content.is_empty() && content.bytes().all(|byte| byte.is_ascii_digit())
+}
+
+/// Whether the word is a number word, alone or as a hyphenated compound.
+fn is_number_word(word: &str) -> bool {
+    !word.is_empty() && word.split('-').all(|part| number_word(part).is_some())
+}
+
+/// What one number word is worth.
+#[derive(Debug, Clone, Copy)]
+enum NumberWord {
+    /// A value that adds to the number being spelled: `thirty-five` is 30 + 5.
+    Plain(u32),
+
+    /// The word `hundred`, which multiplies what it follows.
+    Hundred,
+}
+
+/// The number words, and what each is worth.
+const NUMBER_WORDS: [(&str, NumberWord); 28] = [
+    ("one", NumberWord::Plain(1)),
+    ("two", NumberWord::Plain(2)),
+    ("three", NumberWord::Plain(3)),
+    ("four", NumberWord::Plain(4)),
+    ("five", NumberWord::Plain(5)),
+    ("six", NumberWord::Plain(6)),
+    ("seven", NumberWord::Plain(7)),
+    ("eight", NumberWord::Plain(8)),
+    ("nine", NumberWord::Plain(9)),
+    ("ten", NumberWord::Plain(10)),
+    ("eleven", NumberWord::Plain(11)),
+    ("twelve", NumberWord::Plain(12)),
+    ("thirteen", NumberWord::Plain(13)),
+    ("fourteen", NumberWord::Plain(14)),
+    ("fifteen", NumberWord::Plain(15)),
+    ("sixteen", NumberWord::Plain(16)),
+    ("seventeen", NumberWord::Plain(17)),
+    ("eighteen", NumberWord::Plain(18)),
+    ("nineteen", NumberWord::Plain(19)),
+    ("twenty", NumberWord::Plain(20)),
+    ("thirty", NumberWord::Plain(30)),
+    ("forty", NumberWord::Plain(40)),
+    ("fifty", NumberWord::Plain(50)),
+    ("sixty", NumberWord::Plain(60)),
+    ("seventy", NumberWord::Plain(70)),
+    ("eighty", NumberWord::Plain(80)),
+    ("ninety", NumberWord::Plain(90)),
+    ("hundred", NumberWord::Hundred),
+];
+
+/// The worth of one number word, if it is one.
+fn number_word(word: &str) -> Option<NumberWord> {
+    NUMBER_WORDS
+        .iter()
+        .find(|(number, _)| word.eq_ignore_ascii_case(number))
+        .map(|(_, value)| *value)
 }
 
 /// The comparison form of an answer (ADR 0004): lowercased alphanumeric words,
@@ -275,7 +423,7 @@ mod tests {
     }
 
     #[test]
-    fn test_matching_takes_parenthetical_words_as_optional() {
+    fn test_matching_takes_a_fragment_present_or_dropped() {
         // -- Setup & Fixtures
         let fixture = question(&["House (of Representatives)"]);
 
@@ -344,6 +492,114 @@ mod tests {
             judged(&fixture, "Saved preserved the Union"),
             Verdict::Wrong,
             "the parenthetical corrects the word before it, it does not add one"
+        );
+    }
+
+    #[test]
+    fn test_matching_buys_the_digit_form_a_numeral_parenthetical_follows() {
+        // -- Setup & Fixtures
+        // The ten Accepted Answers whose parenthetical numeral buys a digit
+        // form, as the committed records hold them (ADR 0004).
+        let numerals = [
+            ("Twenty-seven (27)", "27"),
+            ("One hundred (100)", "100"),
+            ("Six (6) years", "6 years"),
+            ("Four hundred thirty-five (435)", "435"),
+            ("Two (2) years", "2 years"),
+            ("Two (2)", "2"),
+            ("Four (4) years", "4 years"),
+            ("Nine (9)", "9"),
+            ("Five (5)", "5"),
+            (
+                "Citizens eighteen (18) and older (can vote).",
+                "citizens 18 and older",
+            ),
+        ];
+
+        // -- Exec & Check
+        for (answer, digit_form) in numerals {
+            let fixture = question(&[answer]);
+
+            assert_eq!(
+                judged(&fixture, answer),
+                Verdict::Correct,
+                "`{answer}` must still accept itself"
+            );
+            assert_eq!(
+                judged(&fixture, digit_form),
+                Verdict::Correct,
+                "`{answer}` must accept its digit form `{digit_form}`"
+            );
+        }
+    }
+
+    #[test]
+    fn test_matching_does_not_buy_a_numeral_that_follows_no_spelled_out_number() {
+        // -- Setup & Fixtures
+        let crash = question(&["The Great Crash (1929)"]);
+        let other = question(&["Crash of (1929)"]);
+
+        // -- Exec & Check
+        assert_eq!(judged(&crash, "The Great Crash"), Verdict::Correct);
+        assert_eq!(judged(&crash, "The Great Crash 1929"), Verdict::Correct);
+        assert_eq!(
+            judged(&crash, "1929"),
+            Verdict::Wrong,
+            "the numerals buy a digit form only where a spelled-out number precedes them"
+        );
+        assert_eq!(judged(&other, "1929"), Verdict::Wrong);
+    }
+
+    #[test]
+    fn test_matching_takes_a_fragments_words_as_no_answer_of_their_own() {
+        // -- Setup & Fixtures
+        // A fragment before the answer, inside it, after it, and one that
+        // holds a whole sentence rather than a phrase (ADR 0004).
+        let fragments = [
+            ("(U.S.) Constitution", "us"),
+            ("(Example of) social contract", "example of"),
+            (
+                "Citizens in their (congressional) district",
+                "congressional",
+            ),
+            ("House (of Representatives)", "of representatives"),
+            (
+                "Any citizen can vote. (Women and men can vote.)",
+                "women and men can vote",
+            ),
+            ("The Great Crash (1929)", "1929"),
+        ];
+
+        // -- Exec & Check
+        for (answer, words) in fragments {
+            let fixture = question(&[answer]);
+
+            assert_eq!(
+                judged(&fixture, answer),
+                Verdict::Correct,
+                "`{answer}` must accept itself"
+            );
+            assert_eq!(
+                judged(&fixture, words),
+                Verdict::Wrong,
+                "`{words}` are a fragment of `{answer}`, not an answer"
+            );
+        }
+    }
+
+    #[test]
+    fn test_matching_counts_a_numeral_form_as_its_bullet() {
+        // -- Setup & Fixtures
+        let fixture = several(2, &["Senate", "Two (2) years"]);
+
+        // -- Exec & Check
+        assert_eq!(judged(&fixture, "Senate and 2 years"), Verdict::Correct);
+        assert_eq!(judged(&fixture, "2 years and the Senate"), Verdict::Correct);
+        assert_eq!(judged(&fixture, "2 years"), Verdict::Wrong);
+        assert_eq!(
+            judged(&fixture, "two years and 2 years"),
+            Verdict::Wrong,
+            "a digit form is another form of its bullet, not a second answer"
         );
     }
 
