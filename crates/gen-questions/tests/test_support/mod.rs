@@ -9,9 +9,9 @@ use std::path::{Path, PathBuf};
 
 pub type TestResult<T> = core::result::Result<T, Box<dyn std::error::Error>>;
 
-/// The workspace root: this crate's manifest directory, one level up.
+/// The workspace root: this crate's manifest directory, two levels up.
 pub fn workspace_root() -> PathBuf {
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("..")
+    Path::new(env!("CARGO_MANIFEST_DIR")).join("../..")
 }
 
 /// Reads one of the committed files, named by a `generate` path constant.

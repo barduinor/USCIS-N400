@@ -1,10 +1,10 @@
 //! The Civics Test Questions and the shape of the committed records.
 //!
-//! `data/questions.json` is a [`QuestionRecords`]: the questions in document
-//! order, each with the Accepted Answers the test accepts. The records are
-//! generated from M-1778 and corrected by hand (ADR 0002); the pipeline that
-//! produces them serializes these types, so the file and the model cannot drift
-//! apart.
+//! `crates/app/data/questions.json` is a [`QuestionRecords`]: the questions in
+//! document order, each with the Accepted Answers the test accepts. The records
+//! are generated from M-1778 and corrected by hand (ADR 0002); the pipeline
+//! that produces them serializes these types, so the file and the model cannot
+//! drift apart.
 
 use serde::{Deserialize, Serialize};
 

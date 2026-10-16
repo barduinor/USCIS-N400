@@ -104,10 +104,11 @@ domain vocabulary and every behavioral rule live in `GLOSSARY.md`.
 
 ```
 .
-├── domain/             # the model and rules, no I/O
-├── gen-questions/      # M-1778 parser, overrides, the committed records
-├── app/                # the Dioxus application
-├── data/               # committed question records, generated, never hand-edited
+├── crates/             # the Rust workspace
+│   ├── domain/         #   the model and rules, no I/O
+│   ├── gen-questions/  #   the M-1778 pipeline and its overrides
+│   └── app/            #   the Dioxus application
+│       └── data/       #   committed question records, generated, never hand-edited
 ├── docs/               # ADRs, coding standards, library docs, research notes, sources
 ├── scripts/ .githooks/ # the pre-commit quality gates and their installer
 ├── AGENTS.md           # agent entry: skills config, docs map, standing rules

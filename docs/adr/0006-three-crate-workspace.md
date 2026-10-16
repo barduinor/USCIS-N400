@@ -24,10 +24,10 @@ never reach the WASM build.
 
 - Rule behavior is tested with `cargo test -p domain`, natively and fast; the
   behavior worth testing lives there rather than in components.
-- The question records are committed at `data/questions.json` and owned by the
-  `domain` types: `gen-questions` serializes them, and `app` embeds the file
-  at compile time (`include_str!`). Hand corrections live in
-  `gen-questions/overrides.json`, never in the data file (ADR 0002).
+- The question records are committed at `crates/app/data/questions.json` and
+  owned by the `domain` types: `gen-questions` serializes them, and `app`
+  embeds the file at compile time (`include_str!`). Hand corrections live in
+  `crates/gen-questions/overrides.json`, never in the data file (ADR 0002).
 - A contract test guards the data file: it parses into the domain types and
   holds exactly 128 questions, 20 starred. A bad regeneration fails CI, not
   the browser.

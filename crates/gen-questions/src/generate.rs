@@ -9,10 +9,10 @@ pub const QUESTION_LIST_PATH: &str =
     "docs/resources/2025-Civics-Test-128-Questions-and-Answers-M-1778.pdf";
 
 /// The committed corrections the pipeline applies.
-pub const OVERRIDES_PATH: &str = "gen-questions/overrides.json";
+pub const OVERRIDES_PATH: &str = "crates/gen-questions/overrides.json";
 
 /// The committed records the pipeline writes.
-pub const RECORDS_PATH: &str = "data/questions.json";
+pub const RECORDS_PATH: &str = "crates/app/data/questions.json";
 
 /// Runs the pipeline over the M-1778 bytes and the committed corrections.
 pub fn records_from_pdf(pdf_bytes: &[u8], overrides_json: &str) -> Result<QuestionRecords> {
@@ -25,7 +25,7 @@ pub fn records_from_pdf(pdf_bytes: &[u8], overrides_json: &str) -> Result<Questi
     Ok(QuestionRecords { questions })
 }
 
-/// Serializes records exactly as `data/questions.json` is committed.
+/// Serializes records exactly as `crates/app/data/questions.json` is committed.
 pub fn records_json(records: &QuestionRecords) -> Result<String> {
     let mut json = serde_json::to_string_pretty(records)?;
 

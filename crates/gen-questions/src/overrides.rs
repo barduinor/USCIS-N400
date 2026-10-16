@@ -4,7 +4,7 @@
 //! annotations that are not optional words, and the two bullets that hold a
 //! comma list of several Accepted Answers. Extraction mechanics live in `parse`;
 //! this module is where the source text is deliberately rewritten, and the
-//! rewritten text is committed in `gen-questions/overrides.json`, so a
+//! rewritten text is committed in `crates/gen-questions/overrides.json`, so a
 //! regeneration never discards a correction.
 
 use domain::Question;

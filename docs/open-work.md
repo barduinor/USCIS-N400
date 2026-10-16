@@ -15,15 +15,15 @@ they are waiting on work.
   screen lands with its behavior and tests, in this decided layout:
 
   ```
-  domain/src/          lib.rs, error.rs, question.rs, matching.rs, answers.rs,
-                       selection.rs, progress.rs, exam.rs, profile.rs
-  domain/tests/        tests_questions_data.rs: the data-file contract
-  gen-questions/src/   lib.rs, main.rs, cmd.rs, error.rs, generate.rs,
-                       parse.rs, overrides.rs
-  gen-questions/       overrides.json
-  gen-questions/tests/ tests_regeneration.rs, tests_records.rs
-  app/src/             main.rs, routes.rs, error.rs, questions.rs, screens/,
-                       components/, storage/
+  crates/domain/src/          lib.rs, error.rs, question.rs, matching.rs, answers.rs,
+                              selection.rs, progress.rs, exam.rs, profile.rs
+  crates/domain/tests/        tests_questions_data.rs: the data-file contract
+  crates/gen-questions/src/   lib.rs, main.rs, cmd.rs, error.rs, generate.rs,
+                              parse.rs, overrides.rs
+  crates/gen-questions/       overrides.json
+  crates/gen-questions/tests/ tests_regeneration.rs, tests_records.rs
+  crates/app/src/             main.rs, routes.rs, error.rs, questions.rs, screens/,
+                              components/, storage/
   ```
 
 ### Test gates

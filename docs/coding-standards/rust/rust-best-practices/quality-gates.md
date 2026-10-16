@@ -46,8 +46,9 @@ re-commits.
 issue. A change that passes issue-specific tests can still break unrelated tests.
 The gate catches regressions before they reach the shared branch. The suite
 includes the committed-data guards: `domain`'s contract test on
-`data/questions.json` and `gen-questions`' regeneration byte-guard, so a stale
-or hand-edited data file fails the gate even when no Rust code changed.
+`crates/app/data/questions.json` and `gen-questions`' regeneration byte-guard,
+so a stale or hand-edited data file fails the gate even when no Rust code
+changed.
 
 ## Installation
 

@@ -1,7 +1,7 @@
 //! The committed records, against M-1778 and the documented structure.
 //!
-//! The regeneration guard proves `data/questions.json` is what the pipeline
-//! produces; these tests prove what that file says.
+//! The regeneration guard proves `crates/app/data/questions.json` is what the
+//! pipeline produces; these tests prove what that file says.
 
 mod test_support;
 

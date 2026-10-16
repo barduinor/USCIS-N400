@@ -34,7 +34,7 @@ export-schema version are separate mechanisms; both start at 1.
 
 ## Consequences
 
-- Record shapes mirror the `domain` types; `app/src/storage/` is the only
+- Record shapes mirror the `domain` types; `crates/app/src/storage/` is the only
   module that touches IndexedDB, and `domain` stays I/O-free.
 - The Answer Log grows without bound by design; it is the Applicant's history.
 - Any future schema change has two deliberately separate paths: an IndexedDB
