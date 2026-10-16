@@ -18,6 +18,7 @@ use wasm_bindgen::JsValue;
 use crate::Result;
 
 pub mod answer_log;
+pub mod exam;
 pub mod profile;
 
 // endregion: --- Modules
@@ -111,6 +112,11 @@ pub async fn read_all(store_name: &str) -> Result<Vec<String>> {
 }
 
 // region:    --- Support
+
+/// The device's clock, in milliseconds since the Unix epoch.
+pub fn now() -> u64 {
+    js_sys::Date::now() as u64
+}
 
 /// The database, opened on first use.
 async fn database() -> Result<Rc<Rexie>> {

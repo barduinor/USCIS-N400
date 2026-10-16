@@ -9,7 +9,7 @@ use domain::{AnswerLogEntry, Verdict};
 use rexie::TransactionMode;
 use wasm_bindgen::JsValue;
 
-use super::{ANSWER_LOG_STORE, database, read_all, write_next};
+use super::{ANSWER_LOG_STORE, database, now, read_all, write_next};
 use crate::{Error, Result};
 
 /// Appends one answer to the Answer Log, and hands back what was stored.
@@ -75,16 +75,6 @@ pub fn to_record(entry: &AnswerLogEntry) -> Result<String> {
 pub fn from_record(record: &str) -> Result<AnswerLogEntry> {
     Ok(serde_json::from_str(record)?)
 }
-
-// region:    --- Support
-
-/// The device's clock, in milliseconds since the Unix epoch.
-fn now() -> u64 {
-    js_sys::Date::now() as u64
-}
-
-// endregion: --- Support
-
 // region:    --- Tests
 
 #[cfg(test)]

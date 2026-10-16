@@ -8,8 +8,8 @@ use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 
 use domain::{
-    AcceptedAnswer, AnswerLogEntry, Profile, Question, QuestionRecords, Section, TestUpdates,
-    Verdict, answers, matching, selection,
+    AcceptedAnswer, AnswerLogEntry, Exam, Profile, Question, QuestionRecords, Section, TestUpdates,
+    Track, Verdict, answers, matching, selection,
 };
 
 type Result<T, E = Box<dyn std::error::Error>> = core::result::Result<T, E>; // For tests.
@@ -224,6 +224,69 @@ fn smallest_gap(asked: &[u16]) -> Option<usize> {
     }
 
     gap
+}
+
+#[test]
+fn test_questions_data_exam_draws_its_own_tracks_scope() -> Result<()> {
+    // -- Setup & Fixtures
+    let records = committed_records()?;
+    let standard = Profile::default();
+    let reduced = Profile {
+        special_consideration_65_20: true,
+        ..Profile::default()
+    };
+    let starred: BTreeSet<u16> = records
+        .questions
+        .iter()
+        .filter(|question| question.starred)
+        .map(|question| question.number)
+        .collect();
+
+    // Eight wrong then twelve correct asks the whole twenty-question draw; four
+    // wrong then six correct asks the whole ten.
+    let patterns = [
+        (Track::Standard, standard, 8, 12),
+        (Track::SpecialConsideration, reduced, 4, 6),
+    ];
+
+    // -- Exec & Check
+    for (track, profile, wrongs, corrects) in patterns {
+        let accountable = records.accountable(&profile);
+        let mut exam = Exam::start(&accountable, track, 20_261_016);
+        let mut verdicts = vec![Verdict::Wrong; wrongs];
+        verdicts.extend(vec![Verdict::Correct; corrects]);
+
+        for verdict in verdicts {
+            exam.answer(verdict);
+        }
+
+        let record = exam.record(1_770_000_000_000).expect("a decided Exam");
+
+        assert_eq!(
+            record.questions.len(),
+            track.questions(),
+            "the whole draw is asked before the outcome is decided"
+        );
+        assert!(
+            record.questions.iter().all(|number| records
+                .accountable(&profile)
+                .iter()
+                .any(|question| question.number == *number)),
+            "an Exam asks only the Applicant's accountable questions"
+        );
+
+        if track == Track::SpecialConsideration {
+            assert!(
+                record
+                    .questions
+                    .iter()
+                    .all(|number| starred.contains(number)),
+                "the 65/20 Exam draws from the starred questions and nothing else"
+            );
+        }
+    }
+
+    Ok(())
 }
 
 #[test]

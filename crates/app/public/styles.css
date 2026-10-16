@@ -221,6 +221,25 @@ form {
   margin-top: var(--gap);
 }
 
+/* The Exam result: the outcome, the score, and the administration the Exam ran
+   under. */
+
+.outcome {
+  font-size: var(--step-2);
+  font-weight: 700;
+}
+
+.score {
+  margin: 0;
+  font-size: var(--step-1);
+  font-variant-numeric: tabular-nums;
+}
+
+.track {
+  margin: 0;
+  color: var(--muted);
+}
+
 /* The main menu: one destination per row, comfortable under a thumb. */
 
 .menu {

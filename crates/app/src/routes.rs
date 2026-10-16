@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 
 use crate::components::FirstRun;
-use crate::screens::{MainMenu, Study};
+use crate::screens::{Exam, ExamResult, MainMenu, Study};
 
 /// Every screen the Applicant can reach.
 ///
@@ -14,6 +14,12 @@ pub enum Route {
 
     #[route("/study")]
     Study {},
+
+    #[route("/exam")]
+    Exam {},
+
+    #[route("/exam/result")]
+    ExamResult {},
 }
 
 /// The application root: the route tree, behind the first-run gate.

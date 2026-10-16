@@ -148,7 +148,11 @@ questions that three correct answers in a row have Cleared, derived from the
 Answer Log each time the screen opens. After a verdict the Applicant can ask for
 the reveal — the Accepted Answers, and the Explanation where one exists — and,
 after a wrong verdict, override it: the Override counts that attempt as correct
-and never changes the Accepted Answers. The language, rules, and decisions are
+and never changes the Accepted Answers. An Exam simulates the officer's
+administration of the test — twenty questions with twelve to pass, or ten of the
+starred twenty with six — shows only the question, stops the moment the outcome
+is fixed, and records its own outcome, score, track, and questions asked without
+touching the Answer Log or Coverage. The language, rules, and decisions are
 settled in `GLOSSARY.md` and `docs/adr/`; `docs/open-work.md` lists what is
 decided but unbuilt; nothing is open.
 

@@ -10,6 +10,7 @@
 
 pub mod answers;
 mod error;
+pub mod exam;
 pub mod matching;
 pub mod profile;
 pub mod progress;
@@ -17,6 +18,7 @@ pub mod question;
 pub mod selection;
 
 pub use error::{Error, Result};
+pub use exam::{Exam, ExamRecord, Outcome, Track};
 pub use matching::Verdict;
 pub use profile::{Profile, TestUpdates};
 pub use progress::{AnswerLogEntry, Coverage};
