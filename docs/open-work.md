@@ -54,6 +54,21 @@ they are waiting on work.
   and screen lands with its behavior and tests. **This is the first coding
   step.**
 
+### Test gates
+
+- Four gates, in order, gates-only (never mutate): `cargo fmt --check`;
+  `cargo clippy --no-deps --all-targets -- -D warnings`; `cargo test` (the
+  full workspace suite, including the data-file contract and the regeneration
+  byte-guard); `cargo check -p uscis-n400 --target wasm32-unknown-unknown`
+  (host checks do not prove the wasm ship target compiles). Hook installed via
+  `scripts/install-hooks`; CI runs the same commands fresh on push and pull
+  requests, and deploy waits on them. The `app` crate is expected to compile
+  for host — if it is wasm-only, lint and test narrow to
+  `-p domain -p gen-questions`.
+- Inner loop: `cargo test -p domain` (native, fast). Not adopted: coverage
+  gating, mutation testing, and `wasm-bindgen-test`/headless-browser tests in
+  v1 — the UI receives its real pass in the smoke and device checks.
+
 ### Storage
 
 - **Storage layer and export/import.** One IndexedDB database; the record
