@@ -11,12 +11,22 @@ unsafe_code = "forbid"
 # -- Ui
 dioxus = { version = "0.7", features = ["web", "router"] }
 # -- Json
+serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 # -- Storage
 rexie = "0.6"
 # -- Web
 js-sys = "0.3"
 wasm-bindgen = "0.2"
+web-sys = { version = "0.3", features = [
+    "Blob",
+    "Document",
+    "Element",
+    "HtmlAnchorElement",
+    "HtmlInputElement",
+    "Url",
+    "Window",
+] }
 # -- Others
 derive_more = { version = "2", features = ["display", "from"] }
 domain = { path = "../domain" }

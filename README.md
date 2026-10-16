@@ -154,9 +154,15 @@ starred twenty with six — shows only the question, stops the moment the outcom
 is fixed, and records its own outcome, score, track, and questions asked without
 touching the Answer Log or Coverage. The Stats screen shows Coverage over the
 whole scope, then each Section — opening one shows its Topics — with every figure
-carrying a percentage and a count, and the Exams taken below. The language,
-rules, and decisions are settled in `GLOSSARY.md` and `docs/adr/`;
-`docs/open-work.md` lists what is decided but unbuilt; nothing is open.
+carrying a percentage and a count, and the Exams taken below. The Profile
+screen edits every field onboarding captured, so a change takes effect on the
+next question and on Coverage's denominator, and it carries the backup: the
+export of a versioned JSON bundle — the Profile, the Answer Log, and the Exam
+records — and the import, which refuses a bundle from a newer version and
+otherwise replaces what is on the device after a confirmation, never merging.
+The language, rules, and decisions are settled in `GLOSSARY.md` and
+`docs/adr/`; `docs/open-work.md` lists what is decided but unbuilt; nothing is
+open.
 
 The v1 build is issue #1 on the
 [tracker](https://github.com/barduinor/USCIS-N400/issues), sliced into tickets #2

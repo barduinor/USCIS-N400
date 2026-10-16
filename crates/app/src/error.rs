@@ -5,6 +5,9 @@ pub type Result<T, E = Error> = core::result::Result<T, E>;
 #[derive(Debug, Display, From)]
 #[display("{self:?}")]
 pub enum Error {
+    /// The application's own message. It is shown to the Applicant, so it reads
+    /// as the message rather than as a debugged enum.
+    #[display("{_0}")]
     #[from(String, &String, &str)]
     Custom(String),
 

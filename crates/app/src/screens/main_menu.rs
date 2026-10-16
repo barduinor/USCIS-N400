@@ -59,6 +59,7 @@ pub fn MainMenu() -> Element {
                 Link { to: Route::Study {}, class: "menu-item", "Study" }
                 Link { to: Route::Exam {}, class: "menu-item", "Exam" }
                 Link { to: Route::Stats {}, class: "menu-item", "Stats" }
+                Link { to: Route::Profile {}, class: "menu-item", "Profile" }
             }
         }
     }

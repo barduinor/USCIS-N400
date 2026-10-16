@@ -6,7 +6,7 @@ use crate::Result;
 use crate::storage::{self, PROFILE_STORE};
 
 /// The key of the Profile record: there is one.
-const PROFILE_KEY: &str = "profile";
+pub(super) const PROFILE_KEY: &str = "profile";
 
 /// The Profile as this layer stores it: the domain type's own shape (ADR 0007).
 pub fn to_record(profile: &Profile) -> Result<String> {

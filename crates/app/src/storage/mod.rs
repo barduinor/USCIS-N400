@@ -18,6 +18,7 @@ use wasm_bindgen::JsValue;
 use crate::Result;
 
 pub mod answer_log;
+pub mod bundle;
 pub mod exam;
 pub mod profile;
 

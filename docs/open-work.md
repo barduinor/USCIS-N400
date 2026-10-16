@@ -42,14 +42,6 @@ they are waiting on work.
   gating, mutation testing, and `wasm-bindgen-test`/headless-browser tests in
   v1; the UI receives its real pass in the smoke and device checks.
 
-### Storage
-
-- **Export and import.** The storage layer is in place: one IndexedDB database
-  holding the profile, answer_log, exams, and meta stores, with the Profile
-  stored as one JSON record (ADR 0007). Still to come: the export bundle and
-  its import — the Applicant's only backup and only way to move devices —
-  which lands with the Profile screen.
-
 ### Content
 
 - **Explanations for all 128 questions.** Source them from
@@ -58,12 +50,6 @@ they are waiting on work.
   job (question to chapter excerpt), not a writing job. See ADR 0001. Until
   then the `Explanation` field stays empty and the reveal shows Accepted Answers
   only.
-
-### Profile
-
-- **The Profile screen.** Onboarding now captures the Profile before the first
-  Civics Test Question, and the same fields become the editable Profile screen
-  (with the export and import controls) later.
 
 ### Data
 
@@ -107,6 +93,3 @@ they are waiting on work.
   carry over between the two. Home-screen web apps are exempt from Safari's
   7-day eviction; the JSON export stays the backstop. Acceptance includes a
   real-iPhone pass: install, airplane mode, reload, answer, export.
-- **Export and import progress as JSON.** The only backup and the only way to
-  move between devices. Required in v1, not later. The controls live on the
-  Profile screen.
