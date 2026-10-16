@@ -21,7 +21,7 @@ they are waiting on work.
   gen-questions/src/   lib.rs, main.rs, cmd.rs, error.rs, generate.rs,
                        parse.rs, overrides.rs
   gen-questions/       overrides.json
-  gen-questions/tests/ tests_regeneration.rs
+  gen-questions/tests/ tests_regeneration.rs, tests_records.rs
   app/src/             main.rs, routes.rs, error.rs, questions.rs, screens/,
                        components/, storage/
   ```
@@ -47,21 +47,6 @@ they are waiting on work.
   shapes, the Override rule, and the replace-on-import contract are in
   ADR 0007. Export/import is required in v1 (ADR 0003). The Profile is stored
   as one record.
-
-### Question records
-
-- **The parser pipeline.** `gen-questions` extracts text from the committed
-  M-1778 PDF with `pdf-extract` (pure Rust, no system dependencies), parses
-  Sections, Topics, questions, bullets, the 20 asterisks, and the
-  required-answer counts from the "Name <u>two</u>" underlines, then applies
-  `overrides.json` and writes `data/questions.json`. The generated file is
-  clean: display and matching both consume it, and overrides are the only
-  correction path (ADR 0002). Known corrections: the five bracket annotations
-  (Q23, Q29, Q61, Q62 dropped; Q120 adds Accepted Answers), Q16/Q19
-  comma-lists split, `19 th` → `19th`.
-- **Tests.** Parsing units on small text fixtures, plus the regeneration guard:
-  the full pipeline against the PDF, byte-compared with the committed records.
-  Extractor upgrades that change output surface as guard diffs, by design.
 
 ### Content
 

@@ -10,5 +10,7 @@ doctest = false
 unsafe_code = "forbid"
 
 [dependencies]
+# -- Json
+serde = { version = "1", features = ["derive"] }
 # -- Others
 derive_more = { version = "2", features = ["display", "from"] }

@@ -114,8 +114,8 @@ domain vocabulary and every behavioral rule live in `GLOSSARY.md`.
 └── .agents/ .claude/   # agent skills, pinned in-repo so machines stay identical
 ```
 
-The three crates and the gate scripts are in place; `data/` and the screens
-land with their tickets.
+The three crates, the gate scripts, and the committed question records are in
+place; the screens land with their tickets.
 
 ## Documentation
 
@@ -133,9 +133,10 @@ land with their tickets.
 
 ## Status and roadmap
 
-**Scaffold in place**: the three-crate workspace, the toolchain pin, and the
-pre-commit gate hook are committed, and every later ticket lands on them. The
-language, rules, and decisions are settled in `GLOSSARY.md` and `docs/adr/`;
+**Scaffold and question records in place**: the three-crate workspace, the
+toolchain pin, the pre-commit gate hook, and the 128 committed records that
+`gen-questions` regenerates from M-1778 are all committed. The language, rules,
+and decisions are settled in `GLOSSARY.md` and `docs/adr/`;
 `docs/open-work.md` lists what is decided but unbuilt; nothing is open.
 
 The v1 build is issue #1 on the
@@ -171,8 +172,10 @@ That is the whole list: git, an agent harness, `gh`, and the Rust toolchain.
 There are no servers, databases, or credentials to arrange; the only account
 involved is GitHub.
 
-The everyday commands are `cargo test` for the whole workspace suite and
-`dx serve` from the app crate to run the application.
+The everyday commands are `cargo test` for the whole workspace suite,
+`cargo run -p gen-questions -- generate` to regenerate the committed records
+from M-1778, and `dx serve` from the app crate to run the application once the
+app shell lands.
 
 ## Contributing
 

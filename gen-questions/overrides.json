@@ -1,0 +1,52 @@
+{
+  "questions": [
+    {
+      "reason": "One bullet holds a comma list; the question demands three branches.",
+      "number": 16,
+      "accepted_answers": [
+        "Legislative",
+        "executive",
+        "judicial",
+        "Congress",
+        "president",
+        "the courts"
+      ]
+    },
+    {
+      "reason": "One bullet holds both parts of Congress.",
+      "number": 19,
+      "accepted_answers": ["Senate", "House (of Representatives)"]
+    },
+    {
+      "reason": "Square brackets are annotations, not answers.",
+      "number": 23,
+      "accepted_answers": ["Answers will vary."]
+    },
+    {
+      "reason": "Square brackets are annotations, not answers.",
+      "number": 29,
+      "accepted_answers": ["Answers will vary."]
+    },
+    {
+      "reason": "Square brackets are annotations, not answers.",
+      "number": 61,
+      "accepted_answers": ["Answers will vary."]
+    },
+    {
+      "reason": "Square brackets are annotations, not answers.",
+      "number": 62,
+      "accepted_answers": ["Answers will vary."]
+    },
+    {
+      "reason": "The one bracket that lists further Accepted Answers.",
+      "number": 120,
+      "accepted_answers": [
+        "New York (Harbor)",
+        "Liberty Island",
+        "New Jersey",
+        "near New York City",
+        "on the Hudson (River)"
+      ]
+    }
+  ]
+}
