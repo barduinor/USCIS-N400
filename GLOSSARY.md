@@ -120,7 +120,7 @@ second name.
 | Exam | One Exam, ending when the outcome is decided. No statistics. |
 | Exam result | That Exam's outcome and score. |
 | Stats | Global Coverage at the top, then the 3 Sections; opening a Section shows its Topics. Every figure carries a percentage and a count. Exam history below. |
-| Profile | The same fields as onboarding, editable later. |
+| Profile | The same fields as onboarding, editable later, plus the JSON export and import of progress. |
 
 ## Relationships
 

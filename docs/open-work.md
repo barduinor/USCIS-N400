@@ -127,7 +127,8 @@ they are waiting on work.
   7-day eviction; the JSON export stays the backstop. Acceptance includes a
   real-iPhone pass: install, airplane mode, reload, answer, export.
 - **Export and import progress as JSON.** The only backup and the only way to
-  move between devices. Required in v1, not later.
+  move between devices. Required in v1, not later. The controls live on the
+  Profile screen.
 
 ### Tuning
 
