@@ -388,3 +388,16 @@ form {
   color: var(--muted);
   font-size: 0.95rem;
 }
+
+/* The State picker: the shape of a text field, so the form reads as one column
+   of controls. */
+
+select {
+  font: inherit;
+  min-width: 0;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--fg);
+}

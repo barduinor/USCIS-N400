@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 
 use domain::{Profile, TestUpdates};
 
-use crate::components::Field;
+use crate::components::{Field, StateField};
 
 /// The Applicant's own facts, as a form.
 ///
@@ -15,9 +15,7 @@ pub fn ProfileForm(profile: Signal<Profile>) -> Element {
     let mut answers = profile;
 
     rsx! {
-        Field {
-            label: "State",
-            name: "state",
+        StateField {
             value: answers.read().state.clone(),
             on_input: move |value: String| answers.write().state = value,
         }
