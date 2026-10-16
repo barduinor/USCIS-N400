@@ -20,6 +20,7 @@ Single-context: `GLOSSARY.md` + `docs/adr/`. See `docs/agents/domain.md`.
 - `docs/coding-standards/`: start at `README.md`; `rust/` and `dioxus/` hold the code standards.
 - `docs/library-docs/`: curated upstream notes; start at `README.md`, then the library's `INDEX.md`.
 - `docs/resources/`: the USCIS source documents, and the authority each carries.
+- `docs/research/`: cited research notes, one file per question.
 - `docs/agents/`: issue tracker, triage labels, and domain doc consumer rules for the engineering skills.
 
 ## Git workflow
