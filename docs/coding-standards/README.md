@@ -19,7 +19,7 @@ standard in this directory says otherwise.
 - When a requested change is documentation-only or prompt-only, verification can
   be limited to inspecting the changed files and confirming no application
   behavior changed.
-- Every issue must have at least one **behavioral** acceptance criterion —
+- Every issue must have at least one **behavioral** acceptance criterion:
   something that can only be verified by running the system, not by running
   a unit test. Bad: `validate_config() returns Err`. Good: `Running the CLI
   with a missing config file exits with code 1 and prints the error before
@@ -28,7 +28,7 @@ standard in this directory says otherwise.
 
 ## Issue Standards
 
-Behavioral scenarios (Given/When/Then) are the backbone of every issue — these
+Behavioral scenarios (Given/When/Then) are the backbone of every issue; these
 standards **complement** BDD, not replace it. A complete issue gives the
 implementer consequence awareness: WHY the change matters, what invariants must
 hold, and what must NOT be touched.
@@ -38,7 +38,7 @@ hold, and what must NOT be touched.
   desired outcome must be traceable. Inherits from the parent PRD when
   available.
 - **Current Behavior (bugs)**: Bug issues must capture what happens now with
-  evidence — CLI output, log excerpts, or screenshots. Enhancement issues
+  evidence: CLI output, log excerpts, or screenshots. Enhancement issues
   describe the baseline being built upon.
 - **Root Cause (bugs)**: Bug issues should include a root cause analysis
   explaining WHY the behavior is broken, not just WHAT is broken. Prevents
@@ -52,7 +52,7 @@ hold, and what must NOT be touched.
   constraints when they apply.
 - **Technical Context** (complex changes): Architecture decisions, schema
   changes, interface contracts, and ADR references. Describe types and
-  interfaces, not file paths — file paths go stale.
+  interfaces, not file paths; file paths go stale.
 
 Not every issue needs all sections. User Story and Business Rules are encouraged
 for most issues. Current Behavior, Root Cause, NFRs, and Technical Context are
@@ -91,10 +91,10 @@ for bugs and complex changes.
 
 Detailed standards exist at:
 
-- `docs/coding-standards/rust/README.md` — for all Rust application code,
+- `docs/coding-standards/rust/README.md` covers all Rust application code,
   tests, Cargo metadata, and examples, including the `domain` and
   `gen-questions` crates.
-- `docs/coding-standards/dioxus/README.md` — for `app` crate UI work:
+- `docs/coding-standards/dioxus/README.md` covers `app` crate UI work:
   component boundaries, storage and async boundaries, targets, formatting,
   and UI tests.
 

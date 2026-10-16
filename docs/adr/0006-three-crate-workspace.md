@@ -1,8 +1,8 @@
 # The workspace is three crates: domain, gen-questions, app
 
 The repository is a Cargo workspace with three members. `domain` holds the
-Civics Test model and the rules — answer matching, selection weights, Cleared
-and Coverage, Exam scoring — with no I/O and no wasm, so it tests natively.
+Civics Test model and the rules (answer matching, selection weights, Cleared
+and Coverage, Exam scoring) with no I/O and no wasm, so it tests natively.
 `gen-questions` parses M-1778, applies the hand overrides, and writes the
 committed question records. `app` is the Dioxus web application: screens,
 components, routing, and the IndexedDB boundary.

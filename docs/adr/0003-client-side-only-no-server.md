@@ -1,8 +1,8 @@
 # The app is client-side only, with no server
 
 A single-user, phone-first Dioxus/WASM application that runs entirely in the
-browser and is served as static files from GitHub Pages. All state — Profile,
-Answer Log, exam history — lives in IndexedDB on the device. There is no
+browser and is served as static files from GitHub Pages. All state (Profile,
+Answer Log, exam history) lives in IndexedDB on the device. There is no
 backend.
 
 ## Considered Options

@@ -9,7 +9,7 @@ separate overrides step, so the generated file is never edited directly.
 - **Hand-transcribe all 128.** Rejected. There are 410 answer strings to copy,
   with no way to re-check the result against the source.
 - **Parse at build time.** Rejected. The source PDFs are 58 MB, and the hand
-  corrections would still live outside the pipeline — so "re-derivable at build
+  corrections would still live outside the pipeline, so "re-derivable at build
   time" would not actually be true.
 
 ## Consequences

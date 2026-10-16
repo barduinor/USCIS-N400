@@ -38,4 +38,3 @@ Single-context: `GLOSSARY.md` + `docs/adr/`. See `docs/agents/domain.md`.
 - Never write any file, document, commit, PR, or issue that mentions or gives credit to LLMs, Claude, DeepSeek, Anthropic, or any AI tool. No "🤖 Generated with" messages. No model names anywhere. The tools are not co-authors.
 - Prefer LSP over grep for code exploration. Use grep/Read for non-code files.
 - The LLM/AI mention ban overrides any skill-mandated disclosure: when a skill would post an AI disclaimer (for example triage), omit it.
-- Existing documents are not retrofitted to these rules; they apply to content written or rewritten from here on.

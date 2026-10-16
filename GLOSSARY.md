@@ -18,7 +18,7 @@ and simulates the test itself.
 ## Language
 
 **Applicant**:
-The single person using this tool — someone preparing for the naturalization interview.
+The single person using this tool: someone preparing for the naturalization interview.
 _Avoid_: User, student, player
 
 **Civics Test**:
@@ -46,7 +46,7 @@ A Civics Test Question whose Accepted Answer changes with elections or appointme
 _Avoid_: Dynamic question
 
 **Local Fact**:
-An Accepted Answer that depends on where the Applicant lives — state senators, U.S. representative, governor, state capital.
+An Accepted Answer that depends on where the Applicant lives: state senators, U.S. representative, governor, state capital.
 _Avoid_: Dynamic question
 
 **Section**:
@@ -66,7 +66,7 @@ A Civics Test Question answered correctly three times in a row. A wrong answer m
 _Avoid_: Mastered, learned, known
 
 **Coverage**:
-The share of the Civics Test Questions that are Cleared — all 128, or only the 20 starred questions when the 65/20 Special Consideration applies. Falls as soon as a Cleared question is answered wrong.
+The share of the Civics Test Questions that are Cleared (all 128, or only the 20 starred questions when the 65/20 Special Consideration applies). Falls as soon as a Cleared question is answered wrong.
 _Avoid_: Proficiency, progress
 
 **Answer Log**:
@@ -83,7 +83,7 @@ Reduced scope for an Applicant aged 65 or older who has been a lawful permanent 
 
 Verbatim from M-1778, which numbers the questions contiguously in this order.
 
-**American Government** — 72 questions
+**American Government** (72 questions)
 
 | Topic | Q | Range |
 |---|---:|---|
@@ -91,7 +91,7 @@ Verbatim from M-1778, which numbers the questions contiguously in this order.
 | System of Government | 47 | 16–62 |
 | Rights and Responsibilities | 10 | 63–72 |
 
-**American History** — 46 questions
+**American History** (46 questions)
 
 | Topic | Q | Range |
 |---|---:|---|
@@ -99,7 +99,7 @@ Verbatim from M-1778, which numbers the questions contiguously in this order.
 | 1800s | 10 | 90–99 |
 | Recent American History and Other Important Historical Information | 19 | 100–118 |
 
-**Symbols and Holidays** — 10 questions
+**Symbols and Holidays** (10 questions)
 
 | Topic | Q | Range |
 |---|---:|---|
@@ -138,27 +138,27 @@ second name.
 
 - Study mode is endless. There is no session, no fixed length, and no summary; the Applicant stops when they choose.
 - Exam mode runs a single Exam at a time.
-- The next question is chosen after every answer by taking the highest-weighted candidate. When the 65/20 Special Consideration applies, only the 20 starred questions are candidates. There is no batch planning and no fallback branch — relevance lives entirely in the weights.
+- The next question is chosen after every answer by taking the highest-weighted candidate. When the 65/20 Special Consideration applies, only the 20 starred questions are candidates. There is no batch planning and no fallback branch: relevance lives entirely in the weights.
 - The weights favour questions asked least often, questions answered wrong, and Sections that have been under-served. They are tunable constants.
 - A question asked recently is penalised, not blocked, so a wrong answer returns only after a gap of roughly 8–10 other questions. The penalty is tunable and never reaches zero, so a candidate always exists.
 - **Cleared questions are never excluded.** They reappear whenever their weight wins, which is how the Applicant keeps seeing questions they got right.
 - The one absolute exclusion: the same question is never asked twice in a row.
-- After an answer the tool says only whether it was right. The Accepted Answers and the Explanation appear only when the Applicant asks — even when the answer was right.
+- After an answer the tool says only whether it was right. The Accepted Answers and the Explanation appear only when the Applicant asks, even when the answer was right.
 - No statistics appear during a study or exam session. Coverage and exam history live in their own area, reached from the main menu.
-- During an Exam the screen shows only the question — no counter and no verdict. The Exam stops the moment the outcome is fixed, so either would reveal the result before the result screen.
-- The Exam is a practice simulation only. The real second examination — a retest 60 to 90 days after a failure, covering only the failed portions — is deliberately not modelled.
+- During an Exam the screen shows only the question: no counter and no verdict. The Exam stops the moment the outcome is fixed, so either would reveal the result before the result screen.
+- The Exam is a practice simulation only. The real second examination (a retest 60 to 90 days after a failure, covering only the failed portions) is deliberately not modelled.
 
 ## Example dialogue
 
 > **Dev:** "The Applicant answered a question right, wrong, right, right, right. Is it **Cleared**?"
-> **Domain expert:** "No. The wrong answer reset it — it needs three in a row, so one more."
+> **Domain expert:** "No. The wrong answer reset it; it needs three in a row, so one more."
 
 > **Dev:** "Is Holidays a **Section**?"
 > **Domain expert:** "No, a **Topic**. It sits inside Symbols and Holidays."
 
 ## Flagged ambiguities
 
-- "Proficiency" is resolved to a single measure: **Coverage**, the share of the Civics Test Questions currently Cleared. A separate rolling-accuracy number was considered and dropped — it would have tracked the same thing with a shorter window. Avoid the word "proficiency" in code and UI.
+- "Proficiency" is resolved to a single measure: **Coverage**, the share of the Civics Test Questions currently Cleared. A separate rolling-accuracy number was considered and dropped: it would have tracked the same thing with a shorter window. Avoid the word "proficiency" in code and UI.
 - "Dynamic question" was used for two unrelated things. Resolved: **Test Update** (changes with elections) versus **Local Fact** (depends on where the Applicant lives). They differ in what they depend on and in who can supply the value.
 - The repository holds two test instruments: M-1778 (2025) and M-638 (2008, superseded). Resolved: questions and scoring rules come from the 2025 version **exclusively**. The 2008 material is never a source for a question, an Accepted Answer, or a rule.
 - Exam answers deliberately never feed **Coverage** or **Cleared**. An **Exam** is scored and recorded on its own, so that a lucky exam cannot clear a question the Applicant has never studied.

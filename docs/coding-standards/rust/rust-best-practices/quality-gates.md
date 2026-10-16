@@ -6,10 +6,10 @@ runs the same four gates on a fresh clone; the hook is the local mirror.
 
 ## Gate order
 
-1. **Format check** — `cargo fmt --check`
-2. **Lint** — `cargo clippy --no-deps --all-targets -- -D warnings`
-3. **Full test suite** — `cargo test`
-4. **Ship-target check** — `cargo check -p uscis-n400 --target wasm32-unknown-unknown`
+1. **Format check**: `cargo fmt --check`
+2. **Lint**: `cargo clippy --no-deps --all-targets -- -D warnings`
+3. **Full test suite**: `cargo test`
+4. **Ship-target check**: `cargo check -p uscis-n400 --target wasm32-unknown-unknown`
 
 The order is deliberate: format check runs first because it is the fastest gate
 and catches the most common issue (forgot to run `cargo fmt`). Clippy runs next
@@ -17,7 +17,7 @@ because it subsumes `cargo check` (every clippy lint requires a successful
 compilation), and `--all-targets` extends the lint to test code. The full test
 suite runs last of the run-and-compile gates because it is the slowest gate and
 subsumes `cargo build` (tests must compile to run). The ship-target check
-closes the sequence because host checks do not prove the wasm target compiles —
+closes the sequence because host checks do not prove the wasm target compiles:
 cfg differences, wasm-only dependencies, and wasm-bindgen glue break where the
 host build cannot see.
 
@@ -45,8 +45,8 @@ re-commits.
 `cargo test` runs the **entire** test suite, not only tests for the current
 issue. A change that passes issue-specific tests can still break unrelated tests.
 The gate catches regressions before they reach the shared branch. The suite
-includes the committed-data guards — `domain`'s contract test on
-`data/questions.json` and `gen-questions`' regeneration byte-guard — so a stale
+includes the committed-data guards: `domain`'s contract test on
+`data/questions.json` and `gen-questions`' regeneration byte-guard, so a stale
 or hand-edited data file fails the gate even when no Rust code changed.
 
 ## Installation

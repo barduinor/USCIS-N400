@@ -2,7 +2,7 @@
 
 An answer is correct when, after normalization, it equals one of the question's
 Accepted Answers. Matching is deliberately not fuzzy and not semantic, because
-a wrong accept is worse than a wrong reject — the Applicant cannot tell it
+a wrong accept is worse than a wrong reject: the Applicant cannot tell it
 happened, and it silently corrupts Coverage.
 
 ## What normalization does
@@ -29,7 +29,7 @@ happened, and it silently corrupts Coverage.
   input and compare against the number the question demands ("Name two").
 - Count distinct **bullets**, not distinct generated variants. Some bullets
   produce two variants that both match, which would otherwise double-count.
-- Q16 and Q19 are shaped differently — one bullet holds a comma list — so those
+- Q16 and Q19 are shaped differently (one bullet holds a comma list), so those
   two need the bullet split before counting.
 - 48 of 128 questions have exactly one Accepted Answer, so a valid but unlisted
   phrasing will be marked wrong. The **Override** exists for exactly this, which
@@ -37,5 +37,5 @@ happened, and it silently corrupts Coverage.
 - The Scoring Guidelines state that an Applicant passes by providing "a correct
   answer **or an alternative phrasing of the correct answer**". The real test
   therefore accepts phrasings that no answer key can enumerate. Exact matching
-  is a deliberate simplification, not a claim of equivalence — and this is the
+  is a deliberate simplification, not a claim of equivalence. This is the
   policy basis for the Override.

@@ -16,8 +16,8 @@ is web-only (ADR 0005); none of these rules reach outside `app`.
   Coverage, question selection, and Exam scoring come from `domain`; the app
   never re-implements a rule.
 - Keep component names, visible text, tests, and comments on `GLOSSARY.md`
-  language — Applicant, Civics Test Question, Accepted Answer, Override,
-  Coverage, Cleared, Exam — and away from its avoided words (quiz, card,
+  language (Applicant, Civics Test Question, Accepted Answer, Override,
+  Coverage, Cleared, Exam) and away from its avoided words (quiz, card,
   user, score).
 - Preserve stable list keys (a question's number) when rendering lists.
 
@@ -25,12 +25,12 @@ is web-only (ADR 0005); none of these rules reach outside `app`.
 
 - `storage/` is the only module that touches IndexedDB. Screens and
   components call storage functions with domain types; they never open a
-  store. Durable state is IndexedDB only — never localStorage or
+  store. Durable state is IndexedDB only: never localStorage or
   sessionStorage.
 - Keep record-to-domain conversion functions pure and browser-free so they
   unit-test on the host; keep the IndexedDB calls separate from them.
-- UI signals hold transient view state. Persisted state — Profile, Answer Log
-  entries, Exam records — changes only through `storage/`.
+- UI signals hold transient view state. Persisted state (Profile, Answer Log
+  entries, Exam records) changes only through `storage/`.
 - Async UI (resources and futures) exists for storage work and the Test
   Update fetch. Render loading, empty, error, and success states distinctly;
   never hide a storage or export/import failure behind a generic string.
@@ -46,7 +46,7 @@ is web-only (ADR 0005); none of these rules reach outside `app`.
 
 ## Formatting
 
-- `cargo fmt` does not format `rsx!` bodies — run `dx fmt` after editing RSX.
+- `cargo fmt` does not format `rsx!` bodies: run `dx fmt` after editing RSX.
   It is a writing convention, not a quality gate; there is no check mode.
 
 ## Tests

@@ -21,7 +21,7 @@ replace the global rules.
 - Treat the Rust10x AI Pack as imported guidance for agents. The project-owned
   standards in this README decide how that guidance applies to a given project.
 - Do not add UI framework rules here. Framework guidance lives in its own
-  entry point — `docs/coding-standards/dioxus/README.md`.
+  entry point: `docs/coding-standards/dioxus/README.md`.
 
 ## Core Rust Rules
 

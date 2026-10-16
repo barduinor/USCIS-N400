@@ -2,7 +2,7 @@
 
 A single-user, phone-first study tool for the civics portion of the U.S.
 naturalization interview. It drills the 2025 civics test questions and simulates
-the test itself. It runs entirely in the browser — no server, no account.
+the test itself. It runs entirely in the browser: no server, no account.
 
 ## Where to start
 
@@ -18,11 +18,11 @@ the test itself. It runs entirely in the browser — no server, no account.
 
 ## Status
 
-**Design phase. No code yet** — no `Cargo.toml`, no `src/`.
+**Design phase. No code yet**: no `Cargo.toml`, no `src/`.
 
 Settled and written down: answer matching and Override, Coverage, study
 behaviour, Exam behaviour, the dynamic questions, the platform, the screens,
-and the repo layout — three crates, ADR 0006.
+and the repo layout (three crates, ADR 0006).
 
 Still open: the study screen's reveal and Override presentation, and the
 onboarding field list. Each is expanded, with what is already settled, in
