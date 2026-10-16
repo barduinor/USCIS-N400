@@ -7,7 +7,7 @@
 //! rewritten text is committed in `crates/gen-questions/overrides.json`, so a
 //! regeneration never discards a correction.
 
-use domain::Question;
+use domain::{AcceptedAnswer, Question};
 use serde::Deserialize;
 
 use crate::{Error, Result};
@@ -25,7 +25,7 @@ pub struct QuestionOverride {
     pub reason: String,
 
     pub number: u16,
-    pub accepted_answers: Vec<String>,
+    pub accepted_answers: Vec<AcceptedAnswer>,
 }
 
 /// Reads the committed corrections.
@@ -38,10 +38,7 @@ pub fn parse_overrides(json: &str) -> Result<Overrides> {
             .any(|earlier| earlier.number == correction.number);
 
         if corrected_twice {
-            return Err(Error::custom(format!(
-                "question {} is corrected twice",
-                correction.number
-            )));
+            return Err(format!("question {} is corrected twice", correction.number).into());
         }
     }
 
@@ -55,7 +52,7 @@ pub fn apply(questions: &mut [Question], overrides: &Overrides) -> Result<()> {
             .iter_mut()
             .find(|question| question.number == correction.number)
             .ok_or_else(|| {
-                Error::custom(format!(
+                Error::from(format!(
                     "correction for unknown question {}",
                     correction.number
                 ))
@@ -72,6 +69,8 @@ pub fn apply(questions: &mut [Question], overrides: &Overrides) -> Result<()> {
 #[cfg(test)]
 mod tests {
     type Result<T, E = Box<dyn std::error::Error>> = core::result::Result<T, E>; // For tests.
+
+    use domain::{Section, Topic};
 
     use super::*;
 
@@ -97,7 +96,11 @@ mod tests {
         // -- Check
         assert_eq!(
             questions[0].accepted_answers,
-            ["Legislative", "executive", "judicial"]
+            [
+                AcceptedAnswer::from("Legislative"),
+                AcceptedAnswer::from("executive"),
+                AcceptedAnswer::from("judicial"),
+            ]
         );
 
         Ok(())
@@ -175,10 +178,13 @@ mod tests {
     fn question<const N: usize>(number: u16, answers: [&str; N]) -> Question {
         Question {
             number,
-            section: "American Government".to_string(),
-            topic: "System of Government".to_string(),
+            section: Section::AmericanGovernment,
+            topic: Topic::SystemOfGovernment,
             question: "Name the three branches of government.".to_string(),
-            accepted_answers: answers.iter().map(|answer| answer.to_string()).collect(),
+            accepted_answers: answers
+                .iter()
+                .map(|answer| AcceptedAnswer::from(*answer))
+                .collect(),
             answers_required: 1,
             starred: false,
             explanation: None,

@@ -9,9 +9,11 @@
 // region:    --- Modules
 
 mod error;
+pub mod profile;
 pub mod question;
 
 pub use error::{Error, Result};
-pub use question::{Question, QuestionRecords};
+pub use profile::{Profile, TestUpdates};
+pub use question::{AcceptedAnswer, Question, QuestionRecords, Section, Topic};
 
 // endregion: --- Modules

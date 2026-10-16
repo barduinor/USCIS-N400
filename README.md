@@ -134,10 +134,11 @@ place; the screens land with their tickets.
 
 ## Status and roadmap
 
-**Scaffold and question records in place**: the three-crate workspace, the
-toolchain pin, the pre-commit gate hook, and the 128 committed records that
-`gen-questions` regenerates from M-1778 are all committed. The language, rules,
-and decisions are settled in `GLOSSARY.md` and `docs/adr/`;
+**Foundation and model in place**: the three-crate workspace, the toolchain
+pin, the pre-commit gate hook, the 128 committed records that `gen-questions`
+regenerates from M-1778, and the domain model (Sections, Topics, Accepted
+Answers, the Profile) with its records contract test are all committed. The
+language, rules, and decisions are settled in `GLOSSARY.md` and `docs/adr/`;
 `docs/open-work.md` lists what is decided but unbuilt; nothing is open.
 
 The v1 build is issue #1 on the

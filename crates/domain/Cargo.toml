@@ -14,3 +14,6 @@ unsafe_code = "forbid"
 serde = { version = "1", features = ["derive"] }
 # -- Others
 derive_more = { version = "2", features = ["display", "from"] }
+
+[dev-dependencies]
+serde_json = "1"

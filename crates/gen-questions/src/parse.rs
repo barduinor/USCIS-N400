@@ -8,7 +8,7 @@
 //! USCIS's own text — the square-bracket annotations and the comma lists —
 //! belong to `overrides`, which is handed the questions this module extracts.
 
-use domain::Question;
+use domain::{AcceptedAnswer, Question, Section, Topic};
 
 use crate::{Error, Result};
 
@@ -28,8 +28,8 @@ pub fn parse_text(text: &str) -> Result<Vec<Question>> {
 /// The line-by-line state machine that walks the question list.
 #[derive(Debug, Default)]
 struct Parser {
-    section: Option<String>,
-    topic: Option<String>,
+    section: Option<Section>,
+    topic: Option<Topic>,
     questions: Vec<Question>,
     current: Option<Question>,
     last_target: LastTarget,
@@ -63,11 +63,11 @@ const COUNT_WORDS: [(&str, u16); 4] = [("one", 1), ("two", 2), ("three", 3), ("f
 /// The sentences that carry the demanded count.
 const COUNT_PHRASES: [&str; 5] = ["name ", "describe ", "what is ", "what are ", "what was "];
 
-/// The Sections of the 2025 civics test, as M-1778 prints them.
-const SECTIONS: [(&str, &str); 3] = [
-    ("AMERICAN GOVERNMENT", "American Government"),
-    ("AMERICAN HISTORY", "American History"),
-    ("SYMBOLS AND HOLIDAYS", "Symbols and Holidays"),
+/// The Sections of the 2025 civics test, as M-1778 prints their headings.
+const SECTIONS: [(&str, Section); 3] = [
+    ("AMERICAN GOVERNMENT", Section::AmericanGovernment),
+    ("AMERICAN HISTORY", Section::AmericanHistory),
+    ("SYMBOLS AND HOLIDAYS", Section::SymbolsAndHolidays),
 ];
 
 const PAGE_FOOTER: &str = "uscis.gov/citizenship";
@@ -89,14 +89,14 @@ impl Parser {
         }
         if let Some(section) = section_heading(line)? {
             self.close_question()?;
-            self.section = Some(section.to_string());
+            self.section = Some(section);
             self.after_blank = false;
 
             return Ok(());
         }
-        if let Some(topic) = topic_heading(line) {
+        if let Some(topic) = topic_heading(line)? {
             self.close_question()?;
-            self.topic = Some(topic.to_string());
+            self.topic = Some(topic);
             self.after_blank = false;
 
             return Ok(());
@@ -128,14 +128,12 @@ impl Parser {
             None => (text, false),
         };
 
-        let section = self
-            .section
-            .clone()
-            .ok_or("question before any Section heading")?;
-        let topic = self
-            .topic
-            .clone()
-            .ok_or("question before any Topic heading")?;
+        let section = self.section.ok_or("question before any Section heading")?;
+        let topic = self.topic.ok_or("question before any Topic heading")?;
+
+        if topic.section() != section {
+            return Err(format!("topic {topic} sits outside Section {section}").into());
+        }
 
         self.current = Some(Question {
             number,
@@ -160,7 +158,7 @@ impl Parser {
                 .as_mut()
                 .ok_or("answer bullet before any question")?;
 
-            question.accepted_answers.push(answer.to_string());
+            question.accepted_answers.push(AcceptedAnswer::from(answer));
             question.accepted_answers.len() - 1
         };
 
@@ -194,7 +192,7 @@ impl Parser {
             }
             LastTarget::Answer(index) => {
                 if let Some(answer) = question.accepted_answers.get_mut(index) {
-                    *answer = join.apply(answer, line);
+                    *answer = AcceptedAnswer::from(join.apply(answer.as_str(), line));
                 }
             }
             LastTarget::None => {}
@@ -208,18 +206,16 @@ impl Parser {
         };
 
         if question.accepted_answers.is_empty() {
-            return Err(Error::custom(format!(
-                "question {} has no Accepted Answers",
-                question.number
-            )));
+            return Err(format!("question {} has no Accepted Answers", question.number).into());
         }
         if let Some(previous) = self.questions.last()
             && question.number <= previous.number
         {
-            return Err(Error::custom(format!(
+            return Err(format!(
                 "question {} is out of order, after question {}",
                 question.number, previous.number
-            )));
+            )
+            .into());
         }
 
         self.questions.push(question);
@@ -233,7 +229,7 @@ impl Parser {
         self.close_question()?;
 
         if self.questions.is_empty() {
-            return Err(Error::custom("no Civics Test Questions found"));
+            return Err("no Civics Test Questions found".into());
         }
 
         Ok(self.questions)
@@ -249,8 +245,8 @@ impl Join {
     }
 }
 
-/// Returns the Section name behind an all-caps heading line, if the line is one.
-fn section_heading(line: &str) -> Result<Option<&'static str>> {
+/// Returns the Section behind an all-caps heading line, if the line is one.
+fn section_heading(line: &str) -> Result<Option<Section>> {
     let is_heading = line.contains(char::is_alphabetic)
         && line
             .chars()
@@ -263,21 +259,38 @@ fn section_heading(line: &str) -> Result<Option<&'static str>> {
     SECTIONS
         .iter()
         .find(|(printed, _)| *printed == line)
-        .map(|(_, name)| Some(*name))
-        .ok_or_else(|| Error::custom(format!("unknown Section heading: {line}")))
+        .map(|(_, section)| Some(*section))
+        .ok_or_else(|| Error::from(format!("unknown Section heading: {line}")))
 }
 
-/// Returns the Topic name behind a `A: Topic` heading line, if the line is one.
-fn topic_heading(line: &str) -> Option<&str> {
-    let (letter, name) = line.split_once(':')?;
+/// Returns the Topic behind a `A: Topic` heading line, if the line is one.
+fn topic_heading(line: &str) -> Result<Option<Topic>> {
+    let Some((letter, name)) = line.split_once(':') else {
+        return Ok(None);
+    };
 
     if letter.len() != 1 || !letter.chars().all(|c| c.is_ascii_uppercase()) {
-        return None;
+        return Ok(None);
     }
 
     let name = name.trim();
 
-    (!name.is_empty()).then_some(name)
+    if name.is_empty() {
+        return Ok(None);
+    }
+
+    topic_named(name)
+        .map(Some)
+        .ok_or_else(|| Error::from(format!("unknown Topic heading: {line}")))
+}
+
+/// The Topic USCIS names `name`, if the 2025 test has one.
+fn topic_named(name: &str) -> Option<Topic> {
+    Section::ALL
+        .iter()
+        .flat_map(|section| section.topics())
+        .copied()
+        .find(|topic| topic.to_string() == name)
 }
 
 /// Returns the number and text of a line that opens a question.
@@ -457,15 +470,18 @@ For a complete list of tribes, please visit bia.gov.
 
         let first = questions.first().ok_or("question 1 should be extracted")?;
 
-        assert_eq!(first.section, "American Government");
-        assert_eq!(first.topic, "Principles of American Government");
+        assert_eq!(first.section, Section::AmericanGovernment);
+        assert_eq!(first.topic, Topic::PrinciplesOfAmericanGovernment);
         assert_eq!(
             first.question,
             "What is the form of government of the United States?"
         );
         assert_eq!(
             first.accepted_answers,
-            ["Republic", "Constitution-based federal republic"]
+            [
+                AcceptedAnswer::from("Republic"),
+                AcceptedAnswer::from("Constitution-based federal republic"),
+            ]
         );
         assert_eq!(first.answers_required, 1);
         assert!(!first.starred);
@@ -491,7 +507,10 @@ For a complete list of tribes, please visit bia.gov.
         let second = questions.get(1).ok_or("question 2 should be extracted")?;
 
         assert_eq!(second.question, "What is the supreme law of the land?");
-        assert_eq!(second.accepted_answers, ["(U.S.) Constitution"]);
+        assert_eq!(
+            second.accepted_answers,
+            [AcceptedAnswer::from("(U.S.) Constitution")]
+        );
 
         Ok(())
     }
@@ -529,8 +548,10 @@ For a complete list of tribes, please visit bia.gov.
         assert_eq!(
             question.accepted_answers,
             [
-                "34th president of the United States",
-                "Signed the Federal-Aid Highway Act of 1956 (Created the Interstate System)",
+                AcceptedAnswer::from("34th president of the United States"),
+                AcceptedAnswer::from(
+                    "Signed the Federal-Aid Highway Act of 1956 (Created the Interstate System)"
+                ),
             ]
         );
 
@@ -548,7 +569,10 @@ For a complete list of tribes, please visit bia.gov.
             .find(|q| q.number == 117)
             .ok_or("question 117 should be extracted")?;
 
-        assert_eq!(question.accepted_answers, ["Tuscarora"]);
+        assert_eq!(
+            question.accepted_answers,
+            [AcceptedAnswer::from("Tuscarora")]
+        );
 
         Ok(())
     }
@@ -605,9 +629,44 @@ For a complete list of tribes, please visit bia.gov.
             .find(|q| q.number == 118)
             .ok_or("question 118 should be extracted")?;
 
-        assert_eq!(question.accepted_answers, ["Light bulb"]);
+        assert_eq!(
+            question.accepted_answers,
+            [AcceptedAnswer::from("Light bulb")]
+        );
 
         Ok(())
+    }
+
+    #[test]
+    fn test_parse_text_unknown_topic_heading_errors() {
+        // -- Setup & Fixtures
+        let text =
+            "AMERICAN GOVERNMENT\n\nA: Principles of Something Else\n\n1.   What?\n\n• Yes\n";
+
+        // -- Exec
+        let result = parse_text(text);
+
+        // -- Check
+        assert!(
+            result.is_err(),
+            "a Topic the 2025 test does not publish must not pass"
+        );
+    }
+
+    #[test]
+    fn test_parse_text_topic_outside_its_section_errors() {
+        // -- Setup & Fixtures
+        let text =
+            "AMERICAN GOVERNMENT\n\nA: Colonial Period and Independence\n\n1.   What?\n\n• Yes\n";
+
+        // -- Exec
+        let result = parse_text(text);
+
+        // -- Check
+        assert!(
+            result.is_err(),
+            "a Topic filed under the wrong Section must not pass"
+        );
     }
 
     #[test]

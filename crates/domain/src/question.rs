@@ -1,4 +1,5 @@
-//! The Civics Test Questions and the shape of the committed records.
+//! The Civics Test Questions, the Sections and Topics they sit in, and the
+//! shape of the committed records.
 //!
 //! `crates/app/data/questions.json` is a [`QuestionRecords`]: the questions in
 //! document order, each with the Accepted Answers the test accepts. The records
@@ -6,6 +7,9 @@
 //! that produces them serializes these types, so the file and the model cannot
 //! drift apart.
 
+use core::fmt::{Display, Formatter};
+
+use derive_more::{Display, From};
 use serde::{Deserialize, Serialize};
 
 /// One Civics Test Question with its Accepted Answers.
@@ -14,10 +18,10 @@ pub struct Question {
     /// The question's number, 1 to 128, in M-1778's order.
     pub number: u16,
 
-    pub section: String,
-    pub topic: String,
+    pub section: Section,
+    pub topic: Topic,
     pub question: String,
-    pub accepted_answers: Vec<String>,
+    pub accepted_answers: Vec<AcceptedAnswer>,
 
     /// How many distinct Accepted Answers an answer must carry: 2 for
     /// "Name two", and 1 for the rest.
@@ -37,3 +41,218 @@ pub struct Question {
 pub struct QuestionRecords {
     pub questions: Vec<Question>,
 }
+
+/// One official answer to a Civics Test Question, as USCIS publishes it.
+///
+/// Parenthetical words are optional and square brackets annotate; both are the
+/// matcher's business, not the record's (ADR 0004).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Display, From)]
+#[display("{_0}")]
+#[serde(transparent)]
+pub struct AcceptedAnswer(String);
+
+/// One of the three top-level divisions of the 2025 civics test.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Section {
+    #[serde(rename = "American Government")]
+    AmericanGovernment,
+
+    #[serde(rename = "American History")]
+    AmericanHistory,
+
+    #[serde(rename = "Symbols and Holidays")]
+    SymbolsAndHolidays,
+}
+
+/// One of the eight Topics; each sits inside one Section.
+///
+/// The names are USCIS's own. The last American History Topic is long enough
+/// that the UI may show a shorter label; that is a presentation concern, not a
+/// second name.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Topic {
+    // -- American Government
+    #[serde(rename = "Principles of American Government")]
+    PrinciplesOfAmericanGovernment,
+
+    #[serde(rename = "System of Government")]
+    SystemOfGovernment,
+
+    #[serde(rename = "Rights and Responsibilities")]
+    RightsAndResponsibilities,
+
+    // -- American History
+    #[serde(rename = "Colonial Period and Independence")]
+    ColonialPeriodAndIndependence,
+
+    #[serde(rename = "1800s")]
+    EighteenHundreds,
+
+    #[serde(rename = "Recent American History and Other Important Historical Information")]
+    RecentAmericanHistoryAndOtherImportantHistoricalInformation,
+
+    // -- Symbols and Holidays
+    Symbols,
+    Holidays,
+}
+
+impl AcceptedAnswer {
+    /// The answer as USCIS publishes it.
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
+}
+
+impl From<&str> for AcceptedAnswer {
+    fn from(answer: &str) -> Self {
+        Self(answer.to_string())
+    }
+}
+
+impl Section {
+    /// Every Section, in M-1778's order.
+    pub const ALL: [Section; 3] = [
+        Section::AmericanGovernment,
+        Section::AmericanHistory,
+        Section::SymbolsAndHolidays,
+    ];
+
+    /// The Section's Topics, in M-1778's order.
+    pub fn topics(self) -> &'static [Topic] {
+        match self {
+            Section::AmericanGovernment => &[
+                Topic::PrinciplesOfAmericanGovernment,
+                Topic::SystemOfGovernment,
+                Topic::RightsAndResponsibilities,
+            ],
+            Section::AmericanHistory => &[
+                Topic::ColonialPeriodAndIndependence,
+                Topic::EighteenHundreds,
+                Topic::RecentAmericanHistoryAndOtherImportantHistoricalInformation,
+            ],
+            Section::SymbolsAndHolidays => &[Topic::Symbols, Topic::Holidays],
+        }
+    }
+}
+
+impl Topic {
+    /// The Section this Topic sits in.
+    pub fn section(self) -> Section {
+        match self {
+            Topic::PrinciplesOfAmericanGovernment
+            | Topic::SystemOfGovernment
+            | Topic::RightsAndResponsibilities => Section::AmericanGovernment,
+            Topic::ColonialPeriodAndIndependence
+            | Topic::EighteenHundreds
+            | Topic::RecentAmericanHistoryAndOtherImportantHistoricalInformation => {
+                Section::AmericanHistory
+            }
+            Topic::Symbols | Topic::Holidays => Section::SymbolsAndHolidays,
+        }
+    }
+}
+
+impl Display for Section {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
+        f.write_str(match self {
+            Section::AmericanGovernment => "American Government",
+            Section::AmericanHistory => "American History",
+            Section::SymbolsAndHolidays => "Symbols and Holidays",
+        })
+    }
+}
+
+impl Display for Topic {
+    fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
+        f.write_str(match self {
+            Topic::PrinciplesOfAmericanGovernment => "Principles of American Government",
+            Topic::SystemOfGovernment => "System of Government",
+            Topic::RightsAndResponsibilities => "Rights and Responsibilities",
+            Topic::ColonialPeriodAndIndependence => "Colonial Period and Independence",
+            Topic::EighteenHundreds => "1800s",
+            Topic::RecentAmericanHistoryAndOtherImportantHistoricalInformation => {
+                "Recent American History and Other Important Historical Information"
+            }
+            Topic::Symbols => "Symbols",
+            Topic::Holidays => "Holidays",
+        })
+    }
+}
+
+// region:    --- Tests
+
+#[cfg(test)]
+mod tests {
+    type Result<T, E = Box<dyn std::error::Error>> = core::result::Result<T, E>; // For tests.
+
+    use super::*;
+
+    #[test]
+    fn test_question_section_names_match_the_records() -> Result<()> {
+        // -- Exec & Check
+        for section in Section::ALL {
+            let serialized = serde_json::to_string(&section)?;
+
+            assert_eq!(
+                serialized,
+                format!("\"{section}\""),
+                "a Section's display name and its record name must agree"
+            );
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_question_topic_names_match_the_records() -> Result<()> {
+        // -- Exec & Check
+        for topic in Section::ALL.iter().flat_map(|section| section.topics()) {
+            let serialized = serde_json::to_string(topic)?;
+
+            assert_eq!(
+                serialized,
+                format!("\"{topic}\""),
+                "a Topic's display name and its record name must agree"
+            );
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_question_sections_hold_their_topics() {
+        // -- Exec & Check
+        let topics: Vec<Topic> = Section::ALL
+            .iter()
+            .flat_map(|section| section.topics().iter().copied())
+            .collect();
+
+        assert_eq!(
+            topics.len(),
+            8,
+            "the 2025 test has eight Topics across its three Sections"
+        );
+
+        for section in Section::ALL {
+            for topic in section.topics() {
+                assert_eq!(
+                    topic.section(),
+                    section,
+                    "topic {topic} must belong to the Section that lists it"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_question_accepted_answer_keeps_its_text() {
+        // -- Setup & Fixtures
+        let answer = AcceptedAnswer::from("(U.S.) Constitution".to_string());
+
+        // -- Exec & Check
+        assert_eq!(answer.as_str(), "(U.S.) Constitution");
+        assert_eq!(answer.to_string(), "(U.S.) Constitution");
+    }
+}
+
+// endregion: --- Tests

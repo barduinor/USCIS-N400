@@ -5,7 +5,7 @@
 
 mod test_support;
 
-use domain::{Question, QuestionRecords};
+use domain::{AcceptedAnswer, Question, QuestionRecords, Section, Topic};
 use gen_questions::generate::RECORDS_PATH;
 use test_support::read_committed;
 
@@ -92,7 +92,7 @@ fn test_records_annotations_are_not_answers() -> Result<()> {
         .filter(|q| {
             q.accepted_answers
                 .iter()
-                .any(|answer| answer.contains(['[', ']']))
+                .any(|answer| answer.as_str().contains(['[', ']']))
         })
         .map(|q| q.number)
         .collect();
@@ -158,7 +158,7 @@ fn test_records_ordinals_are_repaired() -> Result<()> {
     let split_ordinals: Vec<&str> = records
         .questions
         .iter()
-        .flat_map(|q| q.accepted_answers.iter().map(String::as_str))
+        .flat_map(|q| q.accepted_answers.iter().map(AcceptedAnswer::as_str))
         .filter(|answer| contains_split_ordinal(answer))
         .collect();
 
@@ -231,19 +231,21 @@ fn test_records_structure_is_the_documented_one() -> Result<()> {
     let records = committed_records()?;
 
     // -- Exec
-    let mut structure: Vec<(&str, &str, u16, u16)> = Vec::new();
+    let mut structure: Vec<(Section, Topic, u16, u16)> = Vec::new();
 
     for question in &records.questions {
-        let section = question.section.as_str();
-        let topic = question.topic.as_str();
-
         match structure.last_mut() {
             Some((last_section, last_topic, _, last_number))
-                if *last_section == section && *last_topic == topic =>
+                if *last_section == question.section && *last_topic == question.topic =>
             {
                 *last_number = question.number;
             }
-            _ => structure.push((section, topic, question.number, question.number)),
+            _ => structure.push((
+                question.section,
+                question.topic,
+                question.number,
+                question.number,
+            )),
         }
     }
 
@@ -252,28 +254,38 @@ fn test_records_structure_is_the_documented_one() -> Result<()> {
         structure,
         [
             (
-                "American Government",
-                "Principles of American Government",
+                Section::AmericanGovernment,
+                Topic::PrinciplesOfAmericanGovernment,
                 1,
                 15
             ),
-            ("American Government", "System of Government", 16, 62),
-            ("American Government", "Rights and Responsibilities", 63, 72),
             (
-                "American History",
-                "Colonial Period and Independence",
+                Section::AmericanGovernment,
+                Topic::SystemOfGovernment,
+                16,
+                62
+            ),
+            (
+                Section::AmericanGovernment,
+                Topic::RightsAndResponsibilities,
+                63,
+                72
+            ),
+            (
+                Section::AmericanHistory,
+                Topic::ColonialPeriodAndIndependence,
                 73,
                 89
             ),
-            ("American History", "1800s", 90, 99),
+            (Section::AmericanHistory, Topic::EighteenHundreds, 90, 99),
             (
-                "American History",
-                "Recent American History and Other Important Historical Information",
+                Section::AmericanHistory,
+                Topic::RecentAmericanHistoryAndOtherImportantHistoricalInformation,
                 100,
                 118,
             ),
-            ("Symbols and Holidays", "Symbols", 119, 124),
-            ("Symbols and Holidays", "Holidays", 125, 128),
+            (Section::SymbolsAndHolidays, Topic::Symbols, 119, 124),
+            (Section::SymbolsAndHolidays, Topic::Holidays, 125, 128),
         ]
     );
 
@@ -295,7 +307,11 @@ fn question_of(records: &QuestionRecords, number: u16) -> Result<&Question> {
 }
 
 fn answers_of(records: &QuestionRecords, number: u16) -> Result<Vec<String>> {
-    Ok(question_of(records, number)?.accepted_answers.clone())
+    Ok(question_of(records, number)?
+        .accepted_answers
+        .iter()
+        .map(|answer| answer.as_str().to_string())
+        .collect())
 }
 
 /// The suffix of an ordinal the extraction split onto its own line, mid-answer.
