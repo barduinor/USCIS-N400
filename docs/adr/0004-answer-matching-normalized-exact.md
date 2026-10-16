@@ -1,9 +1,10 @@
 # Answer matching is normalized exact match, not fuzzy
 
 An answer is correct when, after normalization, it equals one of the question's
-Accepted Answers. Matching is deliberately not fuzzy and not semantic, because
-a wrong accept is worse than a wrong reject: the Applicant cannot tell it
-happened, and it silently corrupts Coverage.
+Accepted Answers; on a question that asks for one answer, it may also join two
+or more of their forms with no other words. Matching is deliberately not fuzzy
+and not semantic, because a wrong accept is worse than a wrong reject: the
+Applicant cannot tell it happened, and it silently corrupts Coverage.
 
 ## What normalization does
 
@@ -104,6 +105,29 @@ Applied by hand, the rule gives:
 | 28 | `Equal representation (for small states)` | `for small states` | Wrong |
 | 104 | `The Great Crash (1929)` | `1929` | Wrong |
 
+## A single-answer question joins forms
+
+A question that asks for one answer (`answers_required` is 1) is correct when
+the normalized typed answer equals one of the question's forms, or joins two or
+more of those forms with no other words. A joining reads the typed words as
+consecutive runs of whole words, each run a form of one Accepted Answer, with
+every typed word inside a run.
+
+The Applicant may say more than one correct answer in a line. "Where is the
+Statue of Liberty?" lists five, and `liberty island new york` joins `Liberty
+Island` with the `New York` form of `New York (Harbor)`, its parenthetical
+dropped; either order passes. Both runs may also come from one answer, as
+`27 twenty seven` does for the amendments question. The rule is mechanical
+like the rest of the matcher and reads no negation: `not liberty island` fails
+because `not` is no form's word, not because the word is understood.
+
+The words must be the answers' own. `statue island` and `the statue` join
+nothing, because no run of them is a form. A word that belongs to an answer but
+makes no form of its own stays out: `the liberty island` is wrong, because
+`the` alone is no form, although `on the Hudson (River)` holds it. Multi-item
+questions are unchanged by this rule: they still count the distinct Accepted
+Answers the typed answer carries.
+
 ## Considered Options
 
 - **Fuzzy or semantic matching.** Rejected. It trades visible failures for
@@ -115,9 +139,18 @@ Applied by hand, the rule gives:
   would accept a plausible wrong answer, the one failure matching exists to
   prevent. Only the two shapes that really hold an answer are read that way —
   the `or`/`/` menu and the numeral form — and each is named, not inferred.
+- **Accept a form beside other words for a single-answer question.** Rejected:
+  containing a form is not saying it. `not liberty island` contains `liberty
+  island`, and the tool would accept a line an officer would not. A joining
+  covers every typed word with the answers' own forms instead, so a word beside
+  them refuses the line.
 
 ## Consequences
 
+- For a single-answer question, accept the typed answer when it equals one of
+  the question's forms or joins two or more of them with no other words. The
+  runs cover the whole line, in any order: `liberty island new york` passes for
+  Q120, `not liberty island` does not.
 - For multi-item questions, count the distinct Accepted Answers present in the
   input and compare against the number the question demands ("Name two").
 - Count distinct **bullets**, not distinct generated variants. Some bullets
