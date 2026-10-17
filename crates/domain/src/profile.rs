@@ -47,6 +47,29 @@ pub struct TestUpdates {
     pub chief_justice: Option<String>,
 }
 
+/// The Test Updates as the committed shipped data carries them: every value
+/// present, because the generation step refuses a partial set.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TestUpdateValues {
+    pub president: String,
+    pub vice_president: String,
+    pub speaker_of_the_house: String,
+    pub chief_justice: String,
+}
+
+/// The committed Test Update data: the four values, the page they came from,
+/// and the day they were fetched.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct TestUpdatesRecord {
+    /// The page the values were fetched from.
+    pub source: String,
+
+    /// The day the values were fetched, as `YYYY-MM-DD`.
+    pub fetched: String,
+
+    pub values: TestUpdateValues,
+}
+
 impl Profile {
     /// Whether the Applicant has given the one required fact.
     ///
@@ -55,6 +78,42 @@ impl Profile {
     pub fn has_state(&self) -> bool {
         !self.state.trim().is_empty()
     }
+
+    /// The Profile the Test Update questions are judged against: the Applicant's
+    /// own values, with the shipped value standing in wherever they stored none.
+    ///
+    /// This never changes what is stored: the shipped values fill gaps at
+    /// judging time, and the Profile keeps only what the Applicant saved.
+    pub fn with_shipped_test_updates(&self, shipped: &TestUpdateValues) -> Profile {
+        Profile {
+            test_updates: TestUpdates {
+                president: stored_or_shipped(&self.test_updates.president, &shipped.president),
+                vice_president: stored_or_shipped(
+                    &self.test_updates.vice_president,
+                    &shipped.vice_president,
+                ),
+                speaker_of_the_house: stored_or_shipped(
+                    &self.test_updates.speaker_of_the_house,
+                    &shipped.speaker_of_the_house,
+                ),
+                chief_justice: stored_or_shipped(
+                    &self.test_updates.chief_justice,
+                    &shipped.chief_justice,
+                ),
+            },
+            ..self.clone()
+        }
+    }
+}
+
+/// The Applicant's value where they gave one, and the shipped value otherwise.
+fn stored_or_shipped(stored: &Option<String>, shipped: &str) -> Option<String> {
+    stored
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .map(str::to_string)
+        .or_else(|| Some(shipped.to_string()))
 }
 
 // region:    --- Tests
@@ -82,6 +141,55 @@ mod tests {
                 ..Profile::default()
             }
             .has_state()
+        );
+    }
+
+    #[test]
+    fn test_profile_with_shipped_test_updates_fills_only_the_blanks() {
+        // -- Setup & Fixtures
+        let profile = Profile {
+            test_updates: TestUpdates {
+                president: Some("Applicant's President".to_string()),
+                vice_president: None,
+                speaker_of_the_house: Some("   ".to_string()),
+                chief_justice: Some("Applicant's Chief Justice".to_string()),
+            },
+            ..Profile::default()
+        };
+        let shipped = TestUpdateValues {
+            president: "Shipped President".to_string(),
+            vice_president: "Shipped Vice President".to_string(),
+            speaker_of_the_house: "Shipped Speaker".to_string(),
+            chief_justice: "Shipped Chief Justice".to_string(),
+        };
+
+        // -- Exec
+        let effective = profile.with_shipped_test_updates(&shipped);
+
+        // -- Check
+        assert_eq!(
+            effective.test_updates.president,
+            Some("Applicant's President".to_string()),
+            "a stored value wins"
+        );
+        assert_eq!(
+            effective.test_updates.vice_president,
+            Some("Shipped Vice President".to_string()),
+            "a missing value takes the shipped one"
+        );
+        assert_eq!(
+            effective.test_updates.speaker_of_the_house,
+            Some("Shipped Speaker".to_string()),
+            "a blank value is missing, not an answer"
+        );
+        assert_eq!(
+            effective.test_updates.chief_justice,
+            Some("Applicant's Chief Justice".to_string()),
+            "a stored value wins even beside a shipped one"
+        );
+        assert_eq!(
+            profile.test_updates.vice_president, None,
+            "filling the effective Profile never writes behind the Applicant"
         );
     }
 

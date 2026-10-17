@@ -20,7 +20,7 @@ pub mod selection;
 pub use error::{Error, Result};
 pub use exam::{Exam, ExamRecord, Outcome, Track};
 pub use matching::Verdict;
-pub use profile::{Profile, TestUpdates};
+pub use profile::{Profile, TestUpdateValues, TestUpdates, TestUpdatesRecord};
 pub use progress::{AnswerLogEntry, Coverage};
 pub use question::{AcceptedAnswer, Question, QuestionRecords, Section, Topic};
 
