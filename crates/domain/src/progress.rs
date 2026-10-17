@@ -1,7 +1,8 @@
 //! Cleared state, Coverage, and the Answer Log entries they derive from.
 //!
-//! A Civics Test Question is Cleared after three correct answers in a row, and
-//! a wrong answer makes it unclear again. Coverage is the share of the
+//! A Civics Test Question is Cleared by its first correct answer, unless it has
+//! been answered wrong before, in which case it needs three correct answers in a
+//! row. A later wrong answer makes it unclear again. Coverage is the share of the
 //! Applicant's accountable questions that are currently Cleared: the whole list,
 //! or the 20 starred questions when the 65/20 Special Consideration applies.
 //!
@@ -50,34 +51,59 @@ impl AnswerLogEntry {
     }
 }
 
-/// How many correct answers in a row Clear a Civics Test Question.
+/// How many correct answers in a row Clear a question that was answered wrong
+/// before.
 const CLEARED_STREAK: u32 = 3;
 
-/// The Civics Test Questions the Answer Log has Cleared.
-///
-/// A question is Cleared by three correct answers in a row; a wrong answer makes
-/// it unclear again. An Override counts as correct for its attempt, so an
-/// overridden answer feeds the streak and never changes the Accepted Answers.
-pub fn cleared(log: &[AnswerLogEntry]) -> HashSet<u16> {
-    let mut streaks: HashMap<u16, u32> = HashMap::new();
-    let mut cleared = HashSet::new();
+/// What the Answer Log says about one Civics Test Question.
+#[derive(Debug, Default)]
+struct QuestionState {
+    /// Whether any answer to the question was wrong without an Override.
+    wrong_before: bool,
 
-    for entry in log {
-        let streak = streaks.entry(entry.question).or_default();
+    /// How many correct answers in a row the question has since its last wrong
+    /// answer. A wrong answer resets it.
+    correct_streak: u32,
+}
 
-        if entry.counts_correct() {
-            *streak += 1;
-
-            if *streak >= CLEARED_STREAK {
-                cleared.insert(entry.question);
-            }
+impl QuestionState {
+    /// Records one answer to the question.
+    fn record(&mut self, counts_correct: bool) {
+        if counts_correct {
+            self.correct_streak += 1;
         } else {
-            *streak = 0;
-            cleared.remove(&entry.question);
+            self.wrong_before = true;
+            self.correct_streak = 0;
         }
     }
 
-    cleared
+    /// Whether the question is Cleared now.
+    fn is_cleared(&self) -> bool {
+        self.correct_streak >= CLEARED_STREAK || (self.correct_streak > 0 && !self.wrong_before)
+    }
+}
+
+/// The Civics Test Questions the Answer Log has Cleared.
+///
+/// A question is Cleared by its first correct answer. Once it has been answered
+/// wrong, it needs three correct answers in a row after that wrong answer; a
+/// later wrong answer makes it unclear again. An Override counts as correct for
+/// its attempt, so an overridden answer feeds the streak and never changes the
+/// Accepted Answers.
+pub fn cleared(log: &[AnswerLogEntry]) -> HashSet<u16> {
+    let mut states: HashMap<u16, QuestionState> = HashMap::new();
+
+    for entry in log {
+        states
+            .entry(entry.question)
+            .or_default()
+            .record(entry.counts_correct());
+    }
+
+    states
+        .into_iter()
+        .filter_map(|(question, state)| state.is_cleared().then_some(question))
+        .collect()
 }
 
 /// The whole percent `count` is of `total`, rounded to the nearest. Nothing of
@@ -212,11 +238,24 @@ mod tests {
         }
     }
 
-    /// Three correct answers in a row, which Clear the question.
+    /// Three correct answers in a row for one question.
     fn cleared_streak(question: u16) -> Vec<AnswerLogEntry> {
         (0..3)
             .map(|_| answered(question, Verdict::Correct, false))
             .collect()
+    }
+
+    /// One answer to question 1 per Verdict, in the order given.
+    fn answers(verdicts: &[Verdict]) -> Vec<AnswerLogEntry> {
+        verdicts
+            .iter()
+            .map(|verdict| answered(1, *verdict, false))
+            .collect()
+    }
+
+    /// Whether the answers in order Clear question 1.
+    fn is_cleared(verdicts: &[Verdict]) -> bool {
+        cleared(&answers(verdicts)).contains(&1)
     }
 
     /// Records of `count` Civics Test Questions, the first `starred` of them
@@ -239,53 +278,122 @@ mod tests {
     }
 
     #[test]
-    fn test_progress_cleared_needs_three_correct_answers_in_a_row() {
-        // -- Setup & Fixtures
-        let two = vec![
-            answered(1, Verdict::Correct, false),
-            answered(1, Verdict::Correct, false),
-        ];
-
-        // -- Exec
-        let mut three = two.clone();
-        three.push(answered(1, Verdict::Correct, false));
-
-        // -- Check
+    fn test_progress_cleared_with_no_answers_is_not_cleared() {
+        // -- Exec & Check
         assert!(
-            !cleared(&two).contains(&1),
-            "two correct answers in a row are not three"
+            !is_cleared(&[]),
+            "a question with no answers is not Cleared"
         );
+        assert!(cleared(&[]).is_empty(), "an empty log Clears nothing");
+    }
+
+    #[test]
+    fn test_progress_cleared_on_the_first_correct_answer_when_never_wrong() {
+        // -- Exec & Check
         assert!(
-            cleared(&three).contains(&1),
-            "three correct answers in a row Clear the question"
+            is_cleared(&[Verdict::Correct]),
+            "a question never answered wrong is Cleared by one correct answer"
         );
     }
 
     #[test]
-    fn test_progress_cleared_is_lost_on_a_later_wrong_answer() {
-        // -- Setup & Fixtures
-        let mut log = cleared_streak(1);
-
-        // -- Exec
-        log.push(answered(1, Verdict::Wrong, false));
-
-        // -- Check
+    fn test_progress_cleared_stays_after_a_second_correct_answer() {
+        // -- Exec & Check
         assert!(
-            !cleared(&log).contains(&1),
-            "a wrong answer makes the question unclear again"
+            is_cleared(&[Verdict::Correct, Verdict::Correct]),
+            "a Cleared question stays Cleared through another correct answer"
         );
-        assert!(cleared(&log).is_empty(), "a wrong answer Clears nothing");
     }
 
     #[test]
-    fn test_progress_cleared_counts_the_three_in_a_row_after_a_wrong_answer() {
+    fn test_progress_cleared_wrong_answer_alone_is_not_cleared() {
+        // -- Exec & Check
+        assert!(
+            !is_cleared(&[Verdict::Wrong]),
+            "a wrong answer does not Clear the question"
+        );
+    }
+
+    #[test]
+    fn test_progress_cleared_one_correct_answer_after_a_wrong_one_is_not_enough() {
+        // -- Exec & Check
+        assert!(
+            !is_cleared(&[Verdict::Wrong, Verdict::Correct]),
+            "the streak since the wrong answer is one"
+        );
+    }
+
+    #[test]
+    fn test_progress_cleared_three_in_a_row_after_a_wrong_answer_clears() {
+        // -- Exec & Check
+        assert!(
+            is_cleared(&[
+                Verdict::Wrong,
+                Verdict::Correct,
+                Verdict::Correct,
+                Verdict::Correct,
+            ]),
+            "three in a row after the wrong answer Clear the question"
+        );
+    }
+
+    #[test]
+    fn test_progress_cleared_correct_then_wrong_makes_it_unclear() {
+        // -- Exec & Check
+        assert!(
+            !is_cleared(&[Verdict::Correct, Verdict::Wrong]),
+            "a wrong answer makes a Cleared question unclear again"
+        );
+    }
+
+    #[test]
+    fn test_progress_cleared_two_in_a_row_after_correct_then_wrong_is_not_enough() {
+        // -- Exec & Check
+        assert!(
+            !is_cleared(&[
+                Verdict::Correct,
+                Verdict::Wrong,
+                Verdict::Correct,
+                Verdict::Correct,
+            ]),
+            "after the wrong answer the question owes three in a row, and has two"
+        );
+    }
+
+    #[test]
+    fn test_progress_cleared_three_in_a_row_after_correct_then_wrong_clears() {
+        // -- Exec & Check
+        assert!(
+            is_cleared(&[
+                Verdict::Correct,
+                Verdict::Wrong,
+                Verdict::Correct,
+                Verdict::Correct,
+                Verdict::Correct,
+            ]),
+            "three correct answers after the wrong answer Clear the question"
+        );
+    }
+
+    #[test]
+    fn test_progress_cleared_counts_an_override_as_a_first_correct_answer() {
         // -- Setup & Fixtures
-        // The case the GLOSSARY works through: a wrong answer resets the count,
-        // and the three in a row after it are the three that Clear.
+        let log = vec![answered(1, Verdict::Wrong, true)];
+
+        // -- Exec & Check
+        assert!(
+            cleared(&log).contains(&1),
+            "an Override counts as correct for its attempt, so it is the first correct answer"
+        );
+    }
+
+    #[test]
+    fn test_progress_cleared_counts_an_override_in_the_streak_after_a_wrong_answer() {
+        // -- Setup & Fixtures
+        // The first attempt stands as wrong; the second, overridden, is correct.
         let log = vec![
-            answered(1, Verdict::Correct, false),
             answered(1, Verdict::Wrong, false),
-            answered(1, Verdict::Correct, false),
+            answered(1, Verdict::Wrong, true),
             answered(1, Verdict::Correct, false),
             answered(1, Verdict::Correct, false),
         ];
@@ -293,15 +401,14 @@ mod tests {
         // -- Exec & Check
         assert!(
             cleared(&log).contains(&1),
-            "three in a row after the wrong answer Clear the question"
+            "the overridden answer is the first of the three in a row"
         );
     }
 
     #[test]
     fn test_progress_cleared_counts_an_override_only_for_its_own_attempt() {
         // -- Setup & Fixtures
-        // The same phrasing, wrong twice: the first attempt overridden, the
-        // second left as the matcher judged it.
+        // A later wrong answer is not covered by the earlier Override.
         let log = vec![
             answered(1, Verdict::Correct, false),
             answered(1, Verdict::Wrong, true),
@@ -313,43 +420,27 @@ mod tests {
         // -- Exec & Check
         assert!(
             !cleared(&log).contains(&1),
-            "the second wrong answer stands on its own and breaks the streak"
+            "a later wrong answer makes the question unclear again"
         );
     }
 
     #[test]
-    fn test_progress_cleared_counts_an_override_as_correct() {
+    fn test_progress_cleared_reads_each_questions_own_answers() {
         // -- Setup & Fixtures
-        let mut log = vec![
-            answered(1, Verdict::Correct, false),
-            answered(1, Verdict::Correct, false),
-        ];
-        log.push(answered(1, Verdict::Wrong, true));
-
-        // -- Exec & Check
-        assert!(
-            cleared(&log).contains(&1),
-            "an Override counts as correct for its attempt"
-        );
-    }
-
-    #[test]
-    fn test_progress_cleared_reads_each_questions_own_streak() {
-        // -- Setup & Fixtures
-        // Two questions interleaved, so neither streak is a run of the log.
+        // Two questions interleaved: question 1 is Cleared by its first correct
+        // answer and then made unclear, while question 2 has its own answer.
         let log = vec![
             answered(1, Verdict::Correct, false),
             answered(2, Verdict::Correct, false),
             answered(1, Verdict::Correct, false),
-            answered(2, Verdict::Correct, false),
-            answered(1, Verdict::Correct, false),
+            answered(1, Verdict::Wrong, false),
         ];
 
         // -- Exec & Check
         assert_eq!(
             cleared(&log),
-            HashSet::from([1]),
-            "question 1 has its three, question 2 has only two"
+            HashSet::from([2]),
+            "question 2 is Cleared and question 1 is not"
         );
     }
 
@@ -367,6 +458,75 @@ mod tests {
         assert_eq!(coverage.cleared(), 2);
         assert_eq!(coverage.total(), 3);
         assert_eq!(coverage.to_string(), "67% (2 of 3)");
+    }
+
+    #[test]
+    fn test_progress_coverage_from_log_counts_questions_cleared_by_their_first_correct_answer() {
+        // -- Setup & Fixtures
+        let records = records(128, 0);
+        let log = vec![
+            answered(1, Verdict::Correct, false),
+            answered(2, Verdict::Correct, false),
+            answered(3, Verdict::Correct, false),
+        ];
+
+        // -- Exec
+        let coverage = Coverage::from_log(&records, &Profile::default(), &log);
+
+        // -- Check
+        assert_eq!(
+            coverage.to_string(),
+            "2% (3 of 128)",
+            "three questions answered correctly once each are three Cleared questions"
+        );
+    }
+
+    #[test]
+    fn test_progress_coverage_from_log_drops_a_question_answered_wrong() {
+        // -- Setup & Fixtures
+        let records = records(128, 0);
+        let log = vec![
+            answered(1, Verdict::Correct, false),
+            answered(2, Verdict::Correct, false),
+            answered(3, Verdict::Correct, false),
+            answered(1, Verdict::Wrong, false),
+        ];
+
+        // -- Exec
+        let coverage = Coverage::from_log(&records, &Profile::default(), &log);
+
+        // -- Check
+        assert_eq!(
+            coverage.to_string(),
+            "2% (2 of 128)",
+            "a wrong answer stops the question counting until three in a row Clear it"
+        );
+    }
+
+    #[test]
+    fn test_progress_coverage_from_log_waits_for_three_in_a_row_after_a_wrong_answer() {
+        // -- Setup & Fixtures
+        let records = records(128, 0);
+        let mut log = vec![
+            answered(1, Verdict::Wrong, false),
+            answered(1, Verdict::Correct, false),
+            answered(1, Verdict::Correct, false),
+        ];
+
+        // -- Exec & Check
+        assert_eq!(
+            Coverage::from_log(&records, &Profile::default(), &log).to_string(),
+            "0% (0 of 128)",
+            "two correct answers after a wrong one are not three"
+        );
+
+        log.push(answered(1, Verdict::Correct, false));
+
+        assert_eq!(
+            Coverage::from_log(&records, &Profile::default(), &log).to_string(),
+            "1% (1 of 128)",
+            "the third correct answer in a row Clears the question"
+        );
     }
 
     #[test]
