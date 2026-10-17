@@ -159,9 +159,10 @@ least often, answered wrong, under-served Sections — with the recent-ask
 penalty. The main menu shows Coverage: the share of the applicant's accountable
 questions that are Cleared, by one correct answer or by three in a row after a
 wrong one, derived from the Answer Log each time the screen opens. After a
-verdict the Applicant can ask for the reveal — the Accepted Answers, and the
-Explanation where one exists — and, after a wrong verdict, override it: the
-Override counts that attempt as correct and never changes the Accepted Answers.
+verdict the screen shows the Accepted Answers immediately, correct or wrong,
+and the Explanation where one exists when the Applicant asks; after a wrong
+verdict it also offers the Override, which counts that attempt as correct and
+never changes the Accepted Answers.
 An Exam simulates the officer's administration of the test — twenty questions
 with twelve to pass, or ten of the starred twenty with six — shows only the
 question, stops the moment the outcome is fixed, and records its own outcome,

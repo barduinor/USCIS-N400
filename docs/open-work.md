@@ -49,8 +49,8 @@ they are waiting on work.
   `docs/resources/USCIS-2025-Civics-Test-Study-Guide-M-1175.pdf`. Its chapters
   carry the prose but have no linkage to question numbers, so this is a mapping
   job (question to chapter excerpt), not a writing job. See ADR 0001. Until
-  then the `Explanation` field stays empty and the reveal shows Accepted Answers
-  only.
+  then the `Explanation` field stays empty and the answers panel shows Accepted
+  Answers only.
 
 ### Data
 

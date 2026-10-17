@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 
 use domain::{Verdict, answers, matching, selection};
 
-use crate::components::{Field, Reveal, use_refresh_on_resume};
+use crate::components::{Answers, Field, OverrideControl, use_refresh_on_resume};
 use crate::questions;
 use crate::routes::Route;
 use crate::storage;
@@ -113,22 +113,14 @@ pub fn Study() -> Element {
                         span { class: "field-label", "Your answer" }
                         p { "{answered}" }
                     }
+                    Answers {
+                        answers: accepted,
+                        explanation: question.explanation.clone(),
+                    }
                     if let Some(problem) = problem() {
                         p { class: "problem", "{problem}" }
                     }
                     div { class: "actions",
-                        Reveal {
-                            answers: accepted,
-                            explanation: question.explanation.clone(),
-                            wrong: judged == Verdict::Wrong,
-                            overridden: counts_correct,
-                            on_overridden: move |_| {
-                                // The log the draw reads now holds the entry as it
-                                // was before the Override.
-                                log.restart();
-                                overridden.set(Some(number));
-                            },
-                        }
                         button {
                             class: "primary",
                             onclick: move |_| {
@@ -140,6 +132,19 @@ pub fn Study() -> Element {
                                 problem.set(None);
                             },
                             "Next question"
+                        }
+                    }
+                    if judged == Verdict::Wrong {
+                        div { class: "override",
+                            OverrideControl {
+                                overridden: counts_correct,
+                                on_overridden: move |_| {
+                                    // The log the draw reads now holds the entry as
+                                    // it was before the Override.
+                                    log.restart();
+                                    overridden.set(Some(number));
+                                },
+                            }
                         }
                     }
                 }
