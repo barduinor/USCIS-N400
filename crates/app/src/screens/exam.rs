@@ -28,6 +28,17 @@ pub fn Exam() -> Element {
 
     let navigator = navigator();
     let profile = use_resource(storage::profile::load);
+    let test_updates = match crate::test_updates::record() {
+        Ok(record) => record,
+        Err(error) => {
+            return rsx! {
+                main { class: "screen",
+                    h1 { "USCIS N-400 Civics Study" }
+                    p { class: "problem", "The Test Update values could not be read: {error}" }
+                }
+            };
+        }
+    };
     let mut exam = use_signal(|| Option::<domain::Exam>::None);
     let mut typed = use_signal(String::new);
     let mut finished = use_signal(|| Option::<ExamRecord>::None);
@@ -106,7 +117,10 @@ pub fn Exam() -> Element {
                 },
                 Some(question) => {
                     let accepted = match &*profile.read() {
-                        Some(Ok(Some(profile))) => answers::accepted_answers(question, profile),
+                        Some(Ok(Some(profile))) => answers::accepted_answers(
+                            question,
+                            &crate::test_updates::effective_profile(profile, test_updates),
+                        ),
                         _ => Vec::new(),
                     };
 

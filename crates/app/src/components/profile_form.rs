@@ -3,6 +3,7 @@ use dioxus::prelude::*;
 use domain::{Profile, TestUpdates};
 
 use crate::components::{Field, StateField};
+use crate::test_updates;
 
 /// The Applicant's own facts, as a form.
 ///
@@ -10,9 +11,16 @@ use crate::components::{Field, StateField};
 /// the same order. The screen owns the Profile it edits; this component writes
 /// into it. Every field except the state can wait, and a blank Local Fact or
 /// Test Update stays *missing* rather than becoming an empty answer.
+///
+/// A Test Update field the Applicant has not filled in presents the value
+/// shipped with the release. What is typed is kept; a blank one goes back to
+/// showing the shipped value, and the Profile still holds only what the
+/// Applicant saved.
 #[component]
 pub fn ProfileForm(profile: Signal<Profile>) -> Element {
     let mut answers = profile;
+    let shipped = test_updates::record();
+    let values = shipped.as_ref().ok().map(|record| &record.values);
 
     rsx! {
         StateField {
@@ -61,19 +69,28 @@ pub fn ProfileForm(profile: Signal<Profile>) -> Element {
             Field {
                 label: "President",
                 name: "president",
-                value: answers.read().test_updates.president.clone().unwrap_or_default(),
+                value: shown(
+                    &answers.read().test_updates.president,
+                    values.map(|values| values.president.as_str()),
+                ),
                 on_input: move |value: String| answers.write().test_updates.president = typed(&value),
             }
             Field {
                 label: "Vice President",
                 name: "vice-president",
-                value: answers.read().test_updates.vice_president.clone().unwrap_or_default(),
+                value: shown(
+                    &answers.read().test_updates.vice_president,
+                    values.map(|values| values.vice_president.as_str()),
+                ),
                 on_input: move |value: String| answers.write().test_updates.vice_president = typed(&value),
             }
             Field {
                 label: "Speaker of the House",
                 name: "speaker-of-the-house",
-                value: answers.read().test_updates.speaker_of_the_house.clone().unwrap_or_default(),
+                value: shown(
+                    &answers.read().test_updates.speaker_of_the_house,
+                    values.map(|values| values.speaker_of_the_house.as_str()),
+                ),
                 on_input: move |value: String| {
                     answers.write().test_updates.speaker_of_the_house = typed(&value);
                 },
@@ -81,8 +98,24 @@ pub fn ProfileForm(profile: Signal<Profile>) -> Element {
             Field {
                 label: "Chief Justice",
                 name: "chief-justice",
-                value: answers.read().test_updates.chief_justice.clone().unwrap_or_default(),
+                value: shown(
+                    &answers.read().test_updates.chief_justice,
+                    values.map(|values| values.chief_justice.as_str()),
+                ),
                 on_input: move |value: String| answers.write().test_updates.chief_justice = typed(&value),
+            }
+            if let Err(error) = &shipped {
+                p { class: "problem", "The shipped Test Update values could not be read: {error}" }
+            }
+            p { class: "hint",
+                "The values change with elections and appointments. Check "
+                a {
+                    href: "https://www.uscis.gov/citizenship/testupdates",
+                    target: "_blank",
+                    rel: "noopener",
+                    "uscis.gov/citizenship/testupdates"
+                }
+                " for the current ones."
             }
         }
 
@@ -98,6 +131,15 @@ pub fn ProfileForm(profile: Signal<Profile>) -> Element {
         p { class: "hint",
             "Aged 65 or older, and a lawful permanent resident for 20 or more years."
         }
+    }
+}
+
+/// What a Test Update field shows: the Applicant's value where they gave one,
+/// and the shipped value where the Profile holds none.
+fn shown(stored: &Option<String>, shipped: Option<&str>) -> String {
+    match stored {
+        Some(value) if !value.trim().is_empty() => value.clone(),
+        _ => shipped.unwrap_or_default().to_string(),
     }
 }
 
@@ -152,6 +194,34 @@ mod tests {
         assert_eq!(typed("New "), Some("New ".to_string()));
         assert_eq!(typed("   "), None);
         assert_eq!(typed(""), None);
+    }
+
+    #[test]
+    fn test_profile_form_shows_a_shipped_test_update_until_one_is_stored() {
+        // -- Exec & Check
+        assert_eq!(
+            shown(&None, Some("Shipped President")),
+            "Shipped President",
+            "a blank field presents the shipped value"
+        );
+        assert_eq!(
+            shown(
+                &Some("Stored President".to_string()),
+                Some("Shipped President")
+            ),
+            "Stored President",
+            "a stored value is shown instead of the shipped one"
+        );
+        assert_eq!(
+            shown(&Some("   ".to_string()), Some("Shipped President")),
+            "Shipped President",
+            "a blank stored value is no value"
+        );
+        assert_eq!(
+            shown(&None, None),
+            "",
+            "without shipped data the field is blank"
+        );
     }
 
     #[test]

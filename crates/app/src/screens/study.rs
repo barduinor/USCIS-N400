@@ -46,6 +46,20 @@ pub fn Study() -> Element {
 
     let profile = use_resource(storage::profile::load);
     let mut log = use_resource(storage::answer_log::entries);
+    let test_updates = match crate::test_updates::record() {
+        Ok(record) => record,
+        Err(error) => {
+            return rsx! {
+                main { class: "screen",
+                    nav { class: "study-exit",
+                        Link { to: Route::MainMenu {}, class: "menu-item", "Back to the menu" }
+                    }
+                    h1 { "USCIS N-400 Civics Study" }
+                    p { class: "problem", "The Test Update values could not be read: {error}" }
+                }
+            };
+        }
+    };
     let mut current = use_signal(|| Option::<u16>::None);
     let mut asked = use_signal(|| Option::<u16>::None);
     let mut typed = use_signal(String::new);
@@ -79,7 +93,10 @@ pub fn Study() -> Element {
                     "verdict wrong"
                 };
                 let accepted = match &*profile.read() {
-                    Some(Ok(Some(profile))) => answers::accepted_answers(question, profile),
+                    Some(Ok(Some(profile))) => answers::accepted_answers(
+                        question,
+                        &crate::test_updates::effective_profile(profile, test_updates),
+                    ),
                     _ => Vec::new(),
                 };
                 let counts_correct = overridden() == Some(number);
@@ -125,7 +142,10 @@ pub fn Study() -> Element {
             None => {
                 let number = question.number;
                 let accepted = match &*profile.read() {
-                    Some(Ok(Some(profile))) => answers::accepted_answers(question, profile),
+                    Some(Ok(Some(profile))) => answers::accepted_answers(
+                        question,
+                        &crate::test_updates::effective_profile(profile, test_updates),
+                    ),
                     _ => Vec::new(),
                 };
 

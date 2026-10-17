@@ -70,6 +70,47 @@ mod tests {
     }
 
     #[test]
+    fn test_storage_profile_loads_a_profile_stored_before_the_shipped_values() -> Result<()> {
+        // -- Setup & Fixtures
+        // The record a device already held: the same Profile shape, with the
+        // Test Updates the Applicant typed. Nothing about the shipped values is
+        // stored, so loading it must leave every typed value untouched.
+        let record = r#"{
+            "state": "New Jersey",
+            "district": "7th",
+            "senators": ["Cory Booker", "Andy Kim"],
+            "representative": "Thomas Kean Jr.",
+            "governor": "Mikie Sherrill",
+            "state_capital": "Trenton",
+            "test_updates": {
+                "president": "Old Stored President",
+                "vice_president": "Old Stored Vice President",
+                "speaker_of_the_house": "Old Stored Speaker",
+                "chief_justice": "Old Stored Chief Justice"
+            },
+            "special_consideration_65_20": false
+        }"#;
+
+        // -- Exec
+        let profile = from_record(record)?;
+
+        // -- Check
+        assert_eq!(profile.state, "New Jersey");
+        assert_eq!(
+            profile.test_updates,
+            TestUpdates {
+                president: Some("Old Stored President".to_string()),
+                vice_president: Some("Old Stored Vice President".to_string()),
+                speaker_of_the_house: Some("Old Stored Speaker".to_string()),
+                chief_justice: Some("Old Stored Chief Justice".to_string()),
+            }
+        );
+        assert_eq!(profile.governor.as_deref(), Some("Mikie Sherrill"));
+
+        Ok(())
+    }
+
+    #[test]
     fn test_storage_profile_from_record_rejects_another_shape() {
         // -- Exec
         let result = from_record("{\"state\": 7}");
