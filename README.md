@@ -1,7 +1,7 @@
 # USCIS-N400
 
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
-![Status: v1 in development](https://img.shields.io/badge/status-v1%20in%20development-blue)
+![Status: v1](https://img.shields.io/badge/status-v1-blue)
 
 A single-user, phone-first study tool for the civics portion of the U.S.
 naturalization interview. It drills the 2025 civics test questions and simulates
@@ -128,7 +128,8 @@ domain vocabulary and every behavioral rule live in `GLOSSARY.md`.
 ```
 
 The workspace, the gate scripts, the committed records, and every screen are in
-place; the offline PWA is the last v1 item.
+place, and v1 is complete: the offline PWA landed and was reported working on a
+real iPhone.
 
 ## Documentation
 
@@ -186,9 +187,11 @@ The v1 build is issue #1 on the
 landed the workspace and gates, the question records, the domain model, the app
 shell, storage and onboarding, the study loop, selection, progress, the reveal
 and Override, the Exam, Stats, and the Profile with export and import, and #15
-landed the CI deploy. The offline PWA (#14) is the last v1 item. What the app
-gets wrong or missing while it is used is tracked from #17 onward, and
-`docs/open-work.md` §Decided, not built holds the rest.
+landed the CI deploy, and #14 landed the installable, offline app — reported
+working on a real iPhone, which completes v1. What the app got wrong or missing
+while it was used is tracked from #17 onward, and every one of those is closed;
+`docs/open-work.md` §Decided, not built holds what comes next, and #16 is the
+running inbox.
 
 ## Getting started
 
