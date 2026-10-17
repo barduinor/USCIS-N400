@@ -61,6 +61,8 @@ The screens:
   "Name two".
 - Cleared state (three correct in a row) and Coverage as a percentage and a
   count, globally and per Section and Topic.
+- The four national Test Update values prefilled from the USCIS page, as fresh
+  as the release, and editable where an election has moved on.
 - Weighted question selection: least-asked, wrong-answer, and Section balance,
   with a recent-ask penalty and no immediate repeats.
 - The 65/20 Special Consideration: study narrows to the 20 starred questions,
