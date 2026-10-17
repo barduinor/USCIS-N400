@@ -25,7 +25,7 @@ Single-context: `GLOSSARY.md` + `docs/adr/`. See `docs/agents/domain.md`.
 
 ## Git workflow
 
-- Ticket work lands on a branch per ticket, merged to `main` when the gates are green.
+- Ticket work lands on a branch per ticket, merged to `main` when the gates are green. The branch is deleted from the origin as soon as its work is in `main`: a branch left behind reads as unmerged work when it is not.
 
 ## Rules
 
