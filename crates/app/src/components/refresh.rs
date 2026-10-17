@@ -19,7 +19,7 @@ pub struct ProgressEpoch(pub Signal<u32>);
 pub fn RefreshOnResume() -> Element {
     let mut epoch = use_context::<ProgressEpoch>();
 
-    use_effect(move || {
+    use_hook(move || {
         let Some(window) = web_sys::window() else {
             return;
         };

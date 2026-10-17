@@ -36,7 +36,7 @@ pub fn App() -> Element {
     let epoch = use_signal(|| 0u32);
     use_context_provider(|| ProgressEpoch(epoch));
 
-    use_effect(move || {
+    use_hook(move || {
         spawn(async {
             storage::request_persistent_storage().await;
         });
