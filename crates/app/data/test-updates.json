@@ -1,0 +1,10 @@
+{
+  "source": "https://www.uscis.gov/citizenship/testupdates",
+  "fetched": "2026-10-17",
+  "values": {
+    "president": "Donald J. Trump",
+    "vice_president": "JD Vance",
+    "speaker_of_the_house": "Mike Johnson",
+    "chief_justice": "John Roberts"
+  }
+}

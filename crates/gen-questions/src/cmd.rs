@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use clap::{Args, Parser, Subcommand};
 
-use crate::{Result, generate};
+use crate::{Result, generate, test_updates};
 
 /// The `gen-questions` command line.
 #[derive(Debug, Parser)]
@@ -21,6 +21,9 @@ pub struct CliCmd {
 pub enum CliSubCmd {
     /// Regenerates the committed Civics Test records from the USCIS question list.
     Generate(GenerateArgs),
+
+    /// Fetches the four Test Update values and writes the committed record.
+    GenerateTestUpdates(GenerateTestUpdatesArgs),
 }
 
 #[derive(Debug, Args)]
@@ -38,12 +41,28 @@ pub struct GenerateArgs {
     pub records: PathBuf,
 }
 
+#[derive(Debug, Args)]
+pub struct GenerateTestUpdatesArgs {
+    /// A saved page to read instead of fetching it, for an offline run.
+    #[arg(long)]
+    pub html: Option<PathBuf>,
+
+    /// The USCIS test-updates page to fetch.
+    #[arg(long, default_value = test_updates::SOURCE_URL)]
+    pub url: String,
+
+    /// The Test Update record to write.
+    #[arg(long, default_value = test_updates::TEST_UPDATES_PATH)]
+    pub output: PathBuf,
+}
+
 /// Runs the parsed command line.
 pub fn run() -> Result<()> {
     let cli = CliCmd::parse();
 
     match cli.command {
         CliSubCmd::Generate(args) => generate_records(args),
+        CliSubCmd::GenerateTestUpdates(args) => generate_test_updates(args),
     }
 }
 
@@ -60,6 +79,27 @@ fn generate_records(args: GenerateArgs) -> Result<()> {
         "wrote {} Civics Test Questions to {}",
         records.questions.len(),
         args.records.display()
+    );
+
+    Ok(())
+}
+
+/// Writes the committed Test Update record from the USCIS page.
+fn generate_test_updates(args: GenerateTestUpdatesArgs) -> Result<()> {
+    let html = match &args.html {
+        Some(path) => std::fs::read_to_string(path)?,
+        None => test_updates::fetch(&args.url)?,
+    };
+    let record = test_updates::record_from_html(&html, &args.url, &test_updates::today())?;
+    let json = test_updates::record_json(&record)?;
+
+    std::fs::write(&args.output, json)?;
+
+    println!(
+        "wrote the four Test Updates fetched {} from {} to {}",
+        record.fetched,
+        record.source,
+        args.output.display()
     );
 
     Ok(())

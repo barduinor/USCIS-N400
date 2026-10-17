@@ -12,6 +12,7 @@ mod error;
 pub mod generate;
 pub mod overrides;
 pub mod parse;
+pub mod test_updates;
 
 pub use cmd::run;
 pub use error::{Error, Result};

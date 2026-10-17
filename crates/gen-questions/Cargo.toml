@@ -18,6 +18,10 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 # -- Pdf
 pdf-extract = "0.12"
+# -- Http
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "rustls-tls"] }
+# -- Time
+time = "0.3"
 # -- Others
 derive_more = { version = "2", features = ["display", "from"] }
 domain = { path = "../domain" }
