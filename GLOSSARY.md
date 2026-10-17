@@ -84,6 +84,10 @@ _Avoid_: History, results
 **Profile**:
 The Applicant's own facts: state, district, the two U.S. senators, the U.S. representative, the governor, the state capital, the four Test Updates, and whether the 65/20 Special Consideration applies.
 
+**Reset**:
+The Applicant's start over on this device: it empties all four stores — the Profile, the Answer Log, the Exam records, and the meta record — and returns the app to onboarding. It happens only after a confirmation, which can export a bundle first. Unlike an import, which replaces local state with a bundle's, a Reset leaves no state behind. The Accepted Answers, the app, the worker, and its cache stay.
+_Avoid_: Wipe, factory reset, clear data
+
 **65/20 Special Consideration**:
 Reduced scope for an Applicant aged 65 or older who has been a lawful permanent resident for 20 or more years: study only the 20 starred questions (the ones M-1778 marks with an asterisk), asked 10, 6 passes.
 
@@ -140,6 +144,7 @@ second name.
 - **Coverage** derives from the **Answer Log**, which records study answers only
 - An **Exam** never appends to the **Answer Log**; it records its own outcome, score, and questions asked
 - The **Profile** is established during onboarding, and its 65/20 flag narrows study selection, Coverage, and the Exam
+- A **Reset** empties every store on the device; an **import** replaces their contents with a bundle's
 - Each **Section** and **Topic** reports its own **Coverage**
 
 ## Rules
@@ -159,6 +164,7 @@ second name.
 - No statistics appear during a study or exam session. Coverage and exam history live in their own area, reached from the main menu. The study screen carries the asked question's official number, which identifies it in the published list and is not a progress figure.
 - During an Exam the screen shows only the question: no counter and no verdict. The Exam stops the moment the outcome is fixed, so either would reveal the result before the result screen.
 - The Exam is a practice simulation only. The real second examination (a retest 60 to 90 days after a failure, covering only the failed portions) is deliberately not modelled.
+- A Reset happens only after its confirmation; cancelling writes nothing. It deletes the Profile, the Answer Log, and the Exam history from the device, never the Accepted Answers, the app, the worker, or its cache.
 
 ## Example dialogue
 
