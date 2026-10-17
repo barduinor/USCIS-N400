@@ -3495,11 +3495,13 @@ dependencies = [
  "derive_more",
  "dioxus",
  "domain",
+ "gloo-timers",
  "js-sys",
  "rexie",
  "serde",
  "serde_json",
  "wasm-bindgen",
+ "wasm-bindgen-futures",
  "web-sys",
 ]
 

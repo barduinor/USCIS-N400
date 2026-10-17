@@ -6,13 +6,38 @@
 //! `latest` reach the browser.
 
 use domain::ExamRecord;
+use gloo_timers::future::TimeoutFuture;
+use rexie::TransactionMode;
+use wasm_bindgen::JsValue;
 
-use super::{EXAMS_STORE, read_all, write_next};
-use crate::Result;
+use super::{
+    EXAMS_STORE, META_STORE, database, meta_count, read_all, write_count, write_store_count,
+};
+use crate::{Error, Result};
+
+/// The meta key that records how many Exam records the store held.
+pub(super) const COUNT_KEY: &str = "exam_count";
+
+/// How long the read waits before trying again, when the meta record says
+/// Exams were taken but the store came back empty.
+const RETRY_MILLIS: [u32; 3] = [50, 150, 400];
 
 /// Appends one Exam's record.
+///
+/// The record and the store's count commit in one transaction.
 pub async fn append(record: &ExamRecord) -> Result<()> {
-    write_next(EXAMS_STORE, &to_record(record)?).await
+    let database = database().await?;
+    let transaction =
+        database.transaction(&[EXAMS_STORE, META_STORE], TransactionMode::ReadWrite)?;
+
+    transaction
+        .store(EXAMS_STORE)?
+        .add(&JsValue::from_str(&to_record(record)?), None)
+        .await?;
+    write_store_count(&transaction, EXAMS_STORE, COUNT_KEY).await?;
+    transaction.commit().await?;
+
+    Ok(())
 }
 
 /// Every Exam's record, oldest first.
@@ -24,9 +49,61 @@ pub async fn exams() -> Result<Vec<ExamRecord>> {
         .collect()
 }
 
+/// Every Exam's record, with an empty read checked against the store's own
+/// count, for the same reason as the Answer Log's verified read.
+pub async fn exams_verified() -> Result<Vec<ExamRecord>> {
+    let read = exams().await?;
+
+    if !read.is_empty() {
+        remember_count(read.len()).await?;
+
+        return Ok(read);
+    }
+
+    let Some(count) = meta_count(COUNT_KEY).await? else {
+        return Ok(read);
+    };
+
+    if count == 0 {
+        return Ok(read);
+    }
+
+    for delay in RETRY_MILLIS {
+        TimeoutFuture::new(delay).await;
+
+        let read = exams().await?;
+
+        if !read.is_empty() {
+            return Ok(read);
+        }
+    }
+
+    Err(Error::custom(
+        format!(
+            "the Exam history could not be read, although this device records {count} Exams. \
+             Nothing has been cleared. Reload the app, and export your progress before changing \
+             anything."
+        )
+        .as_str(),
+    ))
+}
+
 /// The most recent Exam's record, if the Applicant has taken one.
 pub async fn latest() -> Result<Option<ExamRecord>> {
-    Ok(exams().await?.pop())
+    Ok(exams_verified().await?.pop())
+}
+
+/// Backfills the count for Exams stored before the marker existed, and keeps
+/// the marker at least as high as the store.
+async fn remember_count(count: usize) -> Result<()> {
+    let stored = meta_count(COUNT_KEY).await?.unwrap_or(0);
+    let count = count as u64;
+
+    if stored < count {
+        write_count(COUNT_KEY, count).await?;
+    }
+
+    Ok(())
 }
 
 /// The record one Exam is stored as.

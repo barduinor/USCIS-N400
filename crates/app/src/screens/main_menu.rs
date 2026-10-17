@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 
 use domain::Coverage;
 
-use crate::components::CoverageFigure;
+use crate::components::{CoverageFigure, use_refresh_on_resume};
 use crate::questions;
 use crate::routes::Route;
 use crate::storage;
@@ -25,8 +25,13 @@ pub fn MainMenu() -> Element {
         }
     };
 
-    let profile = use_resource(storage::profile::load);
-    let log = use_resource(storage::answer_log::entries);
+    let mut profile = use_resource(storage::profile::load);
+    let mut log = use_resource(storage::answer_log::entries_verified);
+
+    use_refresh_on_resume(move || {
+        profile.restart();
+        log.restart();
+    });
 
     let figure = match (&*profile.read(), &*log.read()) {
         (Some(Ok(Some(profile))), Some(Ok(log))) => {
@@ -41,6 +46,18 @@ pub fn MainMenu() -> Element {
         },
         (Some(Err(error)), _) | (_, Some(Err(error))) => rsx! {
             p { class: "problem", "The progress could not be read: {error}" }
+            div { class: "actions",
+                button {
+                    class: "primary",
+                    r#type: "button",
+                    onclick: move |_| {
+                        profile.restart();
+                        log.restart();
+                    },
+                    "Try again"
+                }
+                Link { to: Route::Profile {}, class: "menu-item", "Export from the Profile" }
+            }
         },
         _ => rsx! {
             p { class: "loading", "Reading the Answer Log…" }

@@ -79,6 +79,10 @@ _Avoid_: Proficiency, progress
 
 **Answer Log**:
 The append-only record of every answer the Applicant has given in study mode.
+Only an explicit Reset, an explicit Clear, or a confirmed import removes
+entries; a reload, a resume, or a failed read never does. A read that comes back
+empty while the device's own count says the log held answers is retried, never
+rendered as `0%`.
 _Avoid_: History, results
 
 **Profile**:
@@ -165,6 +169,8 @@ second name.
 - During an Exam the screen shows only the question: no counter and no verdict. The Exam stops the moment the outcome is fixed, so either would reveal the result before the result screen.
 - The Exam is a practice simulation only. The real second examination (a retest 60 to 90 days after a failure, covering only the failed portions) is deliberately not modelled.
 - A Reset happens only after its confirmation; cancelling writes nothing. It deletes the Profile, the Answer Log, and the Exam history from the device, never the Accepted Answers, the app, the worker, or its cache.
+- No reload, resume, failed read, or stale page snapshot clears or overwrites the Answer Log or the Exam records. An empty read is checked against the count the device recorded before any screen shows `0%`.
+- The app asks the browser to keep this origin's storage, so the progress is not evicted under storage pressure; a refusal changes nothing.
 
 ## Example dialogue
 

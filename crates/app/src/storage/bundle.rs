@@ -12,7 +12,10 @@ use serde::{Deserialize, Serialize};
 use wasm_bindgen::JsCast;
 use wasm_bindgen::JsValue;
 
-use super::{ANSWER_LOG_STORE, EXAMS_STORE, META_STORE, PROFILE_STORE, database, now, write};
+use super::{
+    ANSWER_LOG_STORE, EXAMS_STORE, META_STORE, PROFILE_STORE, database, now, write,
+    write_store_count,
+};
 use crate::storage::{answer_log, exam, profile};
 use crate::{Error, Result};
 
@@ -51,8 +54,8 @@ impl Bundle {
             schema_version: SCHEMA_VERSION,
             exported_at: now(),
             profile,
-            answer_log: answer_log::entries().await?,
-            exams: exam::exams().await?,
+            answer_log: answer_log::entries_verified().await?,
+            exams: exam::exams_verified().await?,
         })
     }
 
@@ -129,7 +132,7 @@ impl Bundle {
     pub async fn replace(&self) -> Result<()> {
         let database = database().await?;
         let transaction = database.transaction(
-            &[PROFILE_STORE, ANSWER_LOG_STORE, EXAMS_STORE],
+            &[PROFILE_STORE, ANSWER_LOG_STORE, EXAMS_STORE, META_STORE],
             TransactionMode::ReadWrite,
         )?;
 
@@ -142,6 +145,8 @@ impl Bundle {
             .await?;
         write_all(&transaction, ANSWER_LOG_STORE, &self.answer_log).await?;
         write_all(&transaction, EXAMS_STORE, &self.exams).await?;
+        write_store_count(&transaction, ANSWER_LOG_STORE, answer_log::COUNT_KEY).await?;
+        write_store_count(&transaction, EXAMS_STORE, exam::COUNT_KEY).await?;
         transaction.commit().await?;
 
         Ok(())

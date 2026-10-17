@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 
 use domain::{Verdict, answers, matching, selection};
 
-use crate::components::{Field, Reveal};
+use crate::components::{Field, Reveal, use_refresh_on_resume};
 use crate::questions;
 use crate::routes::Route;
 use crate::storage;
@@ -44,8 +44,8 @@ pub fn Study() -> Element {
         }
     };
 
-    let profile = use_resource(storage::profile::load);
-    let mut log = use_resource(storage::answer_log::entries);
+    let mut profile = use_resource(storage::profile::load);
+    let mut log = use_resource(storage::answer_log::entries_verified);
     let test_updates = match crate::test_updates::record() {
         Ok(record) => record,
         Err(error) => {
@@ -68,6 +68,11 @@ pub fn Study() -> Element {
     let mut overridden = use_signal(|| Option::<u16>::None);
     let mut saving = use_signal(|| false);
     let mut problem = use_signal(|| Option::<String>::None);
+
+    use_refresh_on_resume(move || {
+        profile.restart();
+        log.restart();
+    });
 
     // The question on screen: the one the Applicant is answering, or the next
     // one chosen. It stays put once answered, so the verdict is never yanked

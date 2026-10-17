@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 
 use domain::{Coverage, Section};
 
-use crate::components::CoverageFigure;
+use crate::components::{CoverageFigure, use_refresh_on_resume};
 use crate::questions;
 use crate::routes::Route;
 use crate::storage;
@@ -27,10 +27,16 @@ pub fn Stats() -> Element {
         }
     };
 
-    let profile = use_resource(storage::profile::load);
-    let log = use_resource(storage::answer_log::entries);
-    let exams = use_resource(storage::exam::exams);
+    let mut profile = use_resource(storage::profile::load);
+    let mut log = use_resource(storage::answer_log::entries_verified);
+    let mut exams = use_resource(storage::exam::exams_verified);
     let mut opened = use_signal(|| Option::<Section>::None);
+
+    use_refresh_on_resume(move || {
+        profile.restart();
+        log.restart();
+        exams.restart();
+    });
 
     let breakdown = match (&*profile.read(), &*log.read()) {
         (Some(Ok(Some(profile))), Some(Ok(log))) => rsx! {
@@ -70,6 +76,18 @@ pub fn Stats() -> Element {
         },
         (Some(Err(error)), _) | (_, Some(Err(error))) => rsx! {
             p { class: "problem", "The progress could not be read: {error}" }
+            div { class: "actions",
+                button {
+                    class: "primary",
+                    r#type: "button",
+                    onclick: move |_| {
+                        profile.restart();
+                        log.restart();
+                    },
+                    "Try again"
+                }
+                Link { to: Route::Profile {}, class: "menu-item", "Export from the Profile" }
+            }
         },
         _ => rsx! {
             p { class: "loading", "Reading the Answer Log…" }
@@ -82,6 +100,12 @@ pub fn Stats() -> Element {
         },
         Some(Err(error)) => rsx! {
             p { class: "problem", "The Exams could not be read: {error}" }
+            button {
+                class: "primary",
+                r#type: "button",
+                onclick: move |_| exams.restart(),
+                "Try again"
+            }
         },
         Some(Ok(exams)) if exams.is_empty() => rsx! {
             p { class: "hint", "No Exam has been taken yet." }

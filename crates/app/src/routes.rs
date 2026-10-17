@@ -1,7 +1,8 @@
 use dioxus::prelude::*;
 
-use crate::components::{FirstRun, InstallHint};
+use crate::components::{FirstRun, InstallHint, ProgressEpoch, RefreshOnResume};
 use crate::screens::{Exam, ExamResult, MainMenu, Profile, Stats, Study};
+use crate::storage;
 
 /// Every screen the Applicant can reach.
 ///
@@ -32,7 +33,17 @@ pub enum Route {
 /// the first-run gate.
 #[component]
 pub fn App() -> Element {
+    let epoch = use_signal(|| 0u32);
+    use_context_provider(|| ProgressEpoch(epoch));
+
+    use_effect(move || {
+        spawn(async {
+            storage::request_persistent_storage().await;
+        });
+    });
+
     rsx! {
+        RefreshOnResume {}
         InstallHint {}
         FirstRun { Router::<Route> {} }
     }

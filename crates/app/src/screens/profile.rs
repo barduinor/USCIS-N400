@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 use wasm_bindgen::JsCast;
 
-use crate::components::{ProfileForm, ProfileReload};
+use crate::components::{ProfileForm, ProfileReload, use_refresh_on_resume};
 use crate::storage;
 
 /// The Applicant's own facts, editable at any time, and their backup.
@@ -15,7 +15,7 @@ use crate::storage;
 /// gate then puts the app back on onboarding.
 #[component]
 pub fn Profile() -> Element {
-    let stored = use_resource(storage::profile::load);
+    let mut stored = use_resource(storage::profile::load);
     let mut answers = use_signal(domain::Profile::default);
     let mut loaded = use_signal(|| false);
     let mut pending = use_signal(|| Option::<storage::bundle::Bundle>::None);
@@ -24,6 +24,8 @@ pub fn Profile() -> Element {
     let mut working = use_signal(|| false);
     let mut confirming_reset = use_signal(|| false);
     let reload = use_context::<ProfileReload>();
+
+    use_refresh_on_resume(move || stored.restart());
 
     // The form starts from what is stored, once, so an edit is never clobbered.
     use_effect(move || {

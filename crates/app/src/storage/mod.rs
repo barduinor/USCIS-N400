@@ -9,11 +9,13 @@
 
 // region:    --- Modules
 
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
-use rexie::{ObjectStore, Rexie, TransactionMode};
+use gloo_timers::future::TimeoutFuture;
+use rexie::{ObjectStore, Rexie, Transaction, TransactionMode};
 use wasm_bindgen::JsValue;
+use wasm_bindgen_futures::JsFuture;
 
 use crate::Result;
 
@@ -49,6 +51,9 @@ const DATABASE_VERSION: u32 = 1;
 thread_local! {
     /// The open database, kept for the life of the page.
     static OPEN_DATABASE: RefCell<Option<Rc<Rexie>>> = const { RefCell::new(None) };
+
+    /// Whether an open is in progress, so two screens cannot race the open.
+    static OPENING: Cell<bool> = const { Cell::new(false) };
 }
 
 /// Reads the JSON text a record holds, if the store holds that key.
@@ -78,20 +83,6 @@ pub async fn write(store_name: &str, key: &str, record: &str) -> Result<()> {
     transaction
         .store(store_name)?
         .put(&JsValue::from_str(record), Some(&JsValue::from_str(key)))
-        .await?;
-    transaction.commit().await?;
-
-    Ok(())
-}
-
-/// Adds a record's JSON text under the store's own next key.
-pub async fn write_next(store_name: &str, record: &str) -> Result<()> {
-    let database = database().await?;
-    let transaction = database.transaction(&[store_name], TransactionMode::ReadWrite)?;
-
-    transaction
-        .store(store_name)?
-        .add(&JsValue::from_str(record), None)
         .await?;
     transaction.commit().await?;
 
@@ -134,6 +125,58 @@ pub async fn read_all(store_name: &str) -> Result<Vec<String>> {
         .collect()
 }
 
+/// The count a meta key records, if it holds a number.
+pub async fn meta_count(key: &str) -> Result<Option<u64>> {
+    let Some(value) = read(META_STORE, key).await? else {
+        return Ok(None);
+    };
+
+    Ok(value.parse().ok())
+}
+
+/// Notes a store's current count in the meta record, inside `transaction`.
+///
+/// The count and the record it counts commit together, so an empty read later
+/// can be recognized as suspicious rather than mistaken for no progress.
+pub(super) async fn write_store_count(
+    transaction: &Transaction,
+    store_name: &str,
+    count_key: &str,
+) -> Result<u32> {
+    let count = transaction.store(store_name)?.count(None).await?;
+
+    transaction
+        .store(META_STORE)?
+        .put(
+            &JsValue::from_str(&count.to_string()),
+            Some(&JsValue::from_str(count_key)),
+        )
+        .await?;
+
+    Ok(count)
+}
+
+/// Writes a count into the meta record.
+pub(super) async fn write_count(key: &str, count: u64) -> Result<()> {
+    write(META_STORE, key, &count.to_string()).await
+}
+
+/// Asks the browser to keep this origin's storage, so it is not evicted under
+/// storage pressure.
+///
+/// The answer is informational: a refusal changes nothing, and the app keeps
+/// working. The request is safe to repeat; the browser answers from its own
+/// record.
+pub async fn request_persistent_storage() {
+    let Some(window) = web_sys::window() else {
+        return;
+    };
+
+    if let Ok(promise) = window.navigator().storage().persist() {
+        let _ = JsFuture::from(promise).await;
+    }
+}
+
 // region:    --- Support
 
 /// The device's clock, in milliseconds since the Unix epoch.
@@ -142,22 +185,35 @@ pub fn now() -> u64 {
 }
 
 /// The database, opened on first use.
+///
+/// Only one open runs at a time: screens mount together and each asks for the
+/// database, so a second caller waits for the first rather than opening a
+/// second connection and reading beside it.
 async fn database() -> Result<Rc<Rexie>> {
-    if let Some(database) = OPEN_DATABASE.with(|open| open.borrow().clone()) {
-        return Ok(database);
+    loop {
+        if let Some(database) = OPEN_DATABASE.with(|open| open.borrow().clone()) {
+            return Ok(database);
+        }
+
+        if !OPENING.with(Cell::get) {
+            break;
+        }
+
+        TimeoutFuture::new(10).await;
     }
 
-    let database = Rc::new(
-        Rexie::builder(DATABASE)
-            .version(DATABASE_VERSION)
-            .add_object_store(ObjectStore::new(PROFILE_STORE))
-            .add_object_store(ObjectStore::new(ANSWER_LOG_STORE).auto_increment(true))
-            .add_object_store(ObjectStore::new(EXAMS_STORE).auto_increment(true))
-            .add_object_store(ObjectStore::new(META_STORE))
-            .build()
-            .await?,
-    );
+    OPENING.with(|opening| opening.set(true));
+    let built = Rexie::builder(DATABASE)
+        .version(DATABASE_VERSION)
+        .add_object_store(ObjectStore::new(PROFILE_STORE))
+        .add_object_store(ObjectStore::new(ANSWER_LOG_STORE).auto_increment(true))
+        .add_object_store(ObjectStore::new(EXAMS_STORE).auto_increment(true))
+        .add_object_store(ObjectStore::new(META_STORE))
+        .build()
+        .await;
+    OPENING.with(|opening| opening.set(false));
 
+    let database = Rc::new(built?);
     OPEN_DATABASE.with(|open| *open.borrow_mut() = Some(Rc::clone(&database)));
 
     Ok(database)

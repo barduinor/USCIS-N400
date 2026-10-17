@@ -1,5 +1,6 @@
 use dioxus::prelude::*;
 
+use crate::components::use_refresh_on_resume;
 use crate::routes::Route;
 use crate::storage;
 
@@ -9,7 +10,9 @@ use crate::storage;
 /// The record is read back from storage, so the result survives a reload.
 #[component]
 pub fn ExamResult() -> Element {
-    let latest = use_resource(storage::exam::latest);
+    let mut latest = use_resource(storage::exam::latest);
+
+    use_refresh_on_resume(move || latest.restart());
 
     let body = match &*latest.read() {
         None => rsx! {
