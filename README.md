@@ -59,8 +59,8 @@ The screens:
   variants, a numeral's digit form (`27` for `Twenty-seven (27)`), a joining of
   two of the key's answers, and multi-item counting for questions like
   "Name two".
-- Cleared state (three correct in a row) and Coverage as a percentage and a
-  count, globally and per Section and Topic.
+- Cleared state (one correct answer, or three in a row after a wrong one) and
+  Coverage as a percentage and a count, globally and per Section and Topic.
 - The four national Test Update values prefilled from the USCIS page, as fresh
   as the release, and editable where an election has moved on.
 - Weighted question selection: least-asked, wrong-answer, and Section balance,
@@ -153,17 +153,18 @@ endless study loop: a question, a typed answer judged against the Accepted
 Answers, and the next question on request, chosen by the bias weights — asked
 least often, answered wrong, under-served Sections — with the recent-ask
 penalty. The main menu shows Coverage: the share of the applicant's accountable
-questions that three correct answers in a row have Cleared, derived from the
-Answer Log each time the screen opens. After a verdict the Applicant can ask for
-the reveal — the Accepted Answers, and the Explanation where one exists — and,
-after a wrong verdict, override it: the Override counts that attempt as correct
-and never changes the Accepted Answers. An Exam simulates the officer's
-administration of the test — twenty questions with twelve to pass, or ten of the
-starred twenty with six — shows only the question, stops the moment the outcome
-is fixed, and records its own outcome, score, track, and questions asked without
-touching the Answer Log or Coverage. The Stats screen shows Coverage over the
-whole scope, then each Section — opening one shows its Topics — with every figure
-carrying a percentage and a count, and the Exams taken below. The Profile
+questions that are Cleared, by one correct answer or by three in a row after a
+wrong one, derived from the Answer Log each time the screen opens. After a
+verdict the Applicant can ask for the reveal — the Accepted Answers, and the
+Explanation where one exists — and, after a wrong verdict, override it: the
+Override counts that attempt as correct and never changes the Accepted Answers.
+An Exam simulates the officer's administration of the test — twenty questions
+with twelve to pass, or ten of the starred twenty with six — shows only the
+question, stops the moment the outcome is fixed, and records its own outcome,
+score, track, and questions asked without touching the Answer Log or Coverage.
+The Stats screen shows Coverage over the whole scope, then each Section —
+opening one shows its Topics — with every figure carrying a percentage and a
+count, and the Exams taken below. The Profile
 screen edits every field onboarding captured, so a change takes effect on the
 next question and on Coverage's denominator, and it carries the backup: the
 export of a versioned JSON bundle — the Profile, the Answer Log, and the Exam

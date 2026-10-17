@@ -70,11 +70,11 @@ A scoring simulation of the Civics Test. Without the 65/20 Special Consideration
 _Avoid_: Exam Run, Mock exam, Test
 
 **Cleared**:
-A Civics Test Question answered correctly three times in a row. A wrong answer makes it unclear again.
+A Civics Test Question answered correctly for the first time while it has no wrong answer against it. After a wrong answer it takes three correct answers in a row. A wrong answer makes it unclear again.
 _Avoid_: Mastered, learned, known
 
 **Coverage**:
-The share of the Civics Test Questions that are Cleared (all 128, or only the 20 starred questions when the 65/20 Special Consideration applies). Falls as soon as a Cleared question is answered wrong.
+The share of the Civics Test Questions that are Cleared (all 128, or only the 20 starred questions when the 65/20 Special Consideration applies). Falls as soon as a Cleared question is answered wrong, and rises again when the question is Cleared anew.
 _Avoid_: Proficiency, progress
 
 **Answer Log**:
