@@ -50,7 +50,7 @@ Text that helps the Applicant understand a Civics Test Question. Sourced from th
 _Avoid_: Answer, hint
 
 **Test Update**:
-A Civics Test Question whose Accepted Answer changes with elections or appointments. USCIS publishes current values at uscis.gov/citizenship/testupdates.
+A Civics Test Question whose Accepted Answer changes with elections or appointments. USCIS publishes current values at uscis.gov/citizenship/testupdates. The four national values ship with the release as generated data (ADR 0010).
 _Avoid_: Dynamic question
 
 **Local Fact**:
@@ -152,7 +152,10 @@ second name.
 - **Cleared questions are never excluded.** They reappear whenever their weight wins, which is how the Applicant keeps seeing questions they got right.
 - The one absolute exclusion: the same question is never asked twice in a row.
 - After an answer the tool says whether it was right and shows the answer the Applicant gave, so the two can be compared. The Accepted Answers and the Explanation appear only when the Applicant asks, even when the answer was right. The reveal expands inline under the verdict; after a wrong verdict it also carries the Override control.
-- When a Local Fact or Test Update value is missing from the Profile, its question stays in play and any answer is judged wrong; filling the value in the Profile fixes it.
+- When a Local Fact value is missing from the Profile, its question stays in
+  play and any answer is judged wrong; filling the value in the Profile fixes
+  it. A Test Update value ships with the release: a blank Profile field presents
+  the shipped value, and a value the Applicant stored wins.
 - No statistics appear during a study or exam session. Coverage and exam history live in their own area, reached from the main menu. The study screen carries the asked question's official number, which identifies it in the published list and is not a progress figure.
 - During an Exam the screen shows only the question: no counter and no verdict. The Exam stops the moment the outcome is fixed, so either would reveal the result before the result screen.
 - The Exam is a practice simulation only. The real second examination (a retest 60 to 90 days after a failure, covering only the failed portions) is deliberately not modelled.

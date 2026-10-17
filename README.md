@@ -74,6 +74,9 @@ The screens:
   device.
 - JSON export and import of all progress, the only backup and the only way to
   move between devices.
+- The four national Test Update values ship as generated data from the USCIS
+  test-updates page, filled in when a Profile field is blank; a value the
+  Applicant typed always wins.
 - No server, no account, no telemetry.
 
 ## Tech stack
@@ -87,14 +90,16 @@ The screens:
 ## Architecture
 
 `domain` holds the model and the rules with no I/O, so it tests natively;
-`gen-questions` turns the USCIS question list into the committed records;
-`app` is the Dioxus application. Dependencies point one way, and nothing depends
-on the generator, so its PDF tooling can never reach the shipped bundle.
+`gen-questions` turns the USCIS question list and the test-updates page into the
+committed records; `app` is the Dioxus application. Dependencies point one way,
+and nothing depends on the generator, so its PDF and HTTP tooling can never
+reach the shipped bundle.
 
 ```mermaid
 flowchart LR
   PDF["M-1778<br/>the 128 questions"] --> GEN["gen-questions<br/>parser and overrides"]
-  GEN --> REC[("committed<br/>question records")]
+  UPDATES["USCIS<br/>test updates"] --> GEN
+  GEN --> REC[("committed<br/>question and Test Update records")]
   REC --> APP["app<br/>Dioxus on WASM"]
   DOM["domain<br/>the rules, no I/O"] --- APP
   DOM --- GEN
@@ -112,7 +117,7 @@ domain vocabulary and every behavioral rule live in `GLOSSARY.md`.
 │   ├── domain/         #   the model and rules, no I/O
 │   ├── gen-questions/  #   the M-1778 pipeline and its overrides
 │   └── app/            #   the Dioxus application
-│       └── data/       #   committed question records, generated, never hand-edited
+│       └── data/       #   committed question and Test Update records, generated, never hand-edited
 ├── docs/               # ADRs, coding standards, library docs, research notes, sources
 ├── scripts/ .githooks/ # the pre-commit quality gates and their installer
 ├── AGENTS.md           # agent entry: skills config, docs map, standing rules
@@ -204,7 +209,12 @@ involved is GitHub.
 
 The everyday commands are `cargo test` for the whole workspace suite,
 `cargo run -p gen-questions -- generate` to regenerate the committed records
-from M-1778, and `dx serve` from the app crate to run the application.
+from M-1778, `cargo run -p gen-questions -- generate-test-updates` to fetch and
+write the committed Test Update values, and `dx serve` from the app crate to run
+the application. The Test Update step also accepts `--html <saved-page>` to read
+a saved copy instead of fetching, so its output can be checked offline; either
+way it writes `crates/app/data/test-updates.json` with the four values, their
+source, and the fetch date.
 
 ## Contributing
 

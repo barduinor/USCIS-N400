@@ -19,12 +19,13 @@ they are waiting on work.
                               selection.rs, progress.rs, exam.rs, profile.rs
   crates/domain/tests/        tests_questions_data.rs: the data-file contract
   crates/gen-questions/src/   lib.rs, main.rs, cmd.rs, error.rs, generate.rs,
-                              parse.rs, overrides.rs
+                              parse.rs, overrides.rs, test_updates.rs
   crates/gen-questions/       overrides.json
-  crates/gen-questions/tests/ tests_regeneration.rs, tests_records.rs
+  crates/gen-questions/tests/ tests_regeneration.rs, tests_records.rs,
+                              tests_test_updates.rs
   crates/app/                 Dioxus.toml, index.html, public/styles.css
-  crates/app/src/             main.rs, routes.rs, error.rs, questions.rs, screens/,
-                              components/, storage/
+  crates/app/src/             main.rs, routes.rs, error.rs, questions.rs,
+                              test_updates.rs, screens/, components/, storage/
   ```
 
 ### Test gates
@@ -53,16 +54,14 @@ they are waiting on work.
 
 ### Data
 
-- **Test Update lookup.** `uscis.gov/citizenship/testupdates` serves the four
-  national officeholders, and one fetch serves every user.
 - **Local Fact sources.** State senators, representative and governor need a
   per-state source. Harder than the national four; deliberately deferred.
-- **Automatic retrieval (investigate).** Whether the four Test Updates and the
-  per-state Local Facts can be fetched from the web automatically, so blanks
-  become rare: USCIS test-updates for the four; state legislature and
-  congressional sources for the senators, representative, and governor. Until
-  then, a missing value leaves its question in play and any answer is judged
-  wrong.
+- **Automatic retrieval (investigate).** Whether the per-state Local Facts can
+  be fetched from the web automatically, so blanks become rare: state
+  legislature and congressional sources for the senators, representative, and
+  governor. The national Test Updates are settled: they ship as generated data
+  at release (ADR 0010), with no runtime fetch. A missing Local Fact still
+  leaves its question in play and any answer is judged wrong.
 
 ### Platform
 
