@@ -49,7 +49,7 @@ The screens:
 | Exam | One Exam, ending when the outcome is decided. |
 | Exam result | That Exam's outcome and score. |
 | Stats | Coverage per Section and Topic, and Exam history. |
-| Profile | The onboarding fields, editable, plus export, import, and reset. |
+| Profile | The onboarding fields, editable, plus export, import, the two clears, and reset. |
 
 ## Features
 
@@ -74,6 +74,8 @@ The screens:
   device.
 - JSON export and import of all progress, the only backup and the only way to
   move between devices.
+- Clear study answers or the Exam history separately from the Profile screen,
+  each behind its own confirmation; the Profile and the other history stay.
 - Reset from the Profile screen: a confirmation that names everything it
   deletes, offers the export beside it, and returns the app to onboarding with
   the worker and its cache in place.
@@ -175,7 +177,9 @@ next question and on Coverage's denominator, and it carries the backup: the
 export of a versioned JSON bundle — the Profile, the Answer Log, and the Exam
 records — and the import, which refuses a bundle from a newer version and
 otherwise replaces what is on the device after a confirmation, never merging.
-Beside them, a reset empties the Profile, the Answer Log, the Exam records,
+Two separate clears empty the study answers or the Exam history without
+touching the Profile or the other history. Beside them, a reset empties the
+Profile, the Answer Log, the Exam records,
 and the database's bookkeeping after a confirmation that offers the export
 first, then returns the app to onboarding; the app, the worker, and its cache
 stay, so it still opens offline.

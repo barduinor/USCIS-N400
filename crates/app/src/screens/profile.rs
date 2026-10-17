@@ -16,16 +16,24 @@ use crate::storage;
 #[component]
 pub fn Profile() -> Element {
     let mut stored = use_resource(storage::profile::load);
+    let mut log = use_resource(storage::answer_log::entries_verified);
+    let mut exams = use_resource(storage::exam::exams_verified);
     let mut answers = use_signal(domain::Profile::default);
     let mut loaded = use_signal(|| false);
     let mut pending = use_signal(|| Option::<storage::bundle::Bundle>::None);
     let mut note = use_signal(|| Option::<String>::None);
     let mut problem = use_signal(|| Option::<String>::None);
     let mut working = use_signal(|| false);
+    let mut confirming_clear_answers = use_signal(|| false);
+    let mut confirming_clear_exams = use_signal(|| false);
     let mut confirming_reset = use_signal(|| false);
     let reload = use_context::<ProfileReload>();
 
-    use_refresh_on_resume(move || stored.restart());
+    use_refresh_on_resume(move || {
+        stored.restart();
+        log.restart();
+        exams.restart();
+    });
 
     // The form starts from what is stored, once, so an edit is never clobbered.
     use_effect(move || {
@@ -107,9 +115,69 @@ pub fn Profile() -> Element {
                     answers.set(bundle.profile.clone());
                     loaded.set(true);
                     pending.set(None);
+                    log.restart();
+                    exams.restart();
                     note.set(Some("The bundle is in place.".to_string()));
                 }
                 Err(error) => problem.set(Some(error.to_string())),
+            }
+
+            working.set(false);
+        });
+    };
+
+    let open_clear_answers = move |_| {
+        note.set(None);
+        problem.set(None);
+        confirming_clear_answers.set(true);
+    };
+
+    let cancel_clear_answers = move |_| confirming_clear_answers.set(false);
+
+    let clear_answers = move |_| {
+        working.set(true);
+        problem.set(None);
+        note.set(None);
+        spawn(async move {
+            match storage::answer_log::clear().await {
+                Ok(()) => {
+                    log.restart();
+                    confirming_clear_answers.set(false);
+                    note.set(Some(
+                        "The study answers are cleared; Coverage is now 0%.".to_string(),
+                    ));
+                }
+                Err(error) => problem.set(Some(format!(
+                    "The study answers could not be cleared: {error}"
+                ))),
+            }
+
+            working.set(false);
+        });
+    };
+
+    let open_clear_exams = move |_| {
+        note.set(None);
+        problem.set(None);
+        confirming_clear_exams.set(true);
+    };
+
+    let cancel_clear_exams = move |_| confirming_clear_exams.set(false);
+
+    let clear_exams = move |_| {
+        working.set(true);
+        problem.set(None);
+        note.set(None);
+        spawn(async move {
+            match storage::exam::clear().await {
+                Ok(()) => {
+                    exams.restart();
+                    confirming_clear_exams.set(false);
+                    note.set(Some("The Exam history is cleared.".to_string()));
+                }
+                Err(error) => problem.set(Some(format!(
+                    "The Exam history could not be cleared: {error}"
+                ))),
             }
 
             working.set(false);
@@ -188,6 +256,21 @@ pub fn Profile() -> Element {
         }
     };
 
+    let answers_state = match &*log.read() {
+        None => "Reading the study answers…".to_string(),
+        Some(Err(error)) => format!("The study answers could not be read: {error}"),
+        Some(Ok(entries)) if entries.is_empty() => "No study answers are stored.".to_string(),
+        Some(Ok(entries)) => format!("{} stored.", count(entries.len(), "answer")),
+    };
+    let exams_state = match &*exams.read() {
+        None => "Reading the Exam history…".to_string(),
+        Some(Err(error)) => format!("The Exam history could not be read: {error}"),
+        Some(Ok(exams)) if exams.is_empty() => "No Exam is stored.".to_string(),
+        Some(Ok(exams)) => format!("{} stored.", count(exams.len(), "Exam")),
+    };
+    let answers_clearable = matches!(&*log.read(), Some(Ok(entries)) if !entries.is_empty());
+    let exams_clearable = matches!(&*exams.read(), Some(Ok(exams)) if !exams.is_empty());
+
     rsx! {
         main { class: "screen",
             h1 { "USCIS N-400 Civics Study" }
@@ -257,6 +340,81 @@ pub fn Profile() -> Element {
             }
 
             if loaded() {
+                section { class: "clear",
+                    h2 { "Clear" }
+                    p { class: "hint",
+                        "These delete one history at a time. The Profile and the other history stay."
+                    }
+
+                    div { class: "clear-row",
+                        h3 { "Study answers" }
+                        p { class: "hint", "{answers_state}" }
+                        if confirming_clear_answers() {
+                            p { class: "problem",
+                                "Clearing the study answers deletes every answer in the Answer Log. Coverage goes to 0%. The Profile and the Exam history stay. This cannot be undone."
+                            }
+                            div { class: "actions",
+                                button {
+                                    class: "danger",
+                                    r#type: "button",
+                                    disabled: working(),
+                                    onclick: clear_answers,
+                                    "Delete my study answers"
+                                }
+                                button {
+                                    class: "quiet",
+                                    r#type: "button",
+                                    disabled: working(),
+                                    onclick: cancel_clear_answers,
+                                    "Keep my answers"
+                                }
+                            }
+                        } else {
+                            button {
+                                class: "danger",
+                                r#type: "button",
+                                disabled: working() || !answers_clearable,
+                                onclick: open_clear_answers,
+                                "Clear study answers"
+                            }
+                        }
+                    }
+
+                    div { class: "clear-row",
+                        h3 { "Exam history" }
+                        p { class: "hint", "{exams_state}" }
+                        if confirming_clear_exams() {
+                            p { class: "problem",
+                                "Clearing the Exam history deletes every Exam record. Coverage stays. The Profile and the Answer Log stay. This cannot be undone."
+                            }
+                            div { class: "actions",
+                                button {
+                                    class: "danger",
+                                    r#type: "button",
+                                    disabled: working(),
+                                    onclick: clear_exams,
+                                    "Delete my Exam history"
+                                }
+                                button {
+                                    class: "quiet",
+                                    r#type: "button",
+                                    disabled: working(),
+                                    onclick: cancel_clear_exams,
+                                    "Keep my Exam history"
+                                }
+                            }
+                        } else {
+                            button {
+                                class: "danger",
+                                r#type: "button",
+                                disabled: working() || !exams_clearable,
+                                onclick: open_clear_exams,
+                                "Clear Exam history"
+                            }
+                        }
+                    }
+                }
+
                 section { class: "reset",
                     h2 { "Reset" }
                     if confirming_reset() {

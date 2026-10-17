@@ -136,6 +136,22 @@ pub async fn entries_verified() -> Result<Vec<AnswerLogEntry>> {
     ))
 }
 
+/// Empties the Answer Log, after the Applicant has confirmed the Clear.
+///
+/// The records and the count go in one transaction, so a screen that reads
+/// afterwards sees a log that is empty on purpose, not a failed read.
+pub async fn clear() -> Result<()> {
+    let database = database().await?;
+    let transaction =
+        database.transaction(&[ANSWER_LOG_STORE, META_STORE], TransactionMode::ReadWrite)?;
+
+    transaction.store(ANSWER_LOG_STORE)?.clear().await?;
+    write_store_count(&transaction, ANSWER_LOG_STORE, COUNT_KEY).await?;
+    transaction.commit().await?;
+
+    Ok(())
+}
+
 /// Backfills the count for answers stored before the marker existed, and keeps
 /// the marker at least as high as the log.
 async fn remember_count(count: usize) -> Result<()> {

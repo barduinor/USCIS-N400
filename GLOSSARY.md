@@ -88,6 +88,10 @@ _Avoid_: History, results
 **Profile**:
 The Applicant's own facts: state, district, the two U.S. senators, the U.S. representative, the governor, the state capital, the four Test Updates, and whether the 65/20 Special Consideration applies.
 
+**Clear**:
+The Applicant's explicit emptying of one history: the Answer Log, or the Exam records. A Clear leaves the Profile and the other history in place, and never returns the app to onboarding. Each Clear has its own confirmation. Unlike a Reset, which empties every store.
+_Avoid_: Delete, wipe, reset
+
 **Reset**:
 The Applicant's start over on this device: it empties all four stores — the Profile, the Answer Log, the Exam records, and the meta record — and returns the app to onboarding. It happens only after a confirmation, which can export a bundle first. Unlike an import, which replaces local state with a bundle's, a Reset leaves no state behind. The Accepted Answers, the app, the worker, and its cache stay.
 _Avoid_: Wipe, factory reset, clear data
@@ -169,6 +173,7 @@ second name.
 - During an Exam the screen shows only the question: no counter and no verdict. The Exam stops the moment the outcome is fixed, so either would reveal the result before the result screen.
 - The Exam is a practice simulation only. The real second examination (a retest 60 to 90 days after a failure, covering only the failed portions) is deliberately not modelled.
 - A Reset happens only after its confirmation; cancelling writes nothing. It deletes the Profile, the Answer Log, and the Exam history from the device, never the Accepted Answers, the app, the worker, or its cache.
+- A Clear happens only after its own confirmation. Clearing the study answers empties the Answer Log and leaves the Profile and the Exam history; clearing the Exam history empties the Exam records and leaves the Profile and the Answer Log. Neither returns the app to onboarding.
 - No reload, resume, failed read, or stale page snapshot clears or overwrites the Answer Log or the Exam records. An empty read is checked against the count the device recorded before any screen shows `0%`.
 - The app asks the browser to keep this origin's storage, so the progress is not evicted under storage pressure; a refusal changes nothing.
 

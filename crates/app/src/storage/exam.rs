@@ -93,6 +93,21 @@ pub async fn latest() -> Result<Option<ExamRecord>> {
     Ok(exams_verified().await?.pop())
 }
 
+/// Empties the Exam records, after the Applicant has confirmed the Clear.
+///
+/// The records and the count go in one transaction.
+pub async fn clear() -> Result<()> {
+    let database = database().await?;
+    let transaction =
+        database.transaction(&[EXAMS_STORE, META_STORE], TransactionMode::ReadWrite)?;
+
+    transaction.store(EXAMS_STORE)?.clear().await?;
+    write_store_count(&transaction, EXAMS_STORE, COUNT_KEY).await?;
+    transaction.commit().await?;
+
+    Ok(())
+}
+
 /// Backfills the count for Exams stored before the marker existed, and keeps
 /// the marker at least as high as the store.
 async fn remember_count(count: usize) -> Result<()> {

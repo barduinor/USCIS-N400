@@ -386,10 +386,12 @@ form {
   margin-top: var(--step-2);
 }
 
-/* The Profile screen's backup and reset: the export, the import and its
-   confirmation, and the reset and its confirmation. */
+/* The Profile screen's backup, clear, and reset: the export, the import and its
+   confirmation, the two clears and their confirmations, and the reset and its
+   confirmation. */
 
 .backup,
+.clear,
 .reset {
   display: grid;
   gap: var(--gap);
@@ -401,6 +403,7 @@ form {
 }
 
 .backup h2,
+.clear h2,
 .reset h2 {
   margin: 0;
   color: var(--muted);
@@ -412,6 +415,26 @@ form {
 
 .backup input[type="file"] {
   font: inherit;
+}
+
+/* One clear per row: the store it empties, what is in it now, and the control
+   or its confirmation. */
+
+.clear-row {
+  display: grid;
+  gap: 0.5rem;
+  padding-top: var(--gap);
+  border-top: 1px solid var(--border);
+}
+
+.clear-row:first-of-type {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.clear-row h3 {
+  margin: 0;
+  font-size: var(--step-0);
 }
 
 /* The main menu: one destination per row, comfortable under a thumb. */

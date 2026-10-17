@@ -17,11 +17,13 @@ duplicated.
 
 The `meta` store also records the Answer Log and Exam counts. Each append,
 Override, clear, and import writes the count in the same transaction as the
-records it counts. A read that comes back empty is checked against that count:
-when the count says records existed, the app retries the read and, if it stays
-empty, shows a recovery message instead of a false `0%`. The read path never
-writes or clears anything. The app asks for persistent storage so the origin is
-not evicted under storage pressure.
+records it counts. A Clear empties one store at a time: the study answers or
+the Exam records, leaving the Profile and the other history in place. A read
+that comes back empty is checked against that count: when the count says records
+existed, the app retries the read and, if it stays empty, shows a recovery
+message instead of a false `0%`. The read path never writes or clears anything.
+The app asks for persistent storage so the origin is not evicted under storage
+pressure.
 
 Exam records carry the track (`Standard` or `65/20`) they ran under, so a
 later Profile change never makes an old Exam unreadable.
