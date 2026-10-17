@@ -91,6 +91,11 @@ jobs:
         working-directory: crates/app
         run: dx build --release --base-path /USCIS-N400/
 
+      # GitHub Pages answers an unknown path with 404.html. Serving the shell
+      # there boots a deep link before the worker controls the page.
+      - name: Serve deep links the app shell
+        run: cp target/dx/uscis-n400/release/web/public/index.html target/dx/uscis-n400/release/web/public/404.html
+
       - name: Upload the Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:

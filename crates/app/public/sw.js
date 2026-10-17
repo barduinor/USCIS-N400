@@ -14,7 +14,7 @@
 // cache the previous version built. A deploy that only re-emits the hashed
 // bundles needs no bump, because the shell asks for them under new names.
 const PREFIX = "uscis-n400-";
-const VERSION = 1;
+const VERSION = 2;
 const CACHE = `${PREFIX}v${VERSION}`;
 
 // The app root: the worker's own scope. The shell lives at it, and every route
@@ -66,11 +66,13 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // A navigation is the shell. The host answers it when it can, so a deploy
-  // arrives with the next load; the cached shell answers it when the host
-  // cannot — offline, or a route the host has no file for.
+  // A navigation is the shell. The root is fetched rather than the route: a
+  // deep link is a 404 on the host, and a response cached for that route can
+  // be older than the deployed shell. The fetched root is kept, so the next
+  // navigation starts from the current shell; the cached root answers when
+  // the host cannot — offline.
   if (request.mode === "navigate") {
-    event.respondWith(shell(event, request));
+    event.respondWith(shell(event));
     return;
   }
 
@@ -94,12 +96,17 @@ self.addEventListener("message", (event) => {
   event.waitUntil(keep(resources));
 });
 
-// The shell for a navigation: what the host serves, else what the cache kept.
-async function shell(event, request) {
+// The shell for a navigation: the root the host serves now, else what the
+// cache kept.
+//
+// The root is fetched with the HTTP cache bypassed, so a deep-link reload never
+// runs an older shell than the one deployed. The response is cached under the
+// root, which is also the offline fallback.
+async function shell(event) {
   let answer = null;
 
   try {
-    answer = await fetch(request);
+    answer = await fetch(ROOT, { cache: "reload" });
   } catch (error) {
     // Offline: the cached shell answers below.
   }

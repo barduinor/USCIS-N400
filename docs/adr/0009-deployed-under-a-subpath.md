@@ -14,3 +14,4 @@ The subpath is not only where the files sit. It is the service worker's registra
 - The base path belongs on the build command, not in `Dioxus.toml`, so local development keeps serving from `/`.
 - Nothing in the shell may hard-code the path: the worker derives its cache URLs from its own registration scope, and the index template resolves the app root from the document's directory, so the same build works under any prefix.
 - The base path is load-bearing for offline behaviour, which means a change to it is not a deployment detail — it invalidates what installed clients have cached.
+- GitHub Pages answers an unknown path with `404.html`. The release copies the built shell there, so a deep link boots the app before the worker controls it. The worker itself fetches the root for every navigation and caches that response, so a deep-link refresh never runs an older shell than the one deployed; the cached root answers only when the network cannot.
