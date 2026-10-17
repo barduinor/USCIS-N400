@@ -30,17 +30,26 @@ later Profile change never makes an old Exam unreadable.
 
 Export/import is one JSON bundle (`schema_version`, `exported_at`, Profile,
 Answer Log, Exam records), required in v1 (ADR 0003). Import validates the
-shape, refuses a newer `schema_version`, and replaces local state after
-confirmation; it never merges. The IndexedDB structural version and the
-export-schema version are separate mechanisms; both start at 1.
+shape and refuses a newer `schema_version` before offering a choice. With no
+local Answer Log or Exam records, it offers the replace confirmation only. With
+either present, it offers three choices: keep the device's data and write
+nothing, replace the device's state with the bundle's, or merge. Merge keeps the
+device Profile and combines both histories, sorted by `at`, dropping exact
+duplicate records, so restoring the same bundle twice is idempotent. A local
+read that fails pauses the import instead of risking an overwrite. The
+IndexedDB structural version and the export-schema version are separate
+mechanisms; both start at 1.
 
 ## Considered Options
 
 - **A dedicated Override store.** Rejected. It would duplicate what the log
   already holds, and the two sources would drift.
-- **Merge on import.** Rejected. Two logs cannot merge without a dedupe story;
-  the real use cases (restore a backup, move to a new device) are
-  replacements.
+- **Always replace.** Rejected. It can erase answers the Applicant meant to add
+  to when the bundle came from another device, and the Applicant asked for the
+  choice.
+- **Merge without a dedupe story.** Rejected. Two logs cannot merge by
+  concatenation; sorting by `at` and dropping exact duplicate records gives a
+  deterministic union without inventing identities.
 
 ## Consequences
 

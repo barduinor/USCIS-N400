@@ -143,10 +143,39 @@ impl Bundle {
                 Some(&JsValue::from_str(profile::PROFILE_KEY)),
             )
             .await?;
-        write_all(&transaction, ANSWER_LOG_STORE, &self.answer_log).await?;
-        write_all(&transaction, EXAMS_STORE, &self.exams).await?;
-        write_store_count(&transaction, ANSWER_LOG_STORE, answer_log::COUNT_KEY).await?;
-        write_store_count(&transaction, EXAMS_STORE, exam::COUNT_KEY).await?;
+        write_history(&transaction, &self.answer_log, &self.exams).await?;
+        transaction.commit().await?;
+
+        Ok(())
+    }
+
+    /// Combines this bundle's histories with the device's, after the Applicant
+    /// has chosen Merge.
+    ///
+    /// The device Profile stays: the facts on this device are the ones being
+    /// used. Both Answer Logs and both Exam lists are combined, sorted by time,
+    /// and exact duplicate records are dropped, so importing the same bundle
+    /// twice does not double the history. The read and the write are separate
+    /// transactions, but no write starts until both local reads have succeeded;
+    /// a failed read leaves the device untouched.
+    pub async fn merge(&self) -> Result<()> {
+        let mut answer_log = answer_log::entries_verified().await?;
+        answer_log.extend(self.answer_log.iter().cloned());
+        answer_log.sort_by_key(|entry| entry.at);
+        answer_log.dedup();
+
+        let mut exams = exam::exams_verified().await?;
+        exams.extend(self.exams.iter().cloned());
+        exams.sort_by_key(|exam| exam.at);
+        exams.dedup();
+
+        let database = database().await?;
+        let transaction = database.transaction(
+            &[ANSWER_LOG_STORE, EXAMS_STORE, META_STORE],
+            TransactionMode::ReadWrite,
+        )?;
+
+        write_history(&transaction, &answer_log, &exams).await?;
         transaction.commit().await?;
 
         Ok(())
@@ -160,6 +189,20 @@ fn date(at: u64) -> String {
         .as_string()
         .map(|text| text.chars().take(10).collect())
         .unwrap_or_else(|| "export".to_string())
+}
+
+/// Writes both histories and their counts in this transaction.
+async fn write_history(
+    transaction: &Transaction,
+    answer_log: &[AnswerLogEntry],
+    exams: &[ExamRecord],
+) -> Result<()> {
+    write_all(transaction, ANSWER_LOG_STORE, answer_log).await?;
+    write_all(transaction, EXAMS_STORE, exams).await?;
+    write_store_count(transaction, ANSWER_LOG_STORE, answer_log::COUNT_KEY).await?;
+    write_store_count(transaction, EXAMS_STORE, exam::COUNT_KEY).await?;
+
+    Ok(())
 }
 
 /// Empties one store in this transaction and writes these records into it, in

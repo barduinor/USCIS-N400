@@ -73,7 +73,8 @@ The screens:
 - Offline-first PWA, installable to the home screen; progress stays on the
   device.
 - JSON export and import of all progress, the only backup and the only way to
-  move between devices.
+  move between devices; an import onto a device with history asks whether to
+  keep, replace, or merge.
 - Clear study answers or the Exam history separately from the Profile screen,
   each behind its own confirmation; the Profile and the other history stay.
 - Reset from the Profile screen: a confirmation that names everything it
@@ -175,12 +176,12 @@ count, and the Exams taken below. The Profile
 screen edits every field onboarding captured, so a change takes effect on the
 next question and on Coverage's denominator, and it carries the backup: the
 export of a versioned JSON bundle — the Profile, the Answer Log, and the Exam
-records — and the import, which refuses a bundle from a newer version and
-otherwise replaces what is on the device after a confirmation, never merging.
-Two separate clears empty the study answers or the Exam history without
-touching the Profile or the other history. Beside them, a reset empties the
-Profile, the Answer Log, the Exam records,
-and the database's bookkeeping after a confirmation that offers the export
+records — and the import, which refuses a bundle from a newer version and then
+asks whether to keep this device's data, replace it with the bundle's, or merge
+the two histories. Two separate clears empty the study answers or the Exam
+history without touching the Profile or the other history. Beside them, a reset
+empties the Profile, the Answer Log, the Exam records, and the database's
+bookkeeping after a confirmation that offers the export
 first, then returns the app to onboarding; the app, the worker, and its cache
 stay, so it still opens offline.
 The language, rules, and decisions are settled in `GLOSSARY.md` and

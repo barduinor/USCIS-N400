@@ -102,6 +102,14 @@ pub fn Profile() -> Element {
         });
     };
 
+    let keep = move |_| {
+        pending.set(None);
+        problem.set(None);
+        note.set(Some(
+            "Nothing was imported; this device's data is unchanged.".to_string(),
+        ));
+    };
+
     let replace = move |_| {
         let Some(bundle) = pending() else {
             return;
@@ -118,6 +126,31 @@ pub fn Profile() -> Element {
                     log.restart();
                     exams.restart();
                     note.set(Some("The bundle is in place.".to_string()));
+                }
+                Err(error) => problem.set(Some(error.to_string())),
+            }
+
+            working.set(false);
+        });
+    };
+
+    let merge = move |_| {
+        let Some(bundle) = pending() else {
+            return;
+        };
+
+        working.set(true);
+        problem.set(None);
+        spawn(async move {
+            match bundle.merge().await {
+                Ok(()) => {
+                    pending.set(None);
+                    log.restart();
+                    exams.restart();
+                    note.set(Some(
+                        "The bundle's answers and Exams are merged; this device's Profile stays."
+                            .to_string(),
+                    ));
                 }
                 Err(error) => problem.set(Some(error.to_string())),
             }
@@ -234,23 +267,90 @@ pub fn Profile() -> Element {
         }
     };
 
+    let local_progress = match (&*log.read(), &*exams.read()) {
+        (Some(Ok(answers)), Some(Ok(exams))) => Some((answers.len(), exams.len())),
+        _ => None,
+    };
+    let local_read_failed =
+        matches!(&*log.read(), Some(Err(_))) || matches!(&*exams.read(), Some(Err(_)));
+
     let confirmation = match pending() {
         None => rsx! {},
         Some(bundle) => {
-            let answers = count(bundle.answer_log.len(), "answer");
-            let exams = count(bundle.exams.len(), "Exam");
+            let bundle_answers = count(bundle.answer_log.len(), "answer");
+            let bundle_exams = count(bundle.exams.len(), "Exam");
 
-            rsx! {
-                p { class: "problem",
-                    "Importing replaces everything on this device — the Profile, the Answer Log, and the Exam history. Nothing is merged, and what is here now goes."
-                }
-                p { class: "hint", "The bundle holds {answers} and {exams}." }
-                button {
-                    class: "primary",
-                    r#type: "button",
-                    disabled: working(),
-                    onclick: replace,
-                    "Replace what is on this device"
+            match local_progress {
+                None if local_read_failed => rsx! {
+                    p { class: "problem",
+                        "This device's progress could not be read, so the import is paused. No data has changed."
+                    }
+                    button {
+                        class: "quiet",
+                        r#type: "button",
+                        onclick: keep,
+                        "Keep this device's data"
+                    }
+                    p { class: "hint", "Reload the app, then choose the bundle again." }
+                },
+                None => rsx! {
+                    p { class: "loading", "Reading this device's progress…" }
+                },
+                Some((0, 0)) => rsx! {
+                    p { class: "problem",
+                        "Importing replaces the Profile, the Answer Log, and the Exam history. Nothing is merged, and what is here now goes."
+                    }
+                    p { class: "hint", "The bundle holds {bundle_answers} and {bundle_exams}." }
+                    div { class: "actions",
+                        button {
+                            class: "quiet",
+                            r#type: "button",
+                            disabled: working(),
+                            onclick: keep,
+                            "Cancel import"
+                        }
+                        button {
+                            class: "primary",
+                            r#type: "button",
+                            disabled: working(),
+                            onclick: replace,
+                            "Replace what is on this device"
+                        }
+                    }
+                },
+                Some((answers, exams)) => {
+                    let local_answers = count(answers, "answer");
+                    let local_exams = count(exams, "Exam");
+
+                    rsx! {
+                        p { class: "problem",
+                            "This device already holds {local_answers} and {local_exams}. Choose what happens to them."
+                        }
+                        p { class: "hint", "The bundle holds {bundle_answers} and {bundle_exams}." }
+                        div { class: "actions",
+                            button {
+                                class: "quiet",
+                                r#type: "button",
+                                disabled: working(),
+                                onclick: keep,
+                                "Keep this device's data"
+                            }
+                            button {
+                                class: "danger",
+                                r#type: "button",
+                                disabled: working(),
+                                onclick: replace,
+                                "Replace this device's data"
+                            }
+                            button {
+                                class: "primary",
+                                r#type: "button",
+                                disabled: working(),
+                                onclick: merge,
+                                "Merge the bundle into this device"
+                            }
+                        }
+                    }
                 }
             }
         }
