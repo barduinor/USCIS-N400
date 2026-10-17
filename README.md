@@ -46,7 +46,7 @@ The screens:
 | Onboarding | First run only. Establishes the Profile and the Coverage denominator. |
 | Main menu | Entry point. Shows Coverage. |
 | Study | The endless question loop. No statistics. |
-| Exam | One Exam, ending when the outcome is decided. |
+| Exam | One Exam, with its current progress and per-answer feedback, ending when the outcome is decided. |
 | Exam result | That Exam's outcome and score. |
 | Stats | Coverage per Section and Topic, and Exam history. |
 | Profile | The onboarding fields, editable, plus export, import, the two clears, and reset. |
@@ -67,7 +67,9 @@ The screens:
   with a recent-ask penalty and no immediate repeats.
 - The 65/20 Special Consideration: study narrows to the 20 starred questions,
   and the Exam switches to the 10-question, 6-to-pass administration.
-- Exam simulation that stops the moment the outcome is fixed, exactly as the
+- Exam simulation that shows the current Exam's official question number,
+  position, asked sequence, and right/wrong counts, gives the verdict after
+  each answer, and stops the moment the outcome is fixed, exactly as the
   officer stops the real test.
 - Override: correct a single verdict; the official answers never change.
 - Offline-first PWA, installable to the home screen; progress stays on the
@@ -167,9 +169,11 @@ and the Explanation where one exists when the Applicant asks; after a wrong
 verdict it also offers the Override, which counts that attempt as correct and
 never changes the Accepted Answers.
 An Exam simulates the officer's administration of the test — twenty questions
-with twelve to pass, or ten of the starred twenty with six — shows only the
-question, stops the moment the outcome is fixed, and records its own outcome,
-score, track, and questions asked without touching the Answer Log or Coverage.
+with twelve to pass, or ten of the starred twenty with six — shows the current
+Exam's official question number, exam position, asked sequence, and right and
+wrong counts, gives the verdict after each answer, stops the moment the outcome
+is fixed, and records its own outcome, score, track, and questions asked
+without touching the Answer Log or Coverage.
 The Stats screen shows Coverage over the whole scope, then each Section —
 opening one shows its Topics — with every figure carrying a percentage and a
 count, and the Exams taken below. The Profile

@@ -173,8 +173,9 @@ second name.
   play and any answer is judged wrong; filling the value in the Profile fixes
   it. A Test Update value ships with the release: a blank Profile field presents
   the shipped value, and a value the Applicant stored wins.
-- No statistics appear during a study or exam session. Coverage and exam history live in their own area, reached from the main menu. The study screen carries the asked question's official number, which identifies it in the published list and is not a progress figure.
-- During an Exam the screen shows only the question: no counter and no verdict. The Exam stops the moment the outcome is fixed, so either would reveal the result before the result screen.
+- No global statistics appear during a study or exam session. Coverage and exam history live in their own area, reached from the main menu. The study screen carries the asked question's official number, which identifies it in the published list and is not a progress figure.
+- During an Exam the screen carries the current Exam's own progress: the official question number, the exam position, the official numbers asked so far in this Exam, the right and wrong counts, and the verdict of the last answer. It waits for the Applicant after each answer: Next question while the Exam runs, or See result when the outcome is fixed.
+- During an Exam the Accepted Answers are not shown. The result screen carries the outcome and score.
 - The Exam is a practice simulation only. The real second examination (a retest 60 to 90 days after a failure, covering only the failed portions) is deliberately not modelled.
 - A Reset happens only after its confirmation; cancelling writes nothing. It deletes the Profile, the Answer Log, and the Exam history from the device, never the Accepted Answers, the app, the worker, or its cache.
 - A Clear happens only after its own confirmation. Clearing the study answers empties the Answer Log and leaves the Profile and the Exam history; clearing the Exam history empties the Exam records and leaves the Profile and the Answer Log. Neither returns the app to onboarding.

@@ -222,6 +222,35 @@ button.quiet:disabled {
    Nothing else — no counter, no score, and no progress figure appears during
    study. */
 
+/* The current Exam's progress: the official number, the exam position, the
+   right and wrong counts, and the official numbers asked in this Exam. */
+
+.exam-progress {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.exam-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.exam-status span {
+  white-space: nowrap;
+}
+
+.exam-sequence {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
 .question-number {
   margin: 0;
   color: var(--muted);

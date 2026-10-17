@@ -186,6 +186,16 @@ impl Exam {
             .count()
     }
 
+    /// How many questions have been answered wrong.
+    pub fn wrong(&self) -> usize {
+        self.asked.len() - self.correct()
+    }
+
+    /// The administration this Exam runs under.
+    pub fn track(&self) -> Track {
+        self.track
+    }
+
     /// The questions asked so far, in the order the officer asked them.
     pub fn asked(&self) -> Vec<u16> {
         self.asked.iter().map(|(number, _)| *number).collect()
@@ -294,6 +304,24 @@ mod tests {
         assert_eq!(exam.outcome(), Some(Outcome::Passed));
         assert_eq!(asked, 12, "the Exam stops the moment twelve are correct");
         assert_eq!(exam.current(), None, "and asks nothing further");
+    }
+
+    #[test]
+    fn test_exam_counts_the_current_exams_right_and_wrong_answers() {
+        // -- Setup & Fixtures
+        let mut exam = exam(128);
+
+        // -- Exec
+        answer_with(
+            &mut exam,
+            &[Verdict::Correct, Verdict::Wrong, Verdict::Correct],
+        );
+
+        // -- Check
+        assert_eq!(exam.asked().len(), 3);
+        assert_eq!(exam.correct(), 2);
+        assert_eq!(exam.wrong(), 1);
+        assert_eq!(exam.track(), Track::Standard);
     }
 
     #[test]
