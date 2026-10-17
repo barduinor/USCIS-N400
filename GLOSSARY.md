@@ -160,7 +160,7 @@ second name.
 - A question asked recently is penalised, not blocked, so a wrong answer returns only after a gap of roughly 8–10 other questions. The penalty is tunable and never reaches zero, so a candidate always exists.
 - **Cleared questions are never excluded.** They reappear whenever their weight wins, which is how the Applicant keeps seeing questions they got right.
 - The one absolute exclusion: the same question is never asked twice in a row.
-- After an answer the tool says whether it was right, shows the answer the Applicant gave, and shows the Accepted Answers, so the two can be compared. The Accepted Answers appear after every verdict, correct or wrong. The Explanation appears only when the Applicant asks. After a wrong verdict the screen also offers the Override.
+- After an answer the tool says whether it was right, shows the answer the Applicant gave, and shows the Accepted Answers, so the two can be compared. The Accepted Answers appear after every verdict, correct or wrong. The Explanation appears only when the Applicant asks. After a wrong verdict the screen also offers the Override, below Next question and separated from it, so it is never the accidental tap.
 - When a Local Fact value is missing from the Profile, its question stays in
   play and any answer is judged wrong; filling the value in the Profile fixes
   it. A Test Update value ships with the release: a blank Profile field presents

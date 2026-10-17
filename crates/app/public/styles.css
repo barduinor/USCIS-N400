@@ -304,6 +304,15 @@ form {
   margin-top: var(--gap);
 }
 
+/* The Override after a wrong verdict: below Next question, with twice the
+   usual spacing so a tap meant for Next is not a tap on Override. */
+
+.override {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: calc(var(--gap) * 2);
+}
+
 /* The Exam result: the outcome, the score, and the administration the Exam ran
    under. */
 
