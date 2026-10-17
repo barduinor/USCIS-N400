@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 use wasm_bindgen::JsCast;
 
-use crate::components::ProfileForm;
+use crate::components::{ProfileForm, ProfileReload};
 use crate::storage;
 
 /// The Applicant's own facts, editable at any time, and their backup.
@@ -10,7 +10,9 @@ use crate::storage;
 /// change: an edit takes effect on the next question and on Coverage's
 /// denominator. Below it sit the export — a versioned JSON bundle of everything
 /// — and the import, which replaces what is on this device after a
-/// confirmation and never merges.
+/// confirmation and never merges. Below them sits the reset: it empties every
+/// store after a confirmation that offers the export first, and the first-run
+/// gate then puts the app back on onboarding.
 #[component]
 pub fn Profile() -> Element {
     let stored = use_resource(storage::profile::load);
@@ -20,6 +22,8 @@ pub fn Profile() -> Element {
     let mut note = use_signal(|| Option::<String>::None);
     let mut problem = use_signal(|| Option::<String>::None);
     let mut working = use_signal(|| false);
+    let mut confirming_reset = use_signal(|| false);
+    let reload = use_context::<ProfileReload>();
 
     // The form starts from what is stored, once, so an edit is never clobbered.
     use_effect(move || {
@@ -107,6 +111,32 @@ pub fn Profile() -> Element {
             }
 
             working.set(false);
+        });
+    };
+
+    let open_reset = move |_| {
+        note.set(None);
+        problem.set(None);
+        confirming_reset.set(true);
+    };
+
+    let cancel_reset = move |_| confirming_reset.set(false);
+
+    let reset = move |_| {
+        working.set(true);
+        problem.set(None);
+        spawn(async move {
+            match storage::reset().await {
+                Ok(()) => {
+                    confirming_reset.set(false);
+                    working.set(false);
+                    reload.0.call(());
+                }
+                Err(error) => {
+                    problem.set(Some(format!("This device could not be cleared: {error}")));
+                    working.set(false);
+                }
+            }
         });
     };
 
@@ -222,6 +252,54 @@ pub fn Profile() -> Element {
                     }
                 }
                 {confirmation}
+            }
+
+            if loaded() {
+                section { class: "reset",
+                    h2 { "Reset" }
+                    if confirming_reset() {
+                        p { class: "problem",
+                            "Resetting deletes the Profile, every answer in the Answer Log, and the entire Exam history from this device. It cannot be undone. An exported file is the only copy that survives."
+                        }
+                        p { class: "hint",
+                            "The app itself stays installed, and it still opens offline. If you have no export yet, make one now."
+                        }
+                        div { class: "actions",
+                            button {
+                                class: "primary",
+                                r#type: "button",
+                                disabled: working(),
+                                onclick: export,
+                                "Export my progress first"
+                            }
+                            button {
+                                class: "danger",
+                                r#type: "button",
+                                disabled: working(),
+                                onclick: reset,
+                                "Delete everything and reset"
+                            }
+                            button {
+                                class: "quiet",
+                                r#type: "button",
+                                disabled: working(),
+                                onclick: cancel_reset,
+                                "Keep my progress"
+                            }
+                        }
+                    } else {
+                        p { class: "hint",
+                            "Deletes the Profile, every answer in the Answer Log, and the entire Exam history from this device, then returns to onboarding. An exported file is the only copy that survives."
+                        }
+                        button {
+                            class: "danger",
+                            r#type: "button",
+                            disabled: working(),
+                            onclick: open_reset,
+                            "Reset this device"
+                        }
+                    }
+                }
             }
 
             nav { class: "menu",

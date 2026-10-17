@@ -150,6 +150,38 @@ button.primary:disabled {
   opacity: 0.6;
 }
 
+/* A destructive action reads as one: the reset control and its confirmation
+   carry the same red as a wrong verdict. */
+
+button.danger {
+  font: inherit;
+  padding: 0.75rem 1rem;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--wrong);
+  color: #ffffff;
+}
+
+button.danger:disabled {
+  opacity: 0.6;
+}
+
+/* The way out of a confirmation: a control, distinct from the two actions it
+   stands beside. */
+
+button.quiet {
+  font: inherit;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+button.quiet:disabled {
+  opacity: 0.6;
+}
+
 .hint,
 .loading {
   margin: 0;
@@ -345,10 +377,11 @@ form {
   margin-top: var(--step-2);
 }
 
-/* The Profile screen's backup: the export, and the import and its
-   confirmation. */
+/* The Profile screen's backup and reset: the export, the import and its
+   confirmation, and the reset and its confirmation. */
 
-.backup {
+.backup,
+.reset {
   display: grid;
   gap: var(--gap);
   margin-top: var(--step-2);
@@ -358,7 +391,8 @@ form {
   background: var(--surface);
 }
 
-.backup h2 {
+.backup h2,
+.reset h2 {
   margin: 0;
   color: var(--muted);
   font-size: var(--step-0);

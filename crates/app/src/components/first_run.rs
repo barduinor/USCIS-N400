@@ -11,6 +11,11 @@ enum Gate {
     Ready,
 }
 
+/// The way a screen tells the first-run gate that the Profile it decided on is
+/// gone, so the gate reads it again and lets its answer choose the screen.
+#[derive(Clone, Copy)]
+pub struct ProfileReload(pub Callback<()>);
+
 /// The first-run gate: nothing renders until the Applicant has a Profile.
 ///
 /// The Profile decides which Civics Test Questions the Applicant is accountable
@@ -19,6 +24,9 @@ enum Gate {
 #[component]
 pub fn FirstRun(children: Element) -> Element {
     let mut profile = use_resource(storage::profile::load);
+    let reload = use_callback(move |_| profile.restart());
+
+    use_context_provider(|| ProfileReload(reload));
 
     let gate = match &*profile.read() {
         None => Gate::Loading,

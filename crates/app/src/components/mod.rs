@@ -12,7 +12,7 @@ pub mod state;
 
 pub use coverage_figure::CoverageFigure;
 pub use field::Field;
-pub use first_run::FirstRun;
+pub use first_run::{FirstRun, ProfileReload};
 pub use install_hint::InstallHint;
 pub use profile_form::ProfileForm;
 pub use reveal::Reveal;

@@ -37,6 +37,9 @@ pub const EXAMS_STORE: &str = "exams";
 /// The database's own bookkeeping: its version, and the last export.
 pub const META_STORE: &str = "meta";
 
+/// Every store the database holds, in the order a reset empties them.
+const STORES: [&str; 4] = [PROFILE_STORE, ANSWER_LOG_STORE, EXAMS_STORE, META_STORE];
+
 /// The database on the device.
 const DATABASE: &str = "uscis-n400";
 
@@ -90,6 +93,24 @@ pub async fn write_next(store_name: &str, record: &str) -> Result<()> {
         .store(store_name)?
         .add(&JsValue::from_str(record), None)
         .await?;
+    transaction.commit().await?;
+
+    Ok(())
+}
+
+/// Starts over: empties every store, so the device holds no Profile, no Answer
+/// Log, no Exam records, and no bookkeeping.
+///
+/// One transaction covers all four stores, so the device changes from its whole
+/// state to none of it and never in between. The worker and its cache are not
+/// this database and are untouched.
+pub async fn reset() -> Result<()> {
+    let database = database().await?;
+    let transaction = database.transaction(&STORES, TransactionMode::ReadWrite)?;
+
+    for store_name in STORES {
+        transaction.store(store_name)?.clear().await?;
+    }
     transaction.commit().await?;
 
     Ok(())
