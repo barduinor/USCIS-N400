@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 
 use domain::{ExamRecord, Track, Verdict, answers, matching};
 
-use crate::components::Field;
+use crate::components::{Answers, Field};
 use crate::questions;
 use crate::routes::Route;
 use crate::storage;
@@ -13,9 +13,11 @@ use crate::storage;
 /// maximum, the right and wrong counts, and the official question number
 /// directly above the question text. The bar can stop short of its maximum:
 /// the outcome ends the Exam, not the draw. After each answer it shows the
-/// verdict and waits for the Applicant: the next question for a running Exam,
-/// or the result for the one that just ended. Answers go to the Exam, never to
-/// the Answer Log; the Accepted Answers are not shown here.
+/// verdict, the answer the Applicant gave as they wrote it, and the Accepted
+/// Answers, so the two can be compared; the Explanation appears when the
+/// Applicant asks. It then waits for the Applicant: the next question for a
+/// running Exam, or the result for the one that just ended. Answers go to the
+/// Exam, never to the Answer Log.
 #[component]
 pub fn Exam() -> Element {
     let records = match questions::records() {
@@ -45,6 +47,7 @@ pub fn Exam() -> Element {
     };
     let mut exam = use_signal(|| Option::<domain::Exam>::None);
     let mut typed = use_signal(String::new);
+    let mut answered = use_signal(String::new);
     let mut feedback = use_signal(|| Option::<(u16, Verdict)>::None);
     let mut finished = use_signal(|| Option::<ExamRecord>::None);
     let mut saved = use_signal(|| false);
@@ -108,6 +111,22 @@ pub fn Exam() -> Element {
     });
 
     let sitting = exam.read().clone();
+    let feedback_value = feedback();
+    let shown_number = feedback_value
+        .map(|(number, _)| number)
+        .or_else(|| sitting.as_ref().and_then(|sitting| sitting.current()));
+    let accepted = match &*profile.read() {
+        Some(Ok(Some(profile))) => shown_number
+            .and_then(|number| records.question(number))
+            .map(|question| {
+                answers::accepted_answers(
+                    question,
+                    &crate::test_updates::effective_profile(profile, test_updates),
+                )
+            })
+            .unwrap_or_default(),
+        _ => Vec::new(),
+    };
     let body = match (&*profile.read(), sitting) {
         (Some(Err(error)), _) => rsx! {
             p { class: "problem", "The Profile could not be read: {error}" }
@@ -116,13 +135,11 @@ pub fn Exam() -> Element {
             p { class: "loading", "Setting the Exam…" }
         },
         (_, Some(sitting)) => {
-            let feedback_value = feedback();
             let current = sitting.current();
-            let shown_number = feedback_value.map(|(number, _)| number).or(current);
-            let answered = feedback_value.is_some();
+            let in_feedback = feedback_value.is_some();
             let mut sequence = sitting.asked();
 
-            if !answered && let Some(number) = current {
+            if !in_feedback && let Some(number) = current {
                 sequence.push(number);
             }
 
@@ -152,6 +169,16 @@ pub fn Exam() -> Element {
                         class: if judged == Verdict::Correct { "verdict correct" } else { "verdict wrong" },
                         "{judged}"
                     }
+                    div { class: "answer",
+                        span { class: "field-label", "Your answer" }
+                        p { "{answered}" }
+                    }
+                    if let Some(question) = records.question(number) {
+                        Answers {
+                            answers: accepted,
+                            explanation: question.explanation.clone(),
+                        }
+                    }
                     if let Some(problem) = problem() {
                         p { class: "problem", "{problem}" }
                     }
@@ -172,6 +199,7 @@ pub fn Exam() -> Element {
                                 class: "primary",
                                 onclick: move |_| {
                                     feedback.set(None);
+                                    answered.set(String::new());
                                     problem.set(None);
                                 },
                                 "Next question"
@@ -184,14 +212,6 @@ pub fn Exam() -> Element {
                             p { class: "problem", "Civics Test Question {number} could not be read." }
                         },
                         Some(question) => {
-                            let accepted = match &*profile.read() {
-                                Some(Ok(Some(profile))) => answers::accepted_answers(
-                                    question,
-                                    &crate::test_updates::effective_profile(profile, test_updates),
-                                ),
-                                _ => Vec::new(),
-                            };
-
                             rsx! {
                                 div { class: "question-block",
                                     p { class: "question-number", "Question {number}" }
@@ -226,6 +246,7 @@ pub fn Exam() -> Element {
 
                                         let ended = produced.is_some();
 
+                                        answered.set(typed());
                                         typed.set(String::new());
                                         problem.set(None);
                                         feedback.set(Some((number, judged)));
