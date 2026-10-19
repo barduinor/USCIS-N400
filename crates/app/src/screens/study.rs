@@ -66,6 +66,7 @@ pub fn Study() -> Element {
     let mut answered = use_signal(String::new);
     let mut verdict = use_signal(|| Option::<Verdict>::None);
     let mut overridden = use_signal(|| Option::<u16>::None);
+    let mut overriding = use_signal(|| false);
     let mut saving = use_signal(|| false);
     let mut problem = use_signal(|| Option::<String>::None);
 
@@ -138,11 +139,27 @@ pub fn Study() -> Element {
                         div { class: "override",
                             OverrideControl {
                                 overridden: counts_correct,
-                                on_overridden: move |_| {
-                                    // The log the draw reads now holds the entry as
-                                    // it was before the Override.
-                                    log.restart();
-                                    overridden.set(Some(number));
+                                busy: overriding(),
+                                on_override: move |_| {
+                                    if overriding() {
+                                        return;
+                                    }
+
+                                    overriding.set(true);
+                                    problem.set(None);
+                                    spawn(async move {
+                                        match storage::answer_log::override_last().await {
+                                            Ok(()) => {
+                                                // The log the draw reads now holds the
+                                                // entry as it was before the Override.
+                                                log.restart();
+                                                overridden.set(Some(number));
+                                            }
+                                            Err(error) => problem.set(Some(error.to_string())),
+                                        }
+
+                                        overriding.set(false);
+                                    });
                                 },
                             }
                         }

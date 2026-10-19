@@ -2,8 +2,8 @@
 //!
 //! A record is JSON text, the same shape the export bundle will carry — the
 //! track it ran under, the questions asked, the score, and the outcome — which
-//! keeps the conversions pure and testable on the host. Only `append` and
-//! `latest` reach the browser.
+//! keeps the conversions pure and testable on the host. Only `append`,
+//! `latest`, `replace_latest`, and `remove_latest` reach the browser.
 
 use domain::ExamRecord;
 use gloo_timers::future::TimeoutFuture;
@@ -35,6 +35,50 @@ pub async fn append(record: &ExamRecord) -> Result<()> {
         .add(&JsValue::from_str(&to_record(record)?), None)
         .await?;
     write_store_count(&transaction, EXAMS_STORE, COUNT_KEY).await?;
+    transaction.commit().await?;
+
+    Ok(())
+}
+
+/// Replaces the most recent Exam's record, keeping the store's count.
+///
+/// The record and the count commit in one transaction. The caller keeps the
+/// original `at`: an amended record still says when its Exam ended. An empty
+/// store has no latest record to replace, so the record is appended rather
+/// than lost.
+pub async fn replace_latest(record: &ExamRecord) -> Result<()> {
+    let database = database().await?;
+    let transaction =
+        database.transaction(&[EXAMS_STORE, META_STORE], TransactionMode::ReadWrite)?;
+    let store = transaction.store(EXAMS_STORE)?;
+    let keys = store.get_all_keys(None, None).await?;
+    let record = JsValue::from_str(&to_record(record)?);
+
+    match keys.last() {
+        Some(key) => store.put(&record, Some(key)).await?,
+        None => store.add(&record, None).await?,
+    };
+    write_store_count(&transaction, EXAMS_STORE, COUNT_KEY).await?;
+    transaction.commit().await?;
+
+    Ok(())
+}
+
+/// Removes the most recent Exam's record, decrementing the store's count.
+///
+/// The removal and the count commit in one transaction. An empty store has
+/// nothing to remove, so the call changes nothing.
+pub async fn remove_latest() -> Result<()> {
+    let database = database().await?;
+    let transaction =
+        database.transaction(&[EXAMS_STORE, META_STORE], TransactionMode::ReadWrite)?;
+    let store = transaction.store(EXAMS_STORE)?;
+    let keys = store.get_all_keys(None, None).await?;
+
+    if let Some(key) = keys.last().cloned() {
+        store.delete(key).await?;
+        write_store_count(&transaction, EXAMS_STORE, COUNT_KEY).await?;
+    }
     transaction.commit().await?;
 
     Ok(())

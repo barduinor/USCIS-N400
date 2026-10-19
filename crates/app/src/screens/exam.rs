@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 
 use domain::{ExamRecord, Track, Verdict, answers, matching};
 
-use crate::components::{Answers, Field};
+use crate::components::{Answers, Field, OverrideControl};
 use crate::questions;
 use crate::routes::Route;
 use crate::storage;
@@ -15,9 +15,10 @@ use crate::storage;
 /// the outcome ends the Exam, not the draw. After each answer it shows the
 /// verdict, the answer the Applicant gave as they wrote it, and the Accepted
 /// Answers, so the two can be compared; the Explanation appears when the
-/// Applicant asks. It then waits for the Applicant: the next question for a
-/// running Exam, or the result for the one that just ended. Answers go to the
-/// Exam, never to the Answer Log.
+/// Applicant asks. After a wrong verdict it offers the Override, which amends
+/// the Exam's own score, outcome, and saved record. It then waits for the
+/// Applicant: the next question for a running Exam, or the result for the one
+/// that just ended. Answers go to the Exam, never to the Answer Log.
 #[component]
 pub fn Exam() -> Element {
     let records = match questions::records() {
@@ -52,6 +53,8 @@ pub fn Exam() -> Element {
     let mut finished = use_signal(|| Option::<ExamRecord>::None);
     let mut saved = use_signal(|| false);
     let mut saving = use_signal(|| false);
+    let mut overridden = use_signal(|| Option::<u16>::None);
+    let mut overriding = use_signal(|| false);
     let mut problem = use_signal(|| Option::<String>::None);
 
     // The Exam is set once the Profile is in hand: it fixes the administration.
@@ -186,7 +189,7 @@ pub fn Exam() -> Element {
                         if finished().is_some() {
                             button {
                                 class: "primary",
-                                disabled: saving(),
+                                disabled: saving() || overriding(),
                                 onclick: move |_| save.call(true),
                                 if saving() {
                                     "Saving the Exam…"
@@ -197,12 +200,93 @@ pub fn Exam() -> Element {
                         } else {
                             button {
                                 class: "primary",
+                                disabled: overriding(),
                                 onclick: move |_| {
                                     feedback.set(None);
                                     answered.set(String::new());
+                                    overridden.set(None);
                                     problem.set(None);
                                 },
                                 "Next question"
+                            }
+                        }
+                    }
+                    if judged == Verdict::Wrong {
+                        div { class: "override",
+                            OverrideControl {
+                                overridden: overridden() == Some(number),
+                                busy: saving() || overriding(),
+                                on_override: move |_| {
+                                    if saving() || overriding() {
+                                        return;
+                                    }
+
+                                    let Some((number, judged)) = feedback() else {
+                                        return;
+                                    };
+                                    if judged != Verdict::Wrong || overridden() == Some(number) {
+                                        return;
+                                    }
+
+                                    let Some(mut running) = exam.read().clone() else {
+                                        return;
+                                    };
+                                    let previous = finished();
+                                    if !running.override_last() {
+                                        return;
+                                    }
+                                    let record = running.record(
+                                        previous
+                                            .as_ref()
+                                            .map_or_else(storage::now, |record| record.at),
+                                    );
+                                    let was_saved = saved();
+
+                                    overriding.set(true);
+                                    problem.set(None);
+                                    spawn(async move {
+                                        let result = match (&record, &previous) {
+                                            (Some(record), Some(_)) if was_saved => {
+                                                storage::exam::replace_latest(record).await
+                                            }
+                                            (Some(record), _) => {
+                                                storage::exam::append(record).await
+                                            }
+                                            (None, Some(_)) if was_saved => {
+                                                storage::exam::remove_latest().await
+                                            }
+                                            (None, _) => Ok(()),
+                                        };
+
+                                        match result {
+                                            Ok(()) => {
+                                                exam.set(Some(running));
+                                                match record {
+                                                    Some(record) => {
+                                                        finished.set(Some(record));
+                                                        saved.set(true);
+                                                        overridden.set(Some(number));
+                                                    }
+                                                    None if previous.is_some() => {
+                                                        finished.set(None);
+                                                        saved.set(false);
+                                                        overridden.set(None);
+                                                        feedback.set(None);
+                                                        typed.set(String::new());
+                                                        answered.set(String::new());
+                                                    }
+                                                    None => {
+                                                        overridden.set(Some(number));
+                                                    }
+                                                }
+                                                problem.set(None);
+                                            }
+                                            Err(error) => problem.set(Some(error.to_string())),
+                                        }
+
+                                        overriding.set(false);
+                                    });
+                                },
                             }
                         }
                     }
@@ -224,7 +308,7 @@ pub fn Exam() -> Element {
                                     onsubmit: move |event| {
                                         event.prevent_default();
 
-                                        if saving() || typed().trim().is_empty() {
+                                        if saving() || overriding() || typed().trim().is_empty() {
                                             return;
                                         }
 
@@ -249,6 +333,7 @@ pub fn Exam() -> Element {
                                         answered.set(typed());
                                         typed.set(String::new());
                                         problem.set(None);
+                                        overridden.set(None);
                                         feedback.set(Some((number, judged)));
                                         finished.set(produced);
 
@@ -265,7 +350,7 @@ pub fn Exam() -> Element {
                                     button {
                                         class: "primary",
                                         r#type: "submit",
-                                        disabled: saving() || typed().trim().is_empty(),
+                                        disabled: saving() || overriding() || typed().trim().is_empty(),
                                         "Answer"
                                     }
                                 }
@@ -279,7 +364,7 @@ pub fn Exam() -> Element {
                     if finished().is_some() {
                         button {
                             class: "primary",
-                            disabled: saving(),
+                            disabled: saving() || overriding(),
                             onclick: move |_| save.call(true),
                             "See result"
                         }

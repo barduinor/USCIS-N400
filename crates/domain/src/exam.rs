@@ -165,6 +165,26 @@ impl Exam {
         self.asked.push((number, verdict));
     }
 
+    /// Marks the last answer as correct, for the Applicant's Override.
+    ///
+    /// Reports whether a verdict changed. An Exam with no answers, or with a
+    /// correct last answer, is left as it is. The Override never re-judges the
+    /// answer and never changes the draw, so an Exam it un-ends resumes at the
+    /// question already drawn.
+    pub fn override_last(&mut self) -> bool {
+        let Some((_, verdict)) = self.asked.last_mut() else {
+            return false;
+        };
+
+        if *verdict == Verdict::Correct {
+            return false;
+        }
+
+        *verdict = Verdict::Correct;
+
+        true
+    }
+
     /// The outcome, once it is decided.
     pub fn outcome(&self) -> Option<Outcome> {
         let correct = self.correct();
@@ -492,6 +512,183 @@ mod tests {
         assert_eq!(serde_json::from_str::<ExamRecord>(&stored)?, record);
 
         Ok(())
+    }
+
+    #[test]
+    fn test_exam_override_last_with_no_answers_changes_nothing() {
+        // -- Setup & Fixtures
+        let mut exam = exam(128);
+        let current = exam.current();
+
+        // -- Exec
+        let overridden = exam.override_last();
+
+        // -- Check
+        assert!(
+            !overridden,
+            "an Exam with no answers has nothing to override"
+        );
+        assert_eq!(exam.current(), current, "the draw is untouched");
+        assert_eq!(exam.correct(), 0);
+        assert_eq!(exam.wrong(), 0);
+        assert_eq!(exam.outcome(), None);
+        assert_eq!(exam.record(0), None);
+    }
+
+    #[test]
+    fn test_exam_override_last_turns_the_last_wrong_answer_correct() {
+        // -- Setup & Fixtures
+        let mut exam = exam(128);
+        answer_with(
+            &mut exam,
+            &[Verdict::Correct, Verdict::Wrong, Verdict::Wrong],
+        );
+        let asked = exam.asked();
+        let current = exam.current();
+
+        // -- Exec
+        let overridden = exam.override_last();
+
+        // -- Check
+        assert!(overridden);
+        assert_eq!(exam.correct(), 2);
+        assert_eq!(exam.wrong(), 1, "only the last verdict changes");
+        assert_eq!(exam.asked(), asked, "the Override changes no question");
+        assert_eq!(exam.current(), current, "nor the next question");
+        assert_eq!(exam.outcome(), None);
+    }
+
+    #[test]
+    fn test_exam_override_last_is_a_no_op_when_the_last_answer_is_correct() {
+        // -- Setup & Fixtures
+        let mut exam = exam(128);
+        answer_with(&mut exam, &[Verdict::Wrong, Verdict::Correct]);
+
+        // -- Exec
+        let overridden = exam.override_last();
+
+        // -- Check
+        assert!(!overridden);
+        assert_eq!(exam.correct(), 1);
+        assert_eq!(exam.wrong(), 1);
+    }
+
+    #[test]
+    fn test_exam_override_last_leaves_a_passed_exam_passed() {
+        // -- Setup & Fixtures
+        let mut exam = exam(128);
+        answer_with(&mut exam, &[Verdict::Correct; 12]);
+        let record = exam.record(1_770_000_000_000).expect("a decided Exam");
+
+        // -- Exec
+        let overridden = exam.override_last();
+
+        // -- Check
+        assert!(!overridden, "the last verdict is already correct");
+        assert_eq!(exam.outcome(), Some(Outcome::Passed));
+        assert_eq!(exam.record(1_770_000_000_000), Some(record));
+    }
+
+    #[test]
+    fn test_exam_override_last_un_ends_a_standard_failed_exam() {
+        // -- Setup & Fixtures
+        let mut exam = exam(128);
+        let asked = answer_with(&mut exam, &[Verdict::Wrong; 9]);
+        assert_eq!(asked, 9);
+        assert_eq!(exam.outcome(), Some(Outcome::Failed));
+        assert_eq!(exam.current(), None);
+
+        // -- Exec
+        let overridden = exam.override_last();
+
+        // -- Check
+        assert!(overridden);
+        assert_eq!(exam.correct(), 1);
+        assert_eq!(exam.wrong(), 8, "the fail condition is gone");
+        assert_eq!(exam.outcome(), None);
+        assert_eq!(exam.record(0), None, "a resumed Exam leaves no record");
+        assert_eq!(exam.asked().len(), 9, "the score keeps its questions");
+        let next = exam
+            .current()
+            .expect("the resumed Exam asks the next drawn question");
+        assert!(!exam.asked().contains(&next), "the next question is new");
+    }
+
+    #[test]
+    fn test_exam_override_last_turns_a_standard_failed_exam_into_a_passed_one() {
+        // -- Setup & Fixtures
+        let mut exam = exam(128);
+        let mut verdicts = vec![Verdict::Correct; 11];
+        verdicts.extend(vec![Verdict::Wrong; 9]);
+        let asked = answer_with(&mut exam, &verdicts);
+        assert_eq!(asked, 20);
+        assert_eq!(exam.outcome(), Some(Outcome::Failed));
+
+        // -- Exec
+        let overridden = exam.override_last();
+
+        // -- Check
+        assert!(overridden);
+        assert_eq!(exam.correct(), 12);
+        assert_eq!(exam.wrong(), 8);
+        assert_eq!(exam.outcome(), Some(Outcome::Passed));
+        assert_eq!(exam.current(), None, "the Exam stays ended");
+
+        let record = exam.record(1_770_000_000_000).expect("a decided Exam");
+        assert_eq!(record.outcome, Outcome::Passed);
+        assert_eq!(record.correct_count, 12);
+        assert_eq!(record.questions.len(), 20);
+        assert_eq!(record.at, 1_770_000_000_000);
+    }
+
+    #[test]
+    fn test_exam_override_last_un_ends_a_special_consideration_failed_exam() {
+        // -- Setup & Fixtures
+        let pool = candidates(128);
+        let starred: Vec<&Question> = pool.iter().filter(|question| question.starred).collect();
+        let mut exam = Exam::start(&starred, Track::SpecialConsideration, 7);
+        let asked = answer_with(&mut exam, &[Verdict::Wrong; 5]);
+        assert_eq!(asked, 5);
+        assert_eq!(exam.outcome(), Some(Outcome::Failed));
+
+        // -- Exec
+        let overridden = exam.override_last();
+
+        // -- Check
+        assert!(overridden);
+        assert_eq!(exam.correct(), 1);
+        assert_eq!(exam.wrong(), 4);
+        assert_eq!(exam.outcome(), None);
+        assert_eq!(exam.record(0), None);
+        assert!(
+            exam.current().is_some(),
+            "the next starred question is asked"
+        );
+
+        // The resumed Exam can still fail on the next wrong answer.
+        let asked = answer_with(&mut exam, &[Verdict::Wrong]);
+        assert_eq!(asked, 6);
+        assert_eq!(exam.outcome(), Some(Outcome::Failed));
+    }
+
+    #[test]
+    fn test_exam_record_after_a_resumed_exam_counts_the_amended_answer() {
+        // -- Setup & Fixtures
+        let mut exam = exam(128);
+        answer_with(&mut exam, &[Verdict::Wrong; 9]);
+        exam.override_last();
+
+        // -- Exec
+        let asked = answer_with(&mut exam, &[Verdict::Wrong]);
+        let record = exam
+            .record(1_770_000_000_000)
+            .expect("the resumed Exam ended");
+
+        // -- Check
+        assert_eq!(asked, 10);
+        assert_eq!(record.questions.len(), 10);
+        assert_eq!(record.correct_count, 1);
+        assert_eq!(record.outcome, Outcome::Failed);
     }
 
     #[test]

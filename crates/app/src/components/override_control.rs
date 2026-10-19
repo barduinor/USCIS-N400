@@ -1,20 +1,20 @@
 //! The Override control for one wrong verdict.
 //!
-//! It marks the Answer Log's last entry as the Applicant's correction and
-//! reports back that this attempt counts correct. It never re-judges the
-//! answer and never changes the Accepted Answers. The screen decides where the
-//! control sits and only renders it after a wrong verdict.
+//! It offers the Applicant's correction and reports the request to the parent.
+//! The parent performs it: Study marks the Answer Log's last entry, and the
+//! Exam amends its own score and saved record. The control never re-judges the
+//! answer, never changes the Accepted Answers, and never reaches storage
+//! itself. The parent owns the storage call and shows its errors.
 
 use dioxus::prelude::*;
 
-use crate::storage;
-
-/// The control that overrides the last Answer Log entry.
+/// The control that requests an Override of the last verdict.
+///
+/// `overridden` shows the confirmation instead of the button, `busy` disables
+/// the button while the parent's Override is in flight, and `on_override` asks
+/// the parent to perform it.
 #[component]
-pub fn OverrideControl(overridden: bool, on_overridden: EventHandler<()>) -> Element {
-    let mut overriding = use_signal(|| false);
-    let mut problem = use_signal(|| Option::<String>::None);
-
+pub fn OverrideControl(overridden: bool, busy: bool, on_override: EventHandler<()>) -> Element {
     if overridden {
         return rsx! {
             p { class: "hint", "Counts as correct for this attempt." }
@@ -25,27 +25,9 @@ pub fn OverrideControl(overridden: bool, on_overridden: EventHandler<()>) -> Ele
         button {
             class: "quiet",
             r#type: "button",
-            disabled: overriding(),
-            onclick: move |_| {
-                if overriding() {
-                    return;
-                }
-
-                overriding.set(true);
-                problem.set(None);
-                spawn(async move {
-                    match storage::answer_log::override_last().await {
-                        Ok(()) => on_overridden.call(()),
-                        Err(error) => problem.set(Some(error.to_string())),
-                    }
-
-                    overriding.set(false);
-                });
-            },
+            disabled: busy,
+            onclick: move |_| on_override.call(()),
             "Override"
-        }
-        if let Some(problem) = problem() {
-            p { class: "problem", "{problem}" }
         }
     }
 }
