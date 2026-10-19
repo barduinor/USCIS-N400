@@ -1,5 +1,28 @@
 ## Agent skills
 
+### Ticket first
+
+The first write in the repository on any repo-changing task is the GitHub
+issue; the branch, code, generated files, research note, and ADR follow it. A
+question or a conversation needs no ticket; the first repository-changing
+action does.
+
+Before that write, read the available skills and choose the sequence the task
+needs; put the sequence in the ticket. The default sequence:
+
+1. `grilling` — settle the decision, scope, and acceptance criteria.
+2. Create the ticket.
+3. `research` — fill the facts the ticket depends on.
+4. `domain-modeling` — record a new term or an ADR.
+5. `codebase-design` — settle a module seam or interface.
+6. `tdd` — implement test-first.
+7. `code-review` — review the diff.
+8. `pr` — write the PR body.
+
+A bug adds `diagnosing-bugs` before `grilling`. A mechanical change may skip a
+step; the ticket names the skipped step and the reason. Create the ticket with
+the conventions in `docs/agents/issue-tracker.md`.
+
 ### Issue tracker
 
 GitHub issues, via the `gh` CLI. See `docs/agents/issue-tracker.md`.
