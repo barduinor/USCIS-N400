@@ -33,6 +33,10 @@ _Avoid_: Item, card
 One official answer to a Civics Test Question, as published by USCIS. Parenthetical words in an official answer are read by their shape, not taken as part of it; see **Parenthetical**.
 _Avoid_: Correct answer, key
 
+**Alternative Answer**:
+A reviewed phrasing that counts as one published Accepted Answer. It is not a second answer: it never changes the published list and does not increase a multi-item question's count.
+_Avoid_: Synonym, user answer, override
+
 **Parenthetical**:
 A bracketed stretch inside an Accepted Answer, read by the shape it takes. A _fragment_ only means something beside the rest of the answer, so the answer is accepted with it and without it, never its words alone (`(U.S.) Constitution` accepts `us constitution` and `constitution`, never `us`; `The Great Crash (1929)` never accepts `1929`). An _alternative spelling_ holds words that stand in the answer's place, spelled as a menu with `or` or `/` (`(U.S. or national) legislature` accepts `U.S. legislature` and `national legislature`). A _numeral form_ follows a spelled-out number and buys that number's digits (`Twenty-seven (27)` accepts `27`). ADR 0004 owns the rule.
 _Avoid_: Bracketed text, optional words

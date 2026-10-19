@@ -26,7 +26,7 @@ use core::fmt::{Display, Formatter};
 
 use serde::{Deserialize, Serialize};
 
-use crate::{AcceptedAnswer, Question};
+use crate::{AcceptedAnswer, AlternativeForm, Question};
 
 /// What the tool decided about one typed answer.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -36,20 +36,67 @@ pub enum Verdict {
     Wrong,
 }
 
-/// The Verdict on `typed`, judged against the answers this question accepts.
+/// The Verdict on `typed`, judged against the published answers alone.
 pub fn judge(question: &Question, accepted: &[AcceptedAnswer], typed: &str) -> Verdict {
+    judge_with(question, accepted, &[], typed, false)
+}
+
+/// The Verdict on `typed`, judged against the published answers and the
+/// reviewed Alternative Answers attached to them (ADR 0011).
+///
+/// The eight Profile-backed questions have no published answer to attach a
+/// form to, so they take a narrow short-form and typo rule instead.
+pub fn judge_reviewed(
+    question: &Question,
+    accepted: &[AcceptedAnswer],
+    alternatives: &[AlternativeForm],
+    typed: &str,
+) -> Verdict {
+    judge_with(question, accepted, alternatives, typed, true)
+}
+
+/// The Verdict on `typed`, with the reviewed path optional.
+///
+/// `reviewed` turns on the Profile-backed short-form rule; the exact `judge`
+/// keeps it off, so the published-answer contract is unchanged.
+fn judge_with(
+    question: &Question,
+    accepted: &[AcceptedAnswer],
+    alternatives: &[AlternativeForm],
+    typed: &str,
+    reviewed: bool,
+) -> Verdict {
     let typed = normalized(typed);
 
     if typed.is_empty() {
         return Verdict::Wrong;
     }
 
+    if reviewed && crate::answers::is_fact(question.number) {
+        if accepted.iter().any(|answer| forms(answer).contains(&typed)) {
+            return Verdict::Correct;
+        }
+
+        return if fact_short_form(&typed, accepted) {
+            Verdict::Correct
+        } else {
+            Verdict::Wrong
+        };
+    }
+
     let carried = if question.answers_required <= 1 {
-        accepted.iter().any(|answer| forms(answer).contains(&typed)) || joins(&typed, accepted)
+        accepted
+            .iter()
+            .any(|answer| forms_with(answer, alternatives).contains(&typed))
+            || joins(&typed, &all_forms(accepted, alternatives))
     } else {
         accepted
             .iter()
-            .filter(|answer| forms(answer).iter().any(|form| carries(&typed, form)))
+            .filter(|answer| {
+                forms_with(answer, alternatives)
+                    .iter()
+                    .any(|form| carries(&typed, form))
+            })
             .count()
             >= usize::from(question.answers_required)
     };
@@ -75,9 +122,8 @@ fn carries(typed: &str, form: &str) -> bool {
 /// one line (`liberty island new york`). The typed words read as consecutive
 /// runs, each run a form of one Accepted Answer, and every word must sit inside
 /// a run: `not liberty island` is no joining, because `not` is no form's word.
-fn joins(typed: &str, accepted: &[AcceptedAnswer]) -> bool {
+fn joins(typed: &str, forms: &[String]) -> bool {
     let words = typed.split(' ').collect::<Vec<_>>();
-    let forms = accepted.iter().flat_map(forms).collect::<Vec<String>>();
 
     let mut joined = vec![false; words.len() + 1];
     joined[0] = true;
@@ -87,7 +133,7 @@ fn joins(typed: &str, accepted: &[AcceptedAnswer]) -> bool {
             continue;
         }
 
-        for form in &forms {
+        for form in forms {
             let end = start + form.split(' ').count();
 
             if end <= words.len() && form.split(' ').eq(words[start..end].iter().copied()) {
@@ -99,11 +145,104 @@ fn joins(typed: &str, accepted: &[AcceptedAnswer]) -> bool {
     joined[words.len()]
 }
 
+/// Whether a Profile-backed answer is a shortened or lightly misspelled form
+/// of one of the Applicant's values.
+///
+/// The rule requires at least two typed words, each matching a later word of
+/// the value in order; a word match is exact, or the shorter word is the longer
+/// with one character missing at either end. It is deliberately narrow: the
+/// value is a name, a city, or a state, and `A`, a single first name, or a
+/// different surname must not pass (ADR 0011).
+fn fact_short_form(typed: &str, accepted: &[AcceptedAnswer]) -> bool {
+    let typed_words = typed
+        .split(' ')
+        .filter(|word| !word.is_empty())
+        .collect::<Vec<_>>();
+
+    if typed_words.len() < 2 {
+        return false;
+    }
+
+    accepted.iter().any(|answer| {
+        let normalized_answer = normalized(answer.as_str());
+        let answer_words = normalized_answer
+            .split(' ')
+            .filter(|word| !word.is_empty())
+            .collect::<Vec<_>>();
+
+        carries_short_form(&typed_words, &answer_words)
+    })
+}
+
+/// Whether every typed word matches a later answer word, in order.
+fn carries_short_form(typed: &[&str], answer: &[&str]) -> bool {
+    let mut next = 0;
+
+    for word in answer {
+        if next < typed.len() && word_matches(typed[next], word) {
+            next += 1;
+        }
+    }
+
+    next == typed.len()
+}
+
+/// Whether one word matches another: exactly, or the shorter is the longer
+/// with one character missing at either end, when both are at least four
+/// characters long.
+fn word_matches(typed: &str, answer: &str) -> bool {
+    typed == answer
+        || (typed.chars().count() >= 4
+            && answer.chars().count() >= 4
+            && one_char_at_an_end(typed, answer))
+}
+
+/// Whether the shorter of two words is the longer with one end character
+/// removed.
+fn one_char_at_an_end(left: &str, right: &str) -> bool {
+    let left = left.chars().collect::<Vec<_>>();
+    let right = right.chars().collect::<Vec<_>>();
+
+    if left.len().abs_diff(right.len()) != 1 {
+        return false;
+    }
+
+    let (shorter, longer) = if left.len() < right.len() {
+        (left, right)
+    } else {
+        (right, left)
+    };
+
+    longer.starts_with(&shorter) || longer.ends_with(&shorter)
+}
+
 /// The comparison forms of one Accepted Answer.
 fn forms(answer: &AcceptedAnswer) -> Vec<String> {
     spellings(answer.as_str())
         .into_iter()
         .map(|spelling| normalized(&spelling))
+        .collect()
+}
+
+/// The comparison forms of one Accepted Answer, plus the reviewed forms
+/// attached to it (ADR 0011).
+fn forms_with(answer: &AcceptedAnswer, alternatives: &[AlternativeForm]) -> Vec<String> {
+    let mut comparison_forms = forms(answer);
+
+    for alternative in alternatives {
+        if alternative.answer == *answer {
+            comparison_forms.extend(forms(&alternative.form));
+        }
+    }
+
+    comparison_forms
+}
+
+/// Every comparison form the question accepts, published and reviewed.
+fn all_forms(accepted: &[AcceptedAnswer], alternatives: &[AlternativeForm]) -> Vec<String> {
+    accepted
+        .iter()
+        .flat_map(|answer| forms_with(answer, alternatives))
         .collect()
 }
 
@@ -416,6 +555,103 @@ mod tests {
     /// What the matcher decides about `typed`.
     fn judged(fixture: &Question, typed: &str) -> Verdict {
         judge(fixture, &fixture.accepted_answers, typed)
+    }
+
+    #[test]
+    fn test_matching_reviewed_accepts_an_alternative_but_exact_does_not() {
+        // -- Setup & Fixtures
+        let fixture = question(&["Executive branch"]);
+        let alternatives = [AlternativeForm {
+            answer: AcceptedAnswer::from("Executive branch"),
+            form: AcceptedAnswer::from("Executive"),
+        }];
+
+        // -- Exec & Check
+        assert_eq!(
+            judge_reviewed(
+                &fixture,
+                &fixture.accepted_answers,
+                &alternatives,
+                "Executive"
+            ),
+            Verdict::Correct,
+            "the reviewed form counts as its published answer"
+        );
+        assert_eq!(
+            judged(&fixture, "Executive"),
+            Verdict::Wrong,
+            "the exact judge does not read alternatives"
+        );
+    }
+
+    #[test]
+    fn test_matching_reviewed_does_not_count_two_forms_of_one_answer() {
+        // -- Setup & Fixtures
+        let fixture = several(2, &["Freedom of speech", "Freedom of religion"]);
+        let alternatives = [AlternativeForm {
+            answer: AcceptedAnswer::from("Freedom of religion"),
+            form: AcceptedAnswer::from("Religious freedom"),
+        }];
+
+        // -- Exec & Check
+        assert_eq!(
+            judge_reviewed(
+                &fixture,
+                &fixture.accepted_answers,
+                &alternatives,
+                "Freedom of speech, religious freedom"
+            ),
+            Verdict::Correct,
+            "two published answers, one through its reviewed form"
+        );
+        assert_eq!(
+            judge_reviewed(
+                &fixture,
+                &fixture.accepted_answers,
+                &alternatives,
+                "Freedom of religion, religious freedom"
+            ),
+            Verdict::Wrong,
+            "two forms of the same answer are still one answer"
+        );
+    }
+
+    #[test]
+    fn test_matching_reviewed_accepts_a_fact_short_form_but_not_a_placeholder() {
+        // -- Setup & Fixtures
+        let mut president = question(&["Donald Trump"]);
+        president.number = 38;
+        let mut chief = question(&["John G. Roberts Jr"]);
+        chief.number = 57;
+        let mut representative = question(&["Hank Johnson"]);
+        representative.number = 29;
+
+        // -- Exec & Check
+        assert_eq!(
+            judge_reviewed(&president, &president.accepted_answers, &[], "Donal trump"),
+            Verdict::Correct,
+            "a one-letter typo in the Profile value is accepted"
+        );
+        assert_eq!(
+            judge_reviewed(&chief, &chief.accepted_answers, &[], "John roberts"),
+            Verdict::Correct,
+            "the middle initial and suffix are optional"
+        );
+        assert_eq!(
+            judge_reviewed(&president, &president.accepted_answers, &[], "A"),
+            Verdict::Wrong,
+            "a placeholder never passes"
+        );
+        assert_eq!(
+            judge_reviewed(
+                &representative,
+                &representative.accepted_answers,
+                &[],
+                "Hank Johnston"
+            ),
+            Verdict::Wrong,
+            "a different surname is not a typo"
+        );
     }
 
     #[test]

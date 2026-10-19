@@ -274,6 +274,7 @@ mod tests {
                     explanation: None,
                 })
                 .collect(),
+            alternatives: Vec::new(),
         }
     }
 

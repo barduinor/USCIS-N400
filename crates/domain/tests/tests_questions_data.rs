@@ -42,6 +42,63 @@ fn test_questions_data_parses_the_committed_records() -> Result<()> {
 }
 
 #[test]
+fn test_questions_data_alternatives_attach_to_published_answers() -> Result<()> {
+    // -- Setup & Fixtures
+    let records = committed_records()?;
+    let mut seen_questions = BTreeSet::new();
+
+    // -- Exec & Check
+    for entry in &records.alternatives {
+        assert!(
+            seen_questions.insert(entry.number),
+            "question {} is reviewed twice",
+            entry.number
+        );
+        assert!(
+            !entry.forms.is_empty(),
+            "question {} lists no reviewed forms",
+            entry.number
+        );
+
+        let question = records
+            .question(entry.number)
+            .ok_or_else(|| format!("alternatives name unknown question {}", entry.number))?;
+
+        assert!(
+            !answers::is_fact(entry.number),
+            "question {} takes its answer from the Profile; alternatives do not attach to it",
+            entry.number
+        );
+
+        let mut seen_forms = BTreeSet::new();
+        for form in &entry.forms {
+            assert!(
+                !form.form.as_str().trim().is_empty(),
+                "question {} has an empty reviewed form",
+                entry.number
+            );
+            assert!(
+                question
+                    .accepted_answers
+                    .iter()
+                    .any(|answer| answer == &form.answer),
+                "question {} does not publish answer {:?}",
+                entry.number,
+                form.answer
+            );
+            assert!(
+                seen_forms.insert(form.form.as_str()),
+                "question {} repeats reviewed form {:?}",
+                entry.number,
+                form.form
+            );
+        }
+    }
+
+    Ok(())
+}
+
+#[test]
 fn test_questions_data_starred_questions_are_the_65_20_scope() -> Result<()> {
     // -- Setup & Fixtures
     let records = committed_records()?;

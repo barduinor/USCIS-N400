@@ -208,7 +208,12 @@ pub fn Exam() -> Element {
                                             return;
                                         }
 
-                                        let judged = matching::judge(question, &accepted, &typed());
+                                        let judged = matching::judge_reviewed(
+                                            question,
+                                            &accepted,
+                                            records.alternatives(number),
+                                            &typed(),
+                                        );
                                         let produced = {
                                             let mut exam = exam.write();
                                             let running = exam.as_mut();

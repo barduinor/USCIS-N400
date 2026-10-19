@@ -7,6 +7,7 @@
 
 // region:    --- Modules
 
+pub mod alternatives;
 mod cmd;
 mod error;
 pub mod generate;

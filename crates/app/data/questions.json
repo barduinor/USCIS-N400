@@ -1827,5 +1827,507 @@
       "starred": false,
       "explanation": null
     }
+  ],
+  "alternatives": [
+    {
+      "number": 1,
+      "forms": [
+        {
+          "answer": "Constitution-based federal republic",
+          "form": "Constitutional Republic"
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "forms": [
+        {
+          "answer": "Self-government",
+          "form": "Self governance"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "forms": [
+        {
+          "answer": "The amendment process",
+          "form": "Amendement process"
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "forms": [
+        {
+          "answer": "(The basic) rights of Americans",
+          "form": "Basic rights of americans"
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "forms": [
+        {
+          "answer": "It says America is free from British control.",
+          "form": "Because it represnts free of the british control"
+        }
+      ]
+    },
+    {
+      "number": 17,
+      "forms": [
+        {
+          "answer": "Executive branch",
+          "form": "Executive"
+        }
+      ]
+    },
+    {
+      "number": 26,
+      "forms": [
+        {
+          "answer": "To more closely follow public opinion",
+          "form": "To closely monitor popular opinion"
+        }
+      ]
+    },
+    {
+      "number": 28,
+      "forms": [
+        {
+          "answer": "Equal representation (for small states)",
+          "form": "Tonhave equalnrepresentation if the states"
+        }
+      ]
+    },
+    {
+      "number": 31,
+      "forms": [
+        {
+          "answer": "Citizens of their state",
+          "form": "Citizens of a state"
+        }
+      ]
+    },
+    {
+      "number": 32,
+      "forms": [
+        {
+          "answer": "Citizens from their state",
+          "form": "Citizens of their state"
+        }
+      ]
+    },
+    {
+      "number": 33,
+      "forms": [
+        {
+          "answer": "Citizens in their (congressional) district",
+          "form": "Citizens from their congressional distric"
+        }
+      ]
+    },
+    {
+      "number": 34,
+      "forms": [
+        {
+          "answer": "Citizens from their (congressional) district",
+          "form": "Citizens from their congressional distric"
+        },
+        {
+          "answer": "Citizens from their (congressional) district",
+          "form": "Citizens"
+        }
+      ]
+    },
+    {
+      "number": 35,
+      "forms": [
+        {
+          "answer": "(Because) some states have more people",
+          "form": "Because some states have more population"
+        }
+      ]
+    },
+    {
+      "number": 36,
+      "forms": [
+        {
+          "answer": "Four (4) years",
+          "form": "4"
+        }
+      ]
+    },
+    {
+      "number": 37,
+      "forms": [
+        {
+          "answer": "To keep the president from becoming too powerful",
+          "form": "So it does not become too powerful"
+        }
+      ]
+    },
+    {
+      "number": 41,
+      "forms": [
+        {
+          "answer": "Signs bills into law",
+          "form": "Approves and signs bills"
+        },
+        {
+          "answer": "Chief diplomat",
+          "form": "Foreign policy"
+        }
+      ]
+    },
+    {
+      "number": 49,
+      "forms": [
+        {
+          "answer": "It decides who is elected president.",
+          "form": "To determine who was elected for president"
+        }
+      ]
+    },
+    {
+      "number": 58,
+      "forms": [
+        {
+          "answer": "Set foreign policy",
+          "form": "Foreign policy"
+        }
+      ]
+    },
+    {
+      "number": 60,
+      "forms": [
+        {
+          "answer": "(It states that the) powers not given to the federal government belong to the states or to the people.",
+          "form": "Powers not given to the federal government are assigned to the states"
+        },
+        {
+          "answer": "(It states that the) powers not given to the federal government belong to the states or to the people.",
+          "form": "Gives states the powers not asisgned to the federal goverment"
+        }
+      ]
+    },
+    {
+      "number": 63,
+      "forms": [
+        {
+          "answer": "Citizens eighteen (18) and older (can vote).",
+          "form": "All citizens 18 years or older can vote"
+        }
+      ]
+    },
+    {
+      "number": 65,
+      "forms": [
+        {
+          "answer": "Freedom of religion",
+          "form": "religious freedom"
+        }
+      ]
+    },
+    {
+      "number": 67,
+      "forms": [
+        {
+          "answer": "Defend the (U.S.) Constitution",
+          "form": "Protect the constitution"
+        },
+        {
+          "answer": "Be loyal to the United States",
+          "form": "loyalty to the us"
+        }
+      ]
+    },
+    {
+      "number": 68,
+      "forms": [
+        {
+          "answer": "Naturalize",
+          "form": "Naturalization process"
+        }
+      ]
+    },
+    {
+      "number": 71,
+      "forms": [
+        {
+          "answer": "Required by law",
+          "form": "It is the law"
+        }
+      ]
+    },
+    {
+      "number": 73,
+      "forms": [
+        {
+          "answer": "Religious freedom",
+          "form": "Freedom of religion"
+        }
+      ]
+    },
+    {
+      "number": 79,
+      "forms": [
+        {
+          "answer": "July 4, 1776",
+          "form": "July  4th 1776"
+        }
+      ]
+    },
+    {
+      "number": 84,
+      "forms": [
+        {
+          "answer": "They helped people understand the (U.S.) Constitution.",
+          "form": "It help the people understand the constitution"
+        }
+      ]
+    },
+    {
+      "number": 85,
+      "forms": [
+        {
+          "answer": "U.S. diplomat",
+          "form": "Duplomat"
+        }
+      ]
+    },
+    {
+      "number": 86,
+      "forms": [
+        {
+          "answer": "First president of the United States",
+          "form": "First president"
+        }
+      ]
+    },
+    {
+      "number": 87,
+      "forms": [
+        {
+          "answer": "Writer of the Declaration of Independence",
+          "form": "Declaration of independence"
+        }
+      ]
+    },
+    {
+      "number": 88,
+      "forms": [
+        {
+          "answer": "One of the writers of the Federalist Papers",
+          "form": "Federalist papers"
+        }
+      ]
+    },
+    {
+      "number": 89,
+      "forms": [
+        {
+          "answer": "One of the writers of the Federalist Papers",
+          "form": "Federalist papers"
+        }
+      ]
+    },
+    {
+      "number": 92,
+      "forms": [
+        {
+          "answer": "The Civil War",
+          "form": "Civil war"
+        }
+      ]
+    },
+    {
+      "number": 94,
+      "forms": [
+        {
+          "answer": "Freed the slaves (Emancipation Proclamation)",
+          "form": "Emancipation proclamation"
+        }
+      ]
+    },
+    {
+      "number": 96,
+      "forms": [
+        {
+          "answer": "The Civil War",
+          "form": "Civil war"
+        }
+      ]
+    },
+    {
+      "number": 98,
+      "forms": [
+        {
+          "answer": "After the Civil War",
+          "form": "Afyyer the civil war"
+        }
+      ]
+    },
+    {
+      "number": 101,
+      "forms": [
+        {
+          "answer": "To support the Allied Powers (England, France, Italy, and Russia)",
+          "form": "To support the allied countries"
+        }
+      ]
+    },
+    {
+      "number": 103,
+      "forms": [
+        {
+          "answer": "Longest economic recession in modern history",
+          "form": "The longest economic depression in recent history"
+        },
+        {
+          "answer": "Longest economic recession in modern history",
+          "form": "The biggest economic depression in recent history"
+        }
+      ]
+    },
+    {
+      "number": 104,
+      "forms": [
+        {
+          "answer": "Stock market crash of 1929",
+          "form": "1929 stock market crash"
+        }
+      ]
+    },
+    {
+      "number": 108,
+      "forms": [
+        {
+          "answer": "USSR",
+          "form": "The ussr"
+        }
+      ]
+    },
+    {
+      "number": 110,
+      "forms": [
+        {
+          "answer": "To stop the spread of communism",
+          "form": "Tonstop the spread of communism"
+        }
+      ]
+    },
+    {
+      "number": 112,
+      "forms": [
+        {
+          "answer": "Fought to end racial discrimination",
+          "form": "Fight to end racial discrimination"
+        },
+        {
+          "answer": "Fought to end racial discrimination",
+          "form": "Fought for equal rights"
+        }
+      ]
+    },
+    {
+      "number": 113,
+      "forms": [
+        {
+          "answer": "Fought for civil rights",
+          "form": "Fight to end racial discrimination"
+        }
+      ]
+    },
+    {
+      "number": 114,
+      "forms": [
+        {
+          "answer": "To force the Iraqi military from Kuwait",
+          "form": "To drive the iraqui army out of Kuwait"
+        }
+      ]
+    },
+    {
+      "number": 115,
+      "forms": [
+        {
+          "answer": "Terrorists attacked the United States",
+          "form": "The us was attacked by terrorists"
+        }
+      ]
+    },
+    {
+      "number": 116,
+      "forms": [
+        {
+          "answer": "War in Iraq",
+          "form": "The iraqui war"
+        }
+      ]
+    },
+    {
+      "number": 118,
+      "forms": [
+        {
+          "answer": "Integrated circuit (IC)",
+          "form": "The integrated circuit"
+        }
+      ]
+    },
+    {
+      "number": 121,
+      "forms": [
+        {
+          "answer": "(Because the stripes) represent the original colonies",
+          "form": "Represents the 13 original colonies"
+        }
+      ]
+    },
+    {
+      "number": 122,
+      "forms": [
+        {
+          "answer": "(Because) each star represents a state",
+          "form": "Representsbthe 50 states"
+        }
+      ]
+    },
+    {
+      "number": 125,
+      "forms": [
+        {
+          "answer": "A holiday to celebrate U.S. independence (from Britain)",
+          "form": "A holiday to celebrate the us independence"
+        },
+        {
+          "answer": "The country’s birthday",
+          "form": "Holiday to celebrate country birthday"
+        }
+      ]
+    },
+    {
+      "number": 127,
+      "forms": [
+        {
+          "answer": "A holiday to honor soldiers who died in military service",
+          "form": "A holiday to honor soldiers who died serving in the military"
+        },
+        {
+          "answer": "A holiday to honor soldiers who died in military service",
+          "form": "Holiday to honor people who died serving in the military"
+        }
+      ]
+    },
+    {
+      "number": 128,
+      "forms": [
+        {
+          "answer": "A holiday to honor people who have served (in the U.S. military)",
+          "form": "Holiday to honer who served in the military"
+        }
+      ]
+    }
   ]
 }

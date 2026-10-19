@@ -1,0 +1,556 @@
+{
+  "questions": [
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 1,
+      "forms": [
+        {
+          "answer": "Constitution-based federal republic",
+          "form": "Constitutional Republic"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 4,
+      "forms": [
+        {
+          "answer": "Self-government",
+          "form": "Self governance"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 5,
+      "forms": [
+        {
+          "answer": "The amendment process",
+          "form": "Amendement process"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 6,
+      "forms": [
+        {
+          "answer": "(The basic) rights of Americans",
+          "form": "Basic rights of americans"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 8,
+      "forms": [
+        {
+          "answer": "It says America is free from British control.",
+          "form": "Because it represnts free of the british control"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 17,
+      "forms": [
+        {
+          "answer": "Executive branch",
+          "form": "Executive"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 26,
+      "forms": [
+        {
+          "answer": "To more closely follow public opinion",
+          "form": "To closely monitor popular opinion"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 28,
+      "forms": [
+        {
+          "answer": "Equal representation (for small states)",
+          "form": "Tonhave equalnrepresentation if the states"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 31,
+      "forms": [
+        {
+          "answer": "Citizens of their state",
+          "form": "Citizens of a state"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 32,
+      "forms": [
+        {
+          "answer": "Citizens from their state",
+          "form": "Citizens of their state"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 33,
+      "forms": [
+        {
+          "answer": "Citizens in their (congressional) district",
+          "form": "Citizens from their congressional distric"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 34,
+      "forms": [
+        {
+          "answer": "Citizens from their (congressional) district",
+          "form": "Citizens from their congressional distric"
+        },
+        {
+          "answer": "Citizens from their (congressional) district",
+          "form": "Citizens"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 35,
+      "forms": [
+        {
+          "answer": "(Because) some states have more people",
+          "form": "Because some states have more population"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 36,
+      "forms": [
+        {
+          "answer": "Four (4) years",
+          "form": "4"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 37,
+      "forms": [
+        {
+          "answer": "To keep the president from becoming too powerful",
+          "form": "So it does not become too powerful"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 41,
+      "forms": [
+        {
+          "answer": "Signs bills into law",
+          "form": "Approves and signs bills"
+        },
+        {
+          "answer": "Chief diplomat",
+          "form": "Foreign policy"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 49,
+      "forms": [
+        {
+          "answer": "It decides who is elected president.",
+          "form": "To determine who was elected for president"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 58,
+      "forms": [
+        {
+          "answer": "Set foreign policy",
+          "form": "Foreign policy"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 60,
+      "forms": [
+        {
+          "answer": "(It states that the) powers not given to the federal government belong to the states or to the people.",
+          "form": "Powers not given to the federal government are assigned to the states"
+        },
+        {
+          "answer": "(It states that the) powers not given to the federal government belong to the states or to the people.",
+          "form": "Gives states the powers not asisgned to the federal goverment"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 63,
+      "forms": [
+        {
+          "answer": "Citizens eighteen (18) and older (can vote).",
+          "form": "All citizens 18 years or older can vote"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 65,
+      "forms": [
+        {
+          "answer": "Freedom of religion",
+          "form": "religious freedom"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 67,
+      "forms": [
+        {
+          "answer": "Defend the (U.S.) Constitution",
+          "form": "Protect the constitution"
+        },
+        {
+          "answer": "Be loyal to the United States",
+          "form": "loyalty to the us"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 68,
+      "forms": [
+        {
+          "answer": "Naturalize",
+          "form": "Naturalization process"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 71,
+      "forms": [
+        {
+          "answer": "Required by law",
+          "form": "It is the law"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 73,
+      "forms": [
+        {
+          "answer": "Religious freedom",
+          "form": "Freedom of religion"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 79,
+      "forms": [
+        {
+          "answer": "July 4, 1776",
+          "form": "July  4th 1776"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 84,
+      "forms": [
+        {
+          "answer": "They helped people understand the (U.S.) Constitution.",
+          "form": "It help the people understand the constitution"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 85,
+      "forms": [
+        {
+          "answer": "U.S. diplomat",
+          "form": "Duplomat"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 86,
+      "forms": [
+        {
+          "answer": "First president of the United States",
+          "form": "First president"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 87,
+      "forms": [
+        {
+          "answer": "Writer of the Declaration of Independence",
+          "form": "Declaration of independence"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 88,
+      "forms": [
+        {
+          "answer": "One of the writers of the Federalist Papers",
+          "form": "Federalist papers"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 89,
+      "forms": [
+        {
+          "answer": "One of the writers of the Federalist Papers",
+          "form": "Federalist papers"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 92,
+      "forms": [
+        {
+          "answer": "The Civil War",
+          "form": "Civil war"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 94,
+      "forms": [
+        {
+          "answer": "Freed the slaves (Emancipation Proclamation)",
+          "form": "Emancipation proclamation"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 96,
+      "forms": [
+        {
+          "answer": "The Civil War",
+          "form": "Civil war"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 98,
+      "forms": [
+        {
+          "answer": "After the Civil War",
+          "form": "Afyyer the civil war"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 101,
+      "forms": [
+        {
+          "answer": "To support the Allied Powers (England, France, Italy, and Russia)",
+          "form": "To support the allied countries"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 103,
+      "forms": [
+        {
+          "answer": "Longest economic recession in modern history",
+          "form": "The longest economic depression in recent history"
+        },
+        {
+          "answer": "Longest economic recession in modern history",
+          "form": "The biggest economic depression in recent history"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 104,
+      "forms": [
+        {
+          "answer": "Stock market crash of 1929",
+          "form": "1929 stock market crash"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 108,
+      "forms": [
+        {
+          "answer": "USSR",
+          "form": "The ussr"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 110,
+      "forms": [
+        {
+          "answer": "To stop the spread of communism",
+          "form": "Tonstop the spread of communism"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 112,
+      "forms": [
+        {
+          "answer": "Fought to end racial discrimination",
+          "form": "Fight to end racial discrimination"
+        },
+        {
+          "answer": "Fought to end racial discrimination",
+          "form": "Fought for equal rights"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 113,
+      "forms": [
+        {
+          "answer": "Fought for civil rights",
+          "form": "Fight to end racial discrimination"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 114,
+      "forms": [
+        {
+          "answer": "To force the Iraqi military from Kuwait",
+          "form": "To drive the iraqui army out of Kuwait"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 115,
+      "forms": [
+        {
+          "answer": "Terrorists attacked the United States",
+          "form": "The us was attacked by terrorists"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 116,
+      "forms": [
+        {
+          "answer": "War in Iraq",
+          "form": "The iraqui war"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 118,
+      "forms": [
+        {
+          "answer": "Integrated circuit (IC)",
+          "form": "The integrated circuit"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 121,
+      "forms": [
+        {
+          "answer": "(Because the stripes) represent the original colonies",
+          "form": "Represents the 13 original colonies"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 122,
+      "forms": [
+        {
+          "answer": "(Because) each star represents a state",
+          "form": "Representsbthe 50 states"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 125,
+      "forms": [
+        {
+          "answer": "A holiday to celebrate U.S. independence (from Britain)",
+          "form": "A holiday to celebrate the us independence"
+        },
+        {
+          "answer": "The country’s birthday",
+          "form": "Holiday to celebrate country birthday"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 127,
+      "forms": [
+        {
+          "answer": "A holiday to honor soldiers who died in military service",
+          "form": "A holiday to honor soldiers who died serving in the military"
+        },
+        {
+          "answer": "A holiday to honor soldiers who died in military service",
+          "form": "Holiday to honor people who died serving in the military"
+        }
+      ]
+    },
+    {
+      "reason": "Reviewed false negative from the 2026-10-17 export.",
+      "number": 128,
+      "forms": [
+        {
+          "answer": "A holiday to honor people who have served (in the U.S. military)",
+          "form": "Holiday to honer who served in the military"
+        }
+      ]
+    }
+  ]
+}

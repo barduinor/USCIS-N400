@@ -36,6 +36,10 @@ pub struct GenerateArgs {
     #[arg(long, default_value = generate::OVERRIDES_PATH)]
     pub overrides: PathBuf,
 
+    /// The committed reviewed forms to attach.
+    #[arg(long, default_value = generate::ALTERNATIVES_PATH)]
+    pub alternatives: PathBuf,
+
     /// The records file to write.
     #[arg(long, default_value = generate::RECORDS_PATH)]
     pub records: PathBuf,
@@ -70,7 +74,8 @@ pub fn run() -> Result<()> {
 fn generate_records(args: GenerateArgs) -> Result<()> {
     let pdf = std::fs::read(&args.pdf)?;
     let overrides = std::fs::read_to_string(&args.overrides)?;
-    let records = generate::records_from_pdf(&pdf, &overrides)?;
+    let alternatives = std::fs::read_to_string(&args.alternatives)?;
+    let records = generate::records_from_pdf(&pdf, &overrides, &alternatives)?;
     let json = generate::records_json(&records)?;
 
     std::fs::write(&args.records, json)?;

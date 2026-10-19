@@ -42,6 +42,30 @@ pub struct Question {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct QuestionRecords {
     pub questions: Vec<Question>,
+
+    /// Reviewed forms attached to the published answers (ADR 0011).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub alternatives: Vec<QuestionAlternatives>,
+}
+
+/// The Alternative Answers one Civics Test Question carries.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct QuestionAlternatives {
+    /// The Civics Test Question's number.
+    pub number: u16,
+
+    /// The reviewed forms, each attached to one published Accepted Answer.
+    pub forms: Vec<AlternativeForm>,
+}
+
+/// One reviewed form that counts as a published Accepted Answer.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AlternativeForm {
+    /// The published Accepted Answer this form stands for.
+    pub answer: AcceptedAnswer,
+
+    /// The reviewed phrasing that counts as that answer.
+    pub form: AcceptedAnswer,
 }
 
 /// One official answer to a Civics Test Question, as USCIS publishes it.
@@ -117,6 +141,18 @@ impl QuestionRecords {
             .iter()
             .filter(|question| !profile.special_consideration_65_20 || question.starred)
             .collect()
+    }
+
+    /// The reviewed forms attached to question `number`, if any.
+    ///
+    /// An empty slice means the question has no Alternative Answers; the
+    /// published answers alone decide it (ADR 0011).
+    pub fn alternatives(&self, number: u16) -> &[AlternativeForm] {
+        self.alternatives
+            .iter()
+            .find(|entry| entry.number == number)
+            .map(|entry| entry.forms.as_slice())
+            .unwrap_or(&[])
     }
 }
 
@@ -259,6 +295,7 @@ mod tests {
                     explanation: None,
                 })
                 .collect(),
+            alternatives: Vec::new(),
         };
         let reduced = Profile {
             special_consideration_65_20: true,
@@ -278,6 +315,29 @@ mod tests {
         );
         assert_eq!(records.question(2).map(|question| question.number), Some(2));
         assert_eq!(records.question(99).map(|question| question.number), None);
+    }
+
+    #[test]
+    fn test_question_records_alternatives_returns_the_questions_forms() {
+        // -- Setup & Fixtures
+        let records = QuestionRecords {
+            questions: Vec::new(),
+            alternatives: vec![QuestionAlternatives {
+                number: 4,
+                forms: vec![AlternativeForm {
+                    answer: AcceptedAnswer::from("Self-government"),
+                    form: AcceptedAnswer::from("Self governance"),
+                }],
+            }],
+        };
+
+        // -- Exec & Check
+        assert_eq!(records.alternatives(4).len(), 1);
+        assert_eq!(records.alternatives(4)[0].form.as_str(), "Self governance");
+        assert!(
+            records.alternatives(5).is_empty(),
+            "a question with no forms gets an empty slice"
+        );
     }
 
     #[test]

@@ -173,7 +173,15 @@ pub fn Study() -> Element {
                             }
 
                             let answer = typed();
-                            let judged = matching::judge(question, &accepted, &answer);
+                            // The reviewed path reads the Alternative Answers
+                            // attached to the published answers; the reveal
+                            // still shows only the published list.
+                            let judged = matching::judge_reviewed(
+                                question,
+                                &accepted,
+                                records.alternatives(number),
+                                &answer,
+                            );
 
                             current.set(Some(number));
                             asked.set(Some(number));

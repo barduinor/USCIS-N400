@@ -44,6 +44,14 @@ const FACTS: [(u16, Fact); 8] = [
     (62, Fact::StateCapital),
 ];
 
+/// Whether this question takes its Accepted Answer from the Profile.
+///
+/// The eight Profile-backed questions are the Local Facts and Test Updates;
+/// their published record holds a placeholder, not the answer (ADR 0011).
+pub fn is_fact(number: u16) -> bool {
+    FACTS.iter().any(|(fact_number, _)| *fact_number == number)
+}
+
 /// The Accepted Answers `question` accepts for this Applicant.
 pub fn accepted_answers(question: &Question, profile: &Profile) -> Vec<AcceptedAnswer> {
     let Some((_, fact)) = FACTS.iter().find(|(number, _)| *number == question.number) else {
@@ -122,6 +130,20 @@ mod tests {
                 Some("Andy Kim".to_string()),
             ],
             ..Profile::default()
+        }
+    }
+
+    #[test]
+    fn test_answers_is_fact_names_the_profile_backed_questions() {
+        // -- Exec & Check
+        for number in [23, 29, 30, 38, 39, 57, 61, 62] {
+            assert!(is_fact(number), "question {number} takes a Profile value");
+        }
+        for number in [1, 22, 24, 31, 63] {
+            assert!(
+                !is_fact(number),
+                "question {number} publishes its own answer"
+            );
         }
     }
 
