@@ -9,12 +9,13 @@ use crate::storage;
 
 /// One Exam: the officer's questions, with the current Exam's progress.
 ///
-/// The screen shows the official question number, the exam position, the
-/// official numbers asked so far in this Exam, and the right and wrong counts.
-/// After each answer it shows the verdict and waits for the Applicant: the next
-/// question for a running Exam, or the result for the one that just ended.
-/// Answers go to the Exam, never to the Answer Log; the Accepted Answers are
-/// not shown here.
+/// The screen shows a progress bar for the Exam position against the draw's
+/// maximum, the right and wrong counts, and the official question number
+/// directly above the question text. The bar can stop short of its maximum:
+/// the outcome ends the Exam, not the draw. After each answer it shows the
+/// verdict and waits for the Applicant: the next question for a running Exam,
+/// or the result for the one that just ended. Answers go to the Exam, never to
+/// the Answer Log; the Accepted Answers are not shown here.
 #[component]
 pub fn Exam() -> Element {
     let records = match questions::records() {
@@ -125,31 +126,27 @@ pub fn Exam() -> Element {
                 sequence.push(number);
             }
 
-            let sequence_text = sequence
-                .iter()
-                .map(|number| number.to_string())
-                .collect::<Vec<_>>()
-                .join(", ");
             let position = sequence.len();
             let total = sitting.track().questions();
 
             rsx! {
-                if let Some(number) = shown_number {
+                if shown_number.is_some() {
                     div { class: "exam-progress",
-                        p { class: "exam-status",
-                            span { "Question {number}" }
-                            span { "Exam question {position} of {total}" }
+                        div { class: "exam-status",
+                            span { "Exam progress" }
                             span { "Right {sitting.correct()} · Wrong {sitting.wrong()}" }
                         }
-                        if !sequence_text.is_empty() {
-                            p { class: "exam-sequence", "Asked: {sequence_text}" }
-                        }
+                        progress { value: position, max: total }
+                        p { class: "exam-position", "{position} of {total}" }
                     }
                 }
 
                 if let Some((number, judged)) = feedback_value {
                     if let Some(question) = records.question(number) {
-                        p { class: "question", "{question.question}" }
+                        div { class: "question-block",
+                            p { class: "question-number", "Question {number}" }
+                            p { class: "question", "{question.question}" }
+                        }
                     }
                     p {
                         class: if judged == Verdict::Correct { "verdict correct" } else { "verdict wrong" },
@@ -196,7 +193,10 @@ pub fn Exam() -> Element {
                             };
 
                             rsx! {
-                                p { class: "question", "{question.question}" }
+                                div { class: "question-block",
+                                    p { class: "question-number", "Question {number}" }
+                                    p { class: "question", "{question.question}" }
+                                }
                                 if let Some(problem) = problem() {
                                     p { class: "problem", "{problem}" }
                                 }

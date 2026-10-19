@@ -222,8 +222,9 @@ button.quiet:disabled {
    Nothing else — no counter, no score, and no progress figure appears during
    study. */
 
-/* The current Exam's progress: the official number, the exam position, the
-   right and wrong counts, and the official numbers asked in this Exam. */
+/* The current Exam's progress: the exam position against the draw's maximum,
+   and the right and wrong counts. The bar stops short of its maximum when the
+   outcome ends the Exam before the draw is exhausted. */
 
 .exam-progress {
   display: grid;
@@ -233,6 +234,7 @@ button.quiet:disabled {
 .exam-status {
   display: flex;
   flex-wrap: wrap;
+  justify-content: space-between;
   gap: 0.35rem 1rem;
   margin: 0;
   color: var(--muted);
@@ -244,11 +246,20 @@ button.quiet:disabled {
   white-space: nowrap;
 }
 
-.exam-sequence {
+.exam-progress progress {
+  width: 100%;
+}
+
+.exam-position {
   margin: 0;
   color: var(--muted);
   font-size: 0.9rem;
   font-variant-numeric: tabular-nums;
+}
+
+.question-block {
+  display: grid;
+  gap: 0.25rem;
 }
 
 .question-number {
@@ -261,6 +272,7 @@ button.quiet:disabled {
 }
 
 .question {
+  margin: 0;
   font-size: var(--step-1);
   font-weight: 600;
 }

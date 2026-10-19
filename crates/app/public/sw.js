@@ -14,12 +14,17 @@
 // cache the previous version built. A deploy that only re-emits the hashed
 // bundles needs no bump, because the shell asks for them under new names.
 const PREFIX = "uscis-n400-";
-const VERSION = 2;
+const VERSION = 3;
 const CACHE = `${PREFIX}v${VERSION}`;
 
 // The app root: the worker's own scope. The shell lives at it, and every route
 // the app serves is under it.
 const ROOT = new URL("./", self.registration.scope).href;
+
+// The stylesheet keeps its name when its content changes, so the deployed file
+// has to win over a kept copy. Every other unhashed file the app loads changes
+// rarely enough to be served from the cache while it is fetched again.
+const STYLES = new URL("styles.css", ROOT).href;
 
 // Install: keep the shell, so the first load after this one works without the
 // network, and take over as soon as the browser lets this worker run.
@@ -76,6 +81,13 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // The stylesheet is fetched first: its name does not change when its content
+  // does, so a kept copy would keep an older screen alive after a deploy.
+  if (request.url === STYLES) {
+    event.respondWith(fresh(event, request));
+    return;
+  }
+
   // Everything else is the app's own files: served from the cache, and fetched
   // again in the background so a change to a file the build does not hash
   // arrives with the next load.
@@ -123,6 +135,32 @@ async function shell(event) {
   const shell = await cache.match(ROOT);
 
   return shell || answer || Response.error();
+}
+
+// The stylesheet: the deployed file, else what the cache kept.
+//
+// The fetch bypasses the HTTP cache, so a copy the browser holds cannot stand
+// in for the deployed one either. The response is kept for the offline load.
+async function fresh(event, request) {
+  let answer = null;
+
+  try {
+    answer = await fetch(request, { cache: "reload" });
+  } catch (error) {
+    // Offline: the cached stylesheet answers below.
+  }
+
+  if (answer && answer.ok && answer.type === "basic") {
+    const cache = await caches.open(CACHE);
+    event.waitUntil(cache.put(request, answer.clone()));
+
+    return answer;
+  }
+
+  const cache = await caches.open(CACHE);
+  const kept = await cache.match(request, { ignoreVary: true });
+
+  return kept || answer || Response.error();
 }
 
 // One of the app's own resources: what the cache holds, else the network.

@@ -67,10 +67,11 @@ The screens:
   with a recent-ask penalty and no immediate repeats.
 - The 65/20 Special Consideration: study narrows to the 20 starred questions,
   and the Exam switches to the 10-question, 6-to-pass administration.
-- Exam simulation that shows the current Exam's official question number,
-  position, asked sequence, and right/wrong counts, gives the verdict after
-  each answer, and stops the moment the outcome is fixed, exactly as the
-  officer stops the real test.
+- Exam simulation that shows a progress bar for the Exam position against the
+  draw's maximum, the right and wrong counts, and the official question number
+  directly above the question text; it gives the verdict after each answer and
+  stops the moment the outcome is fixed, exactly as the officer stops the real
+  test.
 - Override: correct a single verdict; the official answers never change.
 - Offline-first PWA, installable to the home screen; progress stays on the
   device.
@@ -169,11 +170,12 @@ and the Explanation where one exists when the Applicant asks; after a wrong
 verdict it also offers the Override, which counts that attempt as correct and
 never changes the Accepted Answers.
 An Exam simulates the officer's administration of the test — twenty questions
-with twelve to pass, or ten of the starred twenty with six — shows the current
-Exam's official question number, exam position, asked sequence, and right and
-wrong counts, gives the verdict after each answer, stops the moment the outcome
-is fixed, and records its own outcome, score, track, and questions asked
-without touching the Answer Log or Coverage.
+with twelve to pass, or ten of the starred twenty with six — shows a progress
+bar for the Exam position against the draw's maximum, the right and wrong
+counts, and the official question number directly above the question text,
+gives the verdict after each answer, stops the moment the outcome is fixed, and
+records its own outcome, score, track, and questions asked without touching the
+Answer Log or Coverage.
 The Stats screen shows Coverage over the whole scope, then each Section —
 opening one shows its Topics — with every figure carrying a percentage and a
 count, and the Exams taken below. The Profile
