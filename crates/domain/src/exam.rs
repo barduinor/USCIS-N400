@@ -465,7 +465,7 @@ mod tests {
     }
 
     #[test]
-    fn test_exam_record_carries_the_track_the_questions_and_the_score() {
+    fn test_exam_record_carries_the_track_the_questions_and_the_score() -> Result<()> {
         // -- Setup & Fixtures
         let mut exam = exam(128);
         answer_with(&mut exam, &[Verdict::Correct, Verdict::Wrong]);
@@ -478,7 +478,9 @@ mod tests {
 
         // -- Exec
         answer_with(&mut exam, &[Verdict::Correct; 11]);
-        let record = exam.record(1_770_000_000_000).expect("a decided Exam");
+        let record = exam
+            .record(1_770_000_000_000)
+            .ok_or("a decided Exam should leave a record")?;
 
         // -- Check
         assert_eq!(record.track, Track::Standard);
@@ -490,6 +492,8 @@ mod tests {
             "twelve correct out of thirteen asked"
         );
         assert_eq!(record.at, 1_770_000_000_000);
+
+        Ok(())
     }
 
     #[test]
@@ -497,7 +501,9 @@ mod tests {
         // -- Setup & Fixtures
         let mut exam = exam(128);
         answer_with(&mut exam, &[Verdict::Correct; 12]);
-        let record = exam.record(1_770_000_000_000).expect("a decided Exam");
+        let record = exam
+            .record(1_770_000_000_000)
+            .ok_or("a decided Exam should leave a record")?;
 
         // -- Exec
         let stored = serde_json::to_string(&record)?;
@@ -574,11 +580,13 @@ mod tests {
     }
 
     #[test]
-    fn test_exam_override_last_leaves_a_passed_exam_passed() {
+    fn test_exam_override_last_leaves_a_passed_exam_passed() -> Result<()> {
         // -- Setup & Fixtures
         let mut exam = exam(128);
         answer_with(&mut exam, &[Verdict::Correct; 12]);
-        let record = exam.record(1_770_000_000_000).expect("a decided Exam");
+        let record = exam
+            .record(1_770_000_000_000)
+            .ok_or("a decided Exam should leave a record")?;
 
         // -- Exec
         let overridden = exam.override_last();
@@ -587,10 +595,12 @@ mod tests {
         assert!(!overridden, "the last verdict is already correct");
         assert_eq!(exam.outcome(), Some(Outcome::Passed));
         assert_eq!(exam.record(1_770_000_000_000), Some(record));
+
+        Ok(())
     }
 
     #[test]
-    fn test_exam_override_last_un_ends_a_standard_failed_exam() {
+    fn test_exam_override_last_un_ends_a_standard_failed_exam() -> Result<()> {
         // -- Setup & Fixtures
         let mut exam = exam(128);
         let asked = answer_with(&mut exam, &[Verdict::Wrong; 9]);
@@ -610,12 +620,14 @@ mod tests {
         assert_eq!(exam.asked().len(), 9, "the score keeps its questions");
         let next = exam
             .current()
-            .expect("the resumed Exam asks the next drawn question");
+            .ok_or("the resumed Exam should ask the next drawn question")?;
         assert!(!exam.asked().contains(&next), "the next question is new");
+
+        Ok(())
     }
 
     #[test]
-    fn test_exam_override_last_turns_a_standard_failed_exam_into_a_passed_one() {
+    fn test_exam_override_last_turns_a_standard_failed_exam_into_a_passed_one() -> Result<()> {
         // -- Setup & Fixtures
         let mut exam = exam(128);
         let mut verdicts = vec![Verdict::Correct; 11];
@@ -634,11 +646,15 @@ mod tests {
         assert_eq!(exam.outcome(), Some(Outcome::Passed));
         assert_eq!(exam.current(), None, "the Exam stays ended");
 
-        let record = exam.record(1_770_000_000_000).expect("a decided Exam");
+        let record = exam
+            .record(1_770_000_000_000)
+            .ok_or("a decided Exam should leave a record")?;
         assert_eq!(record.outcome, Outcome::Passed);
         assert_eq!(record.correct_count, 12);
         assert_eq!(record.questions.len(), 20);
         assert_eq!(record.at, 1_770_000_000_000);
+
+        Ok(())
     }
 
     #[test]
@@ -672,7 +688,7 @@ mod tests {
     }
 
     #[test]
-    fn test_exam_record_after_a_resumed_exam_counts_the_amended_answer() {
+    fn test_exam_record_after_a_resumed_exam_counts_the_overridden_answer() -> Result<()> {
         // -- Setup & Fixtures
         let mut exam = exam(128);
         answer_with(&mut exam, &[Verdict::Wrong; 9]);
@@ -682,13 +698,15 @@ mod tests {
         let asked = answer_with(&mut exam, &[Verdict::Wrong]);
         let record = exam
             .record(1_770_000_000_000)
-            .expect("the resumed Exam ended");
+            .ok_or("the resumed Exam should leave a record when it ends")?;
 
         // -- Check
         assert_eq!(asked, 10);
         assert_eq!(record.questions.len(), 10);
         assert_eq!(record.correct_count, 1);
         assert_eq!(record.outcome, Outcome::Failed);
+
+        Ok(())
     }
 
     #[test]

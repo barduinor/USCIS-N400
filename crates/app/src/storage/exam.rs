@@ -43,21 +43,23 @@ pub async fn append(record: &ExamRecord) -> Result<()> {
 /// Replaces the most recent Exam's record, keeping the store's count.
 ///
 /// The record and the count commit in one transaction. The caller keeps the
-/// original `at`: an amended record still says when its Exam ended. An empty
-/// store has no latest record to replace, so the record is appended rather
-/// than lost.
+/// original `at`: an overridden record still says when its Exam ended. An
+/// empty store has no latest record to replace, so the call aborts its
+/// transaction and fails without writing anything.
 pub async fn replace_latest(record: &ExamRecord) -> Result<()> {
     let database = database().await?;
     let transaction =
         database.transaction(&[EXAMS_STORE, META_STORE], TransactionMode::ReadWrite)?;
     let store = transaction.store(EXAMS_STORE)?;
     let keys = store.get_all_keys(None, None).await?;
-    let record = JsValue::from_str(&to_record(record)?);
+    let Some(key) = keys.last().cloned() else {
+        transaction.abort().await?;
 
-    match keys.last() {
-        Some(key) => store.put(&record, Some(key)).await?,
-        None => store.add(&record, None).await?,
+        return Err(Error::custom("the Exam history holds no record to replace"));
     };
+    store
+        .put(&JsValue::from_str(&to_record(record)?), Some(&key))
+        .await?;
     write_store_count(&transaction, EXAMS_STORE, COUNT_KEY).await?;
     transaction.commit().await?;
 

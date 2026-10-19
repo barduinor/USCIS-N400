@@ -124,6 +124,7 @@ pub fn Study() -> Element {
                     div { class: "actions",
                         button {
                             class: "primary",
+                            disabled: overriding(),
                             onclick: move |_| {
                                 current.set(None);
                                 typed.set(String::new());
@@ -138,8 +139,8 @@ pub fn Study() -> Element {
                     if judged == Verdict::Wrong {
                         div { class: "override",
                             OverrideControl {
-                                overridden: counts_correct,
-                                busy: overriding(),
+                                counts_correct,
+                                overriding: overriding(),
                                 on_override: move |_| {
                                     if overriding() {
                                         return;

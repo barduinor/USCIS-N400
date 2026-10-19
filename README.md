@@ -72,8 +72,9 @@ The screens:
   directly above the question text; after each answer it gives the verdict,
   the typed answer, and the Accepted Answers, and stops the moment the outcome
   is fixed, exactly as the officer stops the real test. After a wrong verdict
-  it offers an Override that amends the Exam's own score and outcome — and its
-  saved record — without touching the Answer Log.
+  it offers an Override that counts the answer as correct, updating the Exam's
+  own score and outcome — and its saved record — without touching the Answer
+  Log.
 - Override: correct a single verdict; the official answers never change.
 - Offline-first PWA, installable to the home screen; progress stays on the
   device.
@@ -178,8 +179,9 @@ counts, and the official question number directly above the question text,
 gives the verdict after each answer together with the answer the Applicant gave
 and the Accepted Answers, stops the moment the outcome is fixed, and records its
 own outcome, score, track, and questions asked without touching the Answer Log
-or Coverage. After a wrong answer it offers the Override, which amends that
-Exam's own score, outcome, and saved record — never the Answer Log or Coverage.
+or Coverage. After a wrong answer it offers the Override, which counts that
+answer as correct and updates that Exam's own score, outcome, and saved record —
+never the Answer Log or Coverage.
 The Stats screen shows Coverage over the whole scope, then each Section —
 opening one shows its Topics — with every figure carrying a percentage and a
 count, and the Exams taken below. The Profile

@@ -15,10 +15,11 @@ use crate::storage;
 /// the outcome ends the Exam, not the draw. After each answer it shows the
 /// verdict, the answer the Applicant gave as they wrote it, and the Accepted
 /// Answers, so the two can be compared; the Explanation appears when the
-/// Applicant asks. After a wrong verdict it offers the Override, which amends
-/// the Exam's own score, outcome, and saved record. It then waits for the
-/// Applicant: the next question for a running Exam, or the result for the one
-/// that just ended. Answers go to the Exam, never to the Answer Log.
+/// Applicant asks. After a wrong verdict it offers the Override, which counts
+/// that answer as correct in the Exam's own score, outcome, and saved record.
+/// It then waits for the Applicant: the next question for a running Exam, or
+/// the result for the one that just ended. Answers go to the Exam, never to
+/// the Answer Log.
 #[component]
 pub fn Exam() -> Element {
     let records = match questions::records() {
@@ -214,8 +215,8 @@ pub fn Exam() -> Element {
                     if judged == Verdict::Wrong {
                         div { class: "override",
                             OverrideControl {
-                                overridden: overridden() == Some(number),
-                                busy: saving() || overriding(),
+                                counts_correct: overridden() == Some(number),
+                                overriding: saving() || overriding(),
                                 on_override: move |_| {
                                     if saving() || overriding() {
                                         return;
