@@ -46,9 +46,7 @@ Used by `/wayfinder`. The **map** is a single issue with **child** issues as tic
 - **Claim**: `gh issue edit <n> --add-assignee @me`, the session's first write.
 - **Resolve**: `gh issue comment <n> --body "<answer>"`, then `gh issue close <n>`, then append a context pointer (gist + link) to the map's Decisions-so-far.
 
-## Where raw feedback lands
+## Where feedback lands
 
-Observations from using the app are comments on the single inbox issue, **Feedback inbox: what the Applicant hits while using the app** (#16), rather than tickets filed one at a time from the first thing noticed. The inbox carries `needs-triage` while it holds comments nobody has processed.
-
-Draining it is a triage session: each comment becomes a ticket, or folds into one that exists, or turns out to be a decision and moves to `docs/adr/` through conversation. The reply on the comment says which, and the label comes off when nothing is left unprocessed. The inbox is not a map and its comments are not tickets — nothing is claimed, blocked or resolved from it directly.
+File each observation as a normal issue. Leave it unlabeled or add `needs-triage`; `/triage` discovers both and moves the issue through the state machine. One observation per issue; rough notes are fine. A clear bug or feature goes straight to a ticket; there is no separate inbox.
 

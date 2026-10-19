@@ -208,8 +208,8 @@ and Override, the Exam, Stats, and the Profile with export and import, and #15
 landed the CI deploy, and #14 landed the installable, offline app — reported
 working on a real iPhone, which completes v1. What the app got wrong or missing
 while it was used is tracked from #17 onward, and every one of those is closed;
-`docs/open-work.md` §Decided, not built holds what comes next, and #16 is the
-running inbox.
+`docs/open-work.md` §Decided, not built holds what comes next. Feedback is
+filed as normal issues and triaged through the labels.
 
 ## Getting started
 
