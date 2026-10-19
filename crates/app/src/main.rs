@@ -7,6 +7,7 @@ mod questions;
 mod routes;
 mod screens;
 mod storage;
+mod study_scope;
 mod test_updates;
 
 pub use error::{Error, Result};

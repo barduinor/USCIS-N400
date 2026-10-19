@@ -6,6 +6,7 @@ use crate::components::{CoverageFigure, use_refresh_on_resume};
 use crate::questions;
 use crate::routes::Route;
 use crate::storage;
+use crate::study_scope;
 
 /// Where the Applicant stands: Coverage over the whole scope, then each Section
 /// — opening one shows its Topics — with the Exams taken below.
@@ -83,10 +84,22 @@ pub fn Stats() -> Element {
                                 p { class: "topics-heading", "Topics" }
                                 ul { class: "topics",
                                     for topic in section.topics() {
-                                        li { class: "topic-row",
-                                            span { "{topic}" }
-                                            span { class: "figure",
-                                                "{Coverage::of_topic(records, profile, log, *topic)}"
+                                        li {
+                                            Link {
+                                                to: Route::StudyTopic {
+                                                    topic: study_scope::slug(*topic).to_string(),
+                                                },
+                                                class: "topic-row",
+                                                span { class: "visually-hidden", "Study " }
+                                                span { "{topic}" }
+                                                span { class: "figure",
+                                                    "{Coverage::of_topic(records, profile, log, *topic)}"
+                                                }
+                                                span {
+                                                    class: "topic-arrow",
+                                                    aria_hidden: "true",
+                                                    "›"
+                                                }
                                             }
                                         }
                                     }

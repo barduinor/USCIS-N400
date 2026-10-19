@@ -6,13 +6,16 @@ use crate::components::{Answers, Field, OverrideControl, use_refresh_on_resume};
 use crate::questions;
 use crate::routes::Route;
 use crate::storage;
+use crate::study_scope::StudyScope;
 
-/// The endless study loop: one Civics Test Question at a time, judged as it is
-/// answered, with the next one only when the Applicant asks for it.
+/// The endless study loop: one Civics Test Question at a time, scoped to every
+/// accountable question or to one Topic, judged as it is answered, with the
+/// next one only when the Applicant asks for it.
 ///
 /// The question carries its official number, so the Applicant can place it in
 /// M-1778. The number is the record's own, not a position in the current
-/// scope: narrowing to the 20 starred questions leaves it unchanged.
+/// scope: narrowing to the 20 starred questions or to one Topic leaves it
+/// unchanged.
 ///
 /// The verdict carries the answer the Applicant gave, as they wrote it, so it
 /// can be read against the Accepted Answers; the field itself empties for the
@@ -25,10 +28,11 @@ use crate::storage;
 /// needs no scrolling on a phone. It is routing only: each answer is written as
 /// it is given, so leaving changes no figure.
 ///
-/// No statistics appear here: Coverage lives on the main menu, and the
-/// Applicant stops when they choose (GLOSSARY).
+/// No statistics appear here: Coverage lives on the main menu and Stats, and
+/// the Applicant stops when they choose (GLOSSARY).
 #[component]
-pub fn Study() -> Element {
+pub fn StudyScreen(study: StudyScope) -> Element {
+    let scope = study;
     let records = match questions::records() {
         Ok(records) => records,
         Err(error) => {
@@ -85,7 +89,13 @@ pub fn Study() -> Element {
                 return None;
             };
 
-            selection::next(&records.accountable(profile), log, asked())
+            let candidates = records
+                .accountable(profile)
+                .into_iter()
+                .filter(|question| scope.includes(question))
+                .collect::<Vec<_>>();
+
+            selection::next(&candidates, log, asked())
                 .and_then(|question| records.question(question.number))
         });
 
@@ -239,6 +249,19 @@ pub fn Study() -> Element {
             (Some(Err(error)), _) | (_, Some(Err(error))) => rsx! {
                 p { class: "problem", "The study data could not be read: {error}" }
             },
+            (Some(Ok(Some(_))), Some(Ok(_))) => rsx! {
+                p { class: "problem",
+                    if let StudyScope::Topic(topic) = scope {
+                        "No Civics Test Questions are in {topic} for your current scope."
+                    } else {
+                        "No Civics Test Questions are in scope."
+                    }
+                }
+                div { class: "actions",
+                    Link { to: Route::Study {}, class: "menu-item", "All topics" }
+                    Link { to: Route::Stats {}, class: "menu-item", "Change topic" }
+                }
+            },
             _ => rsx! {
                 p { class: "loading", "Opening the Profile…" }
             },
@@ -249,8 +272,25 @@ pub fn Study() -> Element {
         main { class: "screen",
             nav { class: "study-exit",
                 Link { to: Route::MainMenu {}, class: "menu-item", "Back to the menu" }
+                Link { to: Route::Stats {}, class: "menu-item",
+                    if scope == StudyScope::All {
+                        "Choose a topic"
+                    } else {
+                        "Change topic"
+                    }
+                }
+                if scope != StudyScope::All {
+                    Link { to: Route::Study {}, class: "menu-item", "All topics" }
+                }
             }
             h1 { "USCIS N-400 Civics Study" }
+            p { class: "study-scope",
+                if let StudyScope::Topic(topic) = scope {
+                    "{topic}"
+                } else {
+                    "All topics"
+                }
+            }
             if let Some(question) = shown {
                 p { class: "question-number", "Question {question.number}" }
             }

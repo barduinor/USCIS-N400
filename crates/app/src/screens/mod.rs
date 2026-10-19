@@ -14,4 +14,4 @@ pub use main_menu::MainMenu;
 pub use onboarding::Onboarding;
 pub use profile::Profile;
 pub use stats::Stats;
-pub use study::Study;
+pub use study::StudyScreen;
