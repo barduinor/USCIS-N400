@@ -4,10 +4,12 @@ use crate::components::use_refresh_on_resume;
 use crate::routes::Route;
 use crate::storage;
 
-/// What the Exam just sat came to: its outcome, its score, and the
-/// administration it ran under.
+/// What the Exam just sat came to: its outcome, its score against the
+/// questions asked, and the administration it ran under.
 ///
-/// The record is read back from storage, so the result survives a reload.
+/// The screen shows the outcome against the questions asked — `Passed after 12
+/// questions` — so the score never reads as a 20-question total. The record is
+/// read back from storage, so the result survives a reload.
 #[component]
 pub fn ExamResult() -> Element {
     let mut latest = use_resource(storage::exam::latest);
@@ -25,8 +27,8 @@ pub fn ExamResult() -> Element {
             p { class: "problem", "No Exam has been taken yet." }
         },
         Some(Ok(Some(record))) => rsx! {
-            p { class: "outcome", "{record.outcome}" }
-            p { class: "score", "{record.correct_count} of {record.questions.len()} correct" }
+            p { class: "outcome", "{record.outcome} after {record.questions.len()} questions" }
+            p { class: "score", "{record.correct_count} correct of {record.questions.len()} asked" }
             p { class: "track", "{record.track}" }
         },
     };

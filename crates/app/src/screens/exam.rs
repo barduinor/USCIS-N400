@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 
 use domain::{ExamRecord, Track, Verdict, answers, matching};
 
-use crate::components::{Answers, Field, OverrideControl};
+use crate::components::{Answers, Field, OverrideControl, use_before_unload};
 use crate::questions;
 use crate::routes::Route;
 use crate::storage;
@@ -20,6 +20,13 @@ use crate::storage;
 /// It then waits for the Applicant: the next question for a running Exam, or
 /// the result for the one that just ended. Answers go to the Exam, never to
 /// the Answer Log.
+///
+/// The running Exam has no in-app exit: the result screen is the way out, and
+/// the answering and feedback states offer only the next step. The error and
+/// loading states carry a `Back to the menu` link, so a failed start is not a
+/// trap. While an Exam is in progress a `beforeunload` prompt asks before the
+/// page is left; it is best effort, since the browser's back button and tab
+/// close cannot be blocked, and an Exam left that way is discarded.
 #[component]
 pub fn Exam() -> Element {
     let records = match questions::records() {
@@ -29,6 +36,7 @@ pub fn Exam() -> Element {
                 main { class: "screen",
                     h1 { "USCIS N-400 Civics Study" }
                     p { class: "problem", "The Civics Test Questions could not be read: {error}" }
+                    {back_to_menu()}
                 }
             };
         }
@@ -43,6 +51,7 @@ pub fn Exam() -> Element {
                 main { class: "screen",
                     h1 { "USCIS N-400 Civics Study" }
                     p { class: "problem", "The Test Update values could not be read: {error}" }
+                    {back_to_menu()}
                 }
             };
         }
@@ -75,6 +84,9 @@ pub fn Exam() -> Element {
             storage::now(),
         )));
     });
+
+    // The browser asks before leaving a page with a running Exam.
+    use_before_unload(move || exam.read().is_some() && finished.read().is_none());
 
     // Writes the finished Exam's record, once. The result screen opens only
     // when asked; the record is already on the device, so leaving the feedback
@@ -134,9 +146,11 @@ pub fn Exam() -> Element {
     let body = match (&*profile.read(), sitting) {
         (Some(Err(error)), _) => rsx! {
             p { class: "problem", "The Profile could not be read: {error}" }
+            {back_to_menu()}
         },
         (_, None) => rsx! {
             p { class: "loading", "Setting the Exam…" }
+            {back_to_menu()}
         },
         (_, Some(sitting)) => {
             let current = sitting.current();
@@ -295,6 +309,7 @@ pub fn Exam() -> Element {
                     match records.question(number) {
                         None => rsx! {
                             p { class: "problem", "Civics Test Question {number} could not be read." }
+                            {back_to_menu()}
                         },
                         Some(question) => {
                             rsx! {
@@ -372,9 +387,7 @@ pub fn Exam() -> Element {
                     } else {
                         p { class: "problem", "This Exam could not be set." }
                     }
-                    nav { class: "menu",
-                        Link { to: Route::MainMenu {}, class: "menu-item", "Back to the menu" }
-                    }
+                    {back_to_menu()}
                 }
             }
         }
@@ -384,6 +397,15 @@ pub fn Exam() -> Element {
         main { class: "screen",
             h1 { "USCIS N-400 Civics Study" }
             {body}
+        }
+    }
+}
+
+/// The way out of a failed or loading Exam.
+fn back_to_menu() -> Element {
+    rsx! {
+        nav { class: "menu",
+            Link { to: Route::MainMenu {}, class: "menu-item", "Back to the menu" }
         }
     }
 }
