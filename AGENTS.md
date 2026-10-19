@@ -2,26 +2,28 @@
 
 ### Ticket first
 
-The first write in the repository on any repo-changing task is the GitHub
-issue; the branch, code, generated files, research note, and ADR follow it. A
-question or a conversation needs no ticket; the first repository-changing
-action does.
+The spec or ticket issue exists before the branch, code edit, or generated
+file. A question, a conversation, a research note, an ADR, or a glossary entry
+needs no ticket; the first implementation write does.
 
 Before that write, read the available skills and choose the sequence the task
-needs; put the sequence in the ticket. The default sequence:
+needs; put the sequence in the spec. The default flow:
 
-1. `grilling` — settle the decision, scope, and acceptance criteria.
-2. Create the ticket.
-3. `research` — fill the facts the ticket depends on.
-4. `domain-modeling` — record a new term or an ADR.
-5. `codebase-design` — settle a module seam or interface.
-6. `tdd` — implement test-first.
-7. `code-review` — review the diff.
-8. `pr` — write the PR body.
+1. `research` — when the decision needs facts not in the repo.
+2. `grill-with-docs` — settle the idea; `domain-modeling` records terms and ADRs as they resolve.
+3. `prototype` — the detour when a design question needs a runnable answer; it stays on a `prototype/<name>` branch and the spec points at it.
+4. `to-spec` — synthesize the conversation into a spec and publish it.
+5. `to-tickets` — split the spec into tracer-bullet tickets with blocking edges.
+6. `implement` — one ticket at a time; it drives `tdd`, uses `codebase-design` when a seam is open, and closes with `code-review`. Use `implement-spec` for the whole spec in one run.
+7. `pr` — when the work goes up as a pull request.
+8. `retro` — close the loop.
 
-A bug adds `diagnosing-bugs` before `grilling`. A mechanical change may skip a
-step; the ticket names the skipped step and the reason. Create the ticket with
-the conventions in `docs/agents/issue-tracker.md`.
+A bug adds `diagnosing-bugs` before `grill-with-docs`. A step may be skipped
+when it does not fit the task; the spec names the skipped step and the reason.
+`grill-with-docs`, `to-spec`, `to-tickets`, and `implement` are user-invoked:
+when model invocation is blocked, ask the user to run the slash command rather
+than hand-rolling the skill. Use the tracker conventions in
+`docs/agents/issue-tracker.md`.
 
 ### Issue tracker
 
