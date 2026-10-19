@@ -38,6 +38,23 @@ pub fn Stats() -> Element {
         exams.restart();
     });
 
+    let sections = Section::ALL
+        .into_iter()
+        .map(|section| {
+            let is_open = opened() == Some(section);
+
+            (
+                section,
+                is_open,
+                if is_open {
+                    "section-group is-open"
+                } else {
+                    "section-group"
+                },
+            )
+        })
+        .collect::<Vec<_>>();
+
     let breakdown = match (&*profile.read(), &*log.read()) {
         (Some(Ok(Some(profile))), Some(Ok(log))) => rsx! {
             section { class: "coverage",
@@ -46,26 +63,32 @@ pub fn Stats() -> Element {
             }
 
             ul { class: "sections",
-                for section in Section::ALL {
-                    li {
+                for (section, is_open, group_class) in sections {
+                    li { class: group_class,
                         button {
                             class: "section-row",
+                            r#type: "button",
+                            aria_expanded: if is_open { "true" } else { "false" },
                             onclick: move |_| {
-                                opened.set(if opened() == Some(section) {
-                                    None
-                                } else {
-                                    Some(section)
-                                });
+                                opened.set(if opened() == Some(section) { None } else { Some(section) });
                             },
-                            span { "{section}" }
-                            span { class: "figure", "{Coverage::of_section(records, profile, log, section)}" }
+                            span { class: "section-name", "{section}" }
+                            span { class: "figure",
+                                "{Coverage::of_section(records, profile, log, section)}"
+                            }
+                            span { class: "chevron", aria_hidden: "true", "›" }
                         }
-                        if opened() == Some(section) {
-                            ul { class: "topics",
-                                for topic in section.topics() {
-                                    li { class: "topic-row",
-                                        span { "{topic}" }
-                                        span { class: "figure", "{Coverage::of_topic(records, profile, log, *topic)}" }
+                        if is_open {
+                            div { class: "section-panel",
+                                p { class: "topics-heading", "Topics" }
+                                ul { class: "topics",
+                                    for topic in section.topics() {
+                                        li { class: "topic-row",
+                                            span { "{topic}" }
+                                            span { class: "figure",
+                                                "{Coverage::of_topic(records, profile, log, *topic)}"
+                                            }
+                                        }
                                     }
                                 }
                             }
